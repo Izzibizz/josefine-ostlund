@@ -7,10 +7,6 @@
   font-style: normal;
 }
 
-html, body {
-  background-color: black;
-}
-
 @import "tailwindcss";
 
 @theme {

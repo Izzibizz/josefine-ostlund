@@ -16,7 +16,7 @@ export const LandingPage: React.FC = () => {
   }, [isMobile, isTablet]);
 
   return (
-  <section>
+  <section className="bg-black">
       <video
         autoPlay
         loop

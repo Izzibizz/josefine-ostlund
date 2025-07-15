@@ -100,8 +100,8 @@ export const Header: React.FC = () => {
   return (
     <header
       className={`font-header flex justify-between p-4 tablet:p-6 laptop:px-8 items-center z-70 ${
-        textWhite ? "text-white" : "text-black"
-      } ${isMobile && "justify-end"}`}
+        textWhite ? "text-white" : "text-black bg-white"
+      } ${isMobile && homePage && "justify-end"}`}
     >
       {isMobile ? (
         <>

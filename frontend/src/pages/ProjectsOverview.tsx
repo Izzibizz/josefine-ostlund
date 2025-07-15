@@ -43,7 +43,7 @@ export const ProjectsOverview: React.FC<Props> = ({category}) => {
 
 console.log(projects)
   return (
-     <div className="p-8 space-y-6">
+     <section className="p-8 space-y-6 bg-white">
       <h2 className="font-header uppercase">{category}</h2>
       {projects.map((project) => (
         <div key={project._id} className="border p-4 rounded-xl shadow">
@@ -80,6 +80,6 @@ console.log(projects)
           )}
         </div>
       ))}
-    </div>
+    </section>
   );
 };
