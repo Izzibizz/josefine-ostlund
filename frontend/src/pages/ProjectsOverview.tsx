@@ -25,7 +25,7 @@ export const ProjectsOverview: React.FC = () => {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/projects");
+      const res = await axios.get("https://josefine-ostlund.onrender.com/projects");
       setProjects(res.data.projects);
     } catch (err) {
       console.error("Error fetching projects", err);
