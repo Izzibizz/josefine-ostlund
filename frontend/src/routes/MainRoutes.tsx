@@ -1,26 +1,29 @@
-
 import { Route, Routes } from "react-router-dom";
 import { LandingPage } from "../pages/LandingPage";
-import { ProjectsOverview } from "../pages/ProjectsOverview"
-import { SingleProject } from "../pages/SingleProject"
+import { SingleProject } from "../pages/SingleProject";
 import { NotFound } from "../pages/NotFound";
-import { About } from "../pages/About"
-import { Contact } from "../pages/Contact"
-
+import { About } from "../pages/About";
+import { Contact } from "../pages/Contact"; 
+import { ProjectsOverview } from "../pages/ProjectsOverview";
 
 
 export const MainRoutes: React.FC = () => {
   return (
     <div>
-        <Routes>
-        <Route path="/" element={<LandingPage/>}/>
-        <Route path="/projects" element={<ProjectsOverview/>}/>
-        <Route path="/projects/:id" element={<SingleProject/>} />
-        <Route path="/*" element={<NotFound/>}/>
-        <Route path="/about" element={<About/>}/>
-        <Route path="/contact" element={<Contact/>}/>
-        </Routes>
-    </div>
-  )
-}
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/*" element={<NotFound />} />
+        <Route path="/bio" element={<About />} />
+        <Route path="/kontakt" element={<Contact />} />
 
+        <Route path="/utstallningar" element={<ProjectsOverview category="utställningar" />} />
+        <Route path="/performance" element={<ProjectsOverview category="performance"/>} />
+        <Route path="/skulpturer" element={<ProjectsOverview category="skulpturer"/>} />
+
+        <Route path="/utstallningar/:id" element={<SingleProject />} />
+        <Route path="/performance/:id" element={<SingleProject />} />
+        <Route path="/skulpturer/:id" element={<SingleProject />} />
+      </Routes>
+    </div>
+  );
+};

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+type Props = {
+  category: string;
+}
+
 interface Image {
   url: string;
   public_id: string;
@@ -19,7 +23,7 @@ interface Project {
   video?: Image;
 }
 
-export const ProjectsOverview: React.FC = () => {
+export const ProjectsOverview: React.FC<Props> = ({category}) => {
   const [projects, setProjects] = useState<Project[]>([]);
 
 
@@ -40,6 +44,7 @@ export const ProjectsOverview: React.FC = () => {
 console.log(projects)
   return (
      <div className="p-8 space-y-6">
+      <h2 className="font-header uppercase">{category}</h2>
       {projects.map((project) => (
         <div key={project._id} className="border p-4 rounded-xl shadow">
           <h2 className="text-xl font-header">{project.name}</h2>
