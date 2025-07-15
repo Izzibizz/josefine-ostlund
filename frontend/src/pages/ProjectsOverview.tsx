@@ -42,7 +42,7 @@ console.log(projects)
      <div className="p-8 space-y-6">
       {projects.map((project) => (
         <div key={project._id} className="border p-4 rounded-xl shadow">
-          <h2 className="text-xl font-bold text-red-200">{project.name}</h2>
+          <h2 className="text-xl font-header">{project.name}</h2>
           <p><strong>Year:</strong> {project.year}</p>
           <p><strong>Material:</strong> {project.material}</p>
           <p><strong>Exhibited at:</strong> {project.exhibited_at}</p>

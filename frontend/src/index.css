@@ -1,1 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap");
+
+@font-face {
+  font-family: "matroska";
+  src: url("./assets/fonts/Matroska.ttf") format("Truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
 @import "tailwindcss";
+
+@theme {
+  --font-body: "Mulish", sans-serif;
+  --font-header: "matroska", sans-serif;
+
+  --breakpoint-tablet: 768px;
+  --breakpoint-laptop: 1025px;
+  --breakpoint-desktop: 1280px;
+
+  --color-warm-white: rgb(255 250 243);
+  --color-warm-black: rgb(47 26 14);
+
+  --animate-fadeIn: fadeIn 1s ease-in both;
+  --animate-longFadeIn: fadeIn 2.3s ease-in both;
+  --animate-rotate: rotate 1s ease-in;
+  --animate-banner: banner 10s linear infinite;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
