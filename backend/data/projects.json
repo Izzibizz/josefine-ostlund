@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Echoes of Light",
+    "year": 2022,
+    "material": "Glass, LED, Aluminum",
+    "exhibited_at": "Ljusfestivalen i Göteborg",
+    "description": "En interaktiv ljusinstallation som reagerar på rörelser och ljud från omgivningen. Verket undersöker relationen mellan ljus, kropp och plats.",
+    "category": "sculpture",
+    "images": [
+      { "url": "https://res.cloudinary.com/dxpmuv7p6/image/upload/v1752497008/main-sample.png", "photographer": "Anna Berg", "public_id": "keefewfwwef" },
+      { "url": "https://res.cloudinary.com/dxpmuv7p6/image/upload/v1752497008/main-sample.png", "photographer": "Anna Berg", "public_id": "keeqwrgbf3" },
+      { "url": "https://res.cloudinary.com/dxpmuv7p6/image/upload/v1752497008/main-sample.png", "photographer": "Anna Berg", "public_id": "kee3" }
+    ],
+    "video": {
+      "url": "videos/echoes_of_light.mp4",
+      "photographer": "Lucas Lind",
+      "public_id": "keekoebdkodfb3"
+    }
+  },
+  {
+    "name": "Fractured Memory",
+    "year": 2023,
+    "material": "Betong, Spegelglas, Ljud",
+    "exhibited_at": "Moderna Museet, Malmö",
+    "description": "En rumslig installation som speglar fragmenterade minnesbilder genom brutna reflektioner och ambienta ljudlandskap.",
+     "category": "exhibition",
+    "images": [
+      { "url": "https://res.cloudinary.com/dxpmuv7p6/image/upload/v1752497008/main-sample.png", "photographer": "Elin Nyström", "public_id": "kee3wvvsd" },
+      { "url": "https://res.cloudinary.com/dxpmuv7p6/image/upload/v1752497008/main-sample.png", "photographer": "Elin Nyström", "public_id": "kee3wefewf" }
+    ],
+    "video": {
+      "url": "videos/fractured_memory.mp4",
+      "photographer": "Johan Ek",
+      "public_id": "keervsvd3"
+    }
+  },
+  {
+    "name": "Tactile Horizons",
+    "year": 2021,
+    "material": "Textil, Sensorer, Programmerad Arduino",
+    "exhibited_at": "Tekniska museet, Stockholm",
+    "description": "En taktil karta över känslomässiga landskap, där besökare kan röra vid olika ytor för att aktivera ljud och ljus som motsvarar emotionella stämningar.",
+     "category": "performance",
+    "images": [
+      { "url": "https://res.cloudinary.com/dxpmuv7p6/image/upload/v1752497008/main-sample.png", "photographer": "Nina Forsberg", "public_id": "keenhhnnh3" },
+      { "url": "https://res.cloudinary.com/dxpmuv7p6/image/upload/v1752497008/main-sample.png", "photographer": "Nina Forsberg", "public_id": "kee3orebjr" },
+      { "url": "https://res.cloudinary.com/dxpmuv7p6/image/upload/v1752497008/main-sample.png", "photographer": "Nina Forsberg", "public_id": "kee3wiiwdk" },
+      { "url": "https://res.cloudinary.com/dxpmuv7p6/image/upload/v1752497008/main-sample.png", "photographer": "Nina Forsberg", "public_id": "kee3koavojvd" }
+    ],
+    "video": {
+      "url": "videos/tactile_horizons.mp4",
+      "photographer": "Erik Holm",
+      "public_id": "kee3nsvnsdvin"
+    }
+  }
+]
