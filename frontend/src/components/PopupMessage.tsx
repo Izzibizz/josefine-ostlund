@@ -11,7 +11,6 @@ export const PopupMessage = () => {
     loggedIn,
     loggedOut,
     setShowPopupMessage,
-    showPopupMessage,
     loginError,
     loadingUser,
     setLoginError,

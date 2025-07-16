@@ -66,7 +66,7 @@ export const Login: React.FC = () => {
               className="block text-sm font-medium text-gray-700 mb-2"
             />
             <input
-              type="text"
+              type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

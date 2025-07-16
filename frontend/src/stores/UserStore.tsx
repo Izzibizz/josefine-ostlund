@@ -59,8 +59,10 @@ export const useUserStore = create<UserState>()(
             body: JSON.stringify({ userName, password }),
             headers: { "Content-Type": "application/json" },
           });
-
-          if (!response.ok) throw new Error("could not fetch");
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Login failed");
+          }
 
           const data = await response.json();
 
