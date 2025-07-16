@@ -19,7 +19,8 @@ const port = process.env.PORT || 3000;
 app.use(cors({ origin: [
     "https://josefine-ostlund.netlify.app",
     "https://josefineostlund.se",
-    "https://josefineostlund.com" 
+    "https://josefineostlund.com",
+    "http://localhost:5173"
   ],}));
 app.use(express.json());
 
