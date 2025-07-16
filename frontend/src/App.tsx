@@ -10,7 +10,7 @@ function App() {
   return (
     <>
     <ScrollToTop />
-    <div className="max-w-screen min-h-screen flex flex-col overflow-hidden relative bg-black">
+    <div className="max-w-screen min-h-screen flex flex-col overflow-hidden relative">
       <Header />
       <main className="flex-grow mb-20">
         <MainRoutes />

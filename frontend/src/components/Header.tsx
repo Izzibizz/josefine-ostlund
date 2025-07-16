@@ -149,7 +149,7 @@ export const Header: React.FC = () => {
         </>
       ) : (
         <>
-          <ul className="flex gap-10 text-lg uppercase">
+          <ul className={`flex gap-10 ${homePage? "text-lg" : "text-sm"} uppercase`}>
             {navlinks.map((link) => (
               <NavLink
                 key={link.path}
