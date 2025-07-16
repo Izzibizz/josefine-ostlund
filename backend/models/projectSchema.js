@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
 
-const categoryEnum = ["performance", "skulptur", "utställning"];
+const categoryEnum = ["performance", "skulpturer", "utställningar"];
 
 const mediaSchema = new Schema(
   {

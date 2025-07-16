@@ -4,6 +4,7 @@ import { SingleProject } from "../pages/SingleProject";
 import { NotFound } from "../pages/NotFound";
 import { About } from "../pages/About";
 import { Contact } from "../pages/Contact"; 
+import { Login } from "../pages/Login"
 import { ProjectsOverview } from "../pages/ProjectsOverview";
 
 
@@ -15,6 +16,7 @@ export const MainRoutes: React.FC = () => {
         <Route path="/*" element={<NotFound />} />
         <Route path="/bio" element={<About />} />
         <Route path="/kontakt" element={<Contact />} />
+        <Route path="/login" element={<Login />} />
 
         <Route path="/utstallningar" element={<ProjectsOverview category="utställningar" />} />
         <Route path="/performance" element={<ProjectsOverview category="performance"/>} />

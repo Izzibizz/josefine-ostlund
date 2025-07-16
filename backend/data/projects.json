@@ -23,7 +23,7 @@
     "material": "Lorem, ipsum, dolor",
     "exhibited_at": "Konsthall Väst på Fjället",
     "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat..",
-     "category": "utställning",
+     "category": "utställningar",
     "images": [
       { "url": "https://res.cloudinary.com/dctpyfz60/image/upload/v1752570810/Pincettgreppet_josefine_O%CC%88stlund_s4vque.png", "photographer": "Elin Nyström", "public_id": "Pincettgreppet_josefine_Östlund_s4vque" },
       { "url": "https://res.cloudinary.com/dctpyfz60/image/upload/v1752570604/Ba%CC%88raren_2024_foto_Josefine_O%CC%88stlund_plats_Konsthall_Va%CC%88st_pa%CC%8A_Fja%CC%88llet_9_3mb_vmbqsf.jpg", "photographer": "Elin Nyström", "public_id": "Bäraren_2024_foto_Josefine_Östlund_plats_Konsthall_Väst_på_Fjället_9_3mb_vmbqsf" }
@@ -35,7 +35,7 @@
     "material": "Lorem, ipsum, dolor",
     "exhibited_at": "plats",
     "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat..",
-     "category": "skulptur",
+     "category": "skulpturer",
     "images": [
       { "url": "https://res.cloudinary.com/dctpyfz60/image/upload/v1752570949/H%C3%B6gtryck-josefine-%C3%B6stlund-4_qbwkyj.jpg", "photographer": "Nina Forsberg", "public_id": "Högtryck-josefine-östlund-4_qbwkyj" },
       { "url": "https://res.cloudinary.com/dctpyfz60/image/upload/v1752570946/H%C3%B6gtryck-josefine-%C3%B6stlund-2_kgxcf7.jpg", "photographer": "Nina Forsberg", "public_id": "Högtryck-josefine-östlund-2_kgxcf7" },

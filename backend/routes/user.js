@@ -3,22 +3,14 @@ import express from "express";
 import { authenticateUser } from "../middlewares/authenticateUser.js";
 import { User } from "../models/userSchema.js";
 
-
 const router = express.Router();
 
 //User Endpoints
 
 router.post("/register", async (req, res) => {
   try {
-    const {
-      userName,
-      password
-    } = req.body;
-    console.log(
-      userName,
-      password
-    );
-
+    const { userName, password } = req.body;
+    console.log(userName, password);
 
     if (!userName) {
       return res.status(400).json({ message: "username is required." });
@@ -32,14 +24,13 @@ router.post("/register", async (req, res) => {
         .status(400)
         .json({ message: "Password must be at least 8 characters long." });
     }
-  
-  
 
     //Create a new user
     const user = new User({
       userName: userName,
-      password: bcrypt.hashSync(password, 10),
+      password: password, 
     });
+
     await user.save();
     res.status(201).json({
       message: `Your Registration was successfull ${user.userName}. Please log in now.`,
@@ -59,7 +50,7 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ userName: userName });
 
     if (user) {
-      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+      const isPasswordCorrect = await user.comparePassword(password);
       if (isPasswordCorrect) {
         res.status(202).json({
           message: `You are logged in ${user.userName}.`,
@@ -101,7 +92,8 @@ router.get("/all", async (req, res) => {
   } catch (error) {
     console.error("Get all users endpoint:", error);
     res.status(500).json({
-      message: "Sorry, we couldn't retrieve users at this time. Please try again later.",
+      message:
+        "Sorry, we couldn't retrieve users at this time. Please try again later.",
     });
   }
 });
