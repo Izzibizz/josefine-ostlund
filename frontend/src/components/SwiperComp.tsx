@@ -55,7 +55,7 @@ export const SwiperComp:React.FC<ProjectProps> = ({project, handlePreviewClick})
                   }}
                   effect="fade"
                   modules={[Autoplay]}
-                  className="w-full my-4 h-auto"
+                  className="w-full h-auto"
                 >
                   {project?.images.map((file, index) => (
                     <SwiperSlide key={index}>
@@ -63,10 +63,10 @@ export const SwiperComp:React.FC<ProjectProps> = ({project, handlePreviewClick})
                         <img
                           src={file.url}
                           alt={file.photographer}
-                          className="w-full h-full  object-cover cursor-hollow"
+                          className="w-full h-full aspect-[4/3] object-cover "
                         />
                         <div
-                          className="absolute max-w-full max-h-full inset-0 bg-black opacity-40 group-hover:opacity-0 transition-opacity duration-500 ease-in-out"
+                          className="absolute max-w-full max-h-full inset-0 bg-black opacity-40 group-hover:opacity-0 transition-opacity duration-500 ease-in-out hover:cursor-pointer"
                           onClick={() => handlePreviewClick(file)}
                           onTouchStart={() =>
                             handlePreviewClick(file)
