@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import express from "express";
 import { authenticateUser } from "../middlewares/authenticateUser.js";
 import { User } from "../models/userSchema.js";

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PopupMessage } from "../components/PopupMessage";
 import Lottie from "lottie-react";
-import animation from "../assets/Circle-loading-Animation.json";
+import animation from "../assets/Cosmos.json";
 
 export const Login: React.FC = () => {
   const {
@@ -16,28 +16,27 @@ export const Login: React.FC = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
 
-/*   useEffect(() => {
+ useEffect(() => {
     if (loggedIn) {
       navigate("/");
       setUserName("");
       setPassword("");
     }
-  }, [loggedIn, navigate]); */
+  }, [loggedIn, navigate]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await loginUser(userName, password);
-    console.log("loginUser:", loginUser);
   };
 
-  console.log(loggedIn )
+  console.log(loggedIn, loadingUser )
 
   return (
     <>
       {showPopupMessage && <PopupMessage />}
       <section className="w-full flex animate-fadeIn">
         <form
-          className="w-3/4 tablet:w-1/2 max-w-[400px] bg-white m-auto mt-20 p-8 shadow-md "
+          className="w-3/4 tablet:w-1/2 max-w-[400px] bg-white m-auto mt-[30vh] p-8 shadow-md "
           onSubmit={handleLogin}
         >
           <h2 className="text-2xl mb-6 font-semibold text-center font-heading text-main-dark">
