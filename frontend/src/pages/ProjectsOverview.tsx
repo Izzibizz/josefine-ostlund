@@ -1,48 +1,18 @@
-import { useEffect, useState } from "react";
+/* import { useEffect, useState } from "react"; */
 import { NavLink } from "react-router-dom";
-import axios from "axios";
+import { useProjectStore } from "../stores/ProjectsStore";
 
 type Props = {
   category: string;
 };
 
-interface Image {
-  url: string;
-  public_id: string;
-  photographer?: string;
-}
-
-interface Project {
-  _id: string;
-  name: string;
-  year: number;
-  material: string;
-  exhibited_at: string;
-  category: string;
-  description: string;
-  images: Image[];
-  video?: Image;
-}
 
 export const ProjectsOverview: React.FC<Props> = ({ category }) => {
-  const [projects, setProjects] = useState<Project[]>([]);
+ const projects = useProjectStore((state) => state.projects);
 
-  const fetchProjects = async () => {
-    try {
-      const res = await axios.get(
-        "https://josefine-ostlund.onrender.com/projects"
-      );
-      setProjects(res.data.projects);
-    } catch (err) {
-      console.error("Error fetching projects", err);
-    }
-  };
+  const projectsToDisplay = projects.filter((project) => project.category === category)
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  console.log(projects);
+  console.log(projectsToDisplay);
   return (
     <section className="w-11/12 laptop:w-10/12 mx-auto pt-24 laptop:pt-40 gap-10 bg-white flex flex-col">
       <h2 className="font-header uppercase text-lg self-end">{category}</h2>

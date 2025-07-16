@@ -2,10 +2,17 @@ import { Header } from "./components/Header"
 import { MainRoutes } from "./routes/MainRoutes";
 import { Footer } from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
+import { useProjectStore } from "./stores/ProjectsStore"; 
+import { useEffect } from "react"
 
 
 function App() {
 
+  const fetchProjects = useProjectStore((state) => state.fetchProjects);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   return (
     <>
