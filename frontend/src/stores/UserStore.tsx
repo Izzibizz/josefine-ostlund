@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { PersistOptions } from "zustand/middleware";
 
 interface UserState {
   loggedIn: boolean;
@@ -22,8 +23,10 @@ interface UserState {
   loginUser: (userName: string, password: string) => Promise<void>;
 }
 
+type UserStorePersist = PersistOptions<UserState>;
+
 export const useUserStore = create<UserState>()(
-  persist(
+  persist<UserState>(
     (set) => ({
       loggedIn: false,
       loggedOut: false,
@@ -38,7 +41,7 @@ export const useUserStore = create<UserState>()(
       loginMessage: "",
 
       setLoggedIn: () => set({ loggedIn: true, loggedOut: false }),
-      setShowPopupMessage: (input: boolean) => set({ showPopupMessage: input }),
+      setShowPopupMessage: (input) => set({ showPopupMessage: input }),
       setLoggedOut: () =>
         set({
           loggedOut: true,
@@ -48,9 +51,9 @@ export const useUserStore = create<UserState>()(
           loginMessage: "",
           showPopupMessage: true,
         }),
-      setLoginError: (input: boolean) => set({ loginError: input }),
+      setLoginError: (input) => set({ loginError: input }),
 
-      loginUser: async (userName: string, password: string) => {
+      loginUser: async (userName, password) => {
         set({ loadingUser: true, loginError: false, loggedIn: false });
         const URL_login = "https://josefine-ostlund.onrender.com/users/login";
         try {
@@ -59,6 +62,7 @@ export const useUserStore = create<UserState>()(
             body: JSON.stringify({ userName, password }),
             headers: { "Content-Type": "application/json" },
           });
+
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || "Login failed");
@@ -76,7 +80,7 @@ export const useUserStore = create<UserState>()(
               showPopupMessage: true,
             });
           }
-        } catch (error) {
+        } catch (error: unknown) {
           console.error("error in login:", error);
           set({ loginError: true, showPopupMessage: true });
         } finally {
@@ -86,6 +90,6 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: "User-storage",
-    }
+    } as UserStorePersist
   )
 );
