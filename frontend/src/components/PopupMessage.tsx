@@ -1,10 +1,10 @@
 import { useUserStore } from "../stores/UserStore";
 /* import { useProjectStore } from "../stores/ProjectsStore"; */
 import { useEffect } from "react";
-/* import Lottie from "lottie-react";
-import greenAnimation from "../assets/Animation-green-done.json";
-import redAnimation from "../assets/fail-animation.json";
-import loadingAnimation from "../assets/Circle-loading-Animation.json" */
+import Lottie from "lottie-react";
+import greenAnimation from "../assets/Animation-green-done.json"  with { type: "json" };
+import redAnimation from "../assets/fail-animation.json"  with { type: "json" };
+import loadingAnimation from "../assets/Circle-loading-Animation.json"  with { type: "json" };
 
 export const PopupMessage = () => {
   const {
@@ -12,7 +12,7 @@ export const PopupMessage = () => {
     loggedOut,
     setShowPopupMessage,
     loginError,
-/*     loadingUser, */
+    loadingUser,
     setLoginError,
   } = useUserStore();
 /*   const {
@@ -61,12 +61,12 @@ export const PopupMessage = () => {
     setDeleteValidationProcess(false)
   } */
 
-/*   const getAnimation = () => {
-    if (loginError || uploadError || deleteError, editError ) return redAnimation;
-     if (/loadingDelete || loadingUser) return loadingAnimation; 
+  const getAnimation = () => {
+    if (loginError /* || uploadError || deleteError, editError */) return redAnimation;
+     if (/* loadingDelete || */ loadingUser) return loadingAnimation; 
     return greenAnimation;
   };
- */
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -96,12 +96,12 @@ export const PopupMessage = () => {
            <div className="flex gap-8"><button type="button" className="bg-peach hover:bg-main-dark p-2 px-4 rounded-xl text-main-white" onClick={()=> confirmDelete()}>Yes</button>
           <button type="button" className="bg-peach hover:bg-main-dark p-2 px-4 rounded-xl text-main-white" onClick={()=> abortDelete()}>No</button></div>
         ) : ( */}
-         {/*  <Lottie
+          <Lottie
             animationData={getAnimation()}
             loop={false}
             autoPlay
             style={{ width: 100, height: 100 }}
-          /> */}
+          />
       {/*   )} */}
       </div>
     </div>
