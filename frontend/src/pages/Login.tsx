@@ -11,6 +11,7 @@ export const Login: React.FC = () => {
     loggedIn,
     loadingUser,
     showPopupMessage,
+    accessToken
   } = useUserStore();
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
@@ -29,7 +30,7 @@ export const Login: React.FC = () => {
     await loginUser(userName, password);
   };
 
-  console.log(loggedIn, loadingUser )
+  console.log(loggedIn, loadingUser, accessToken )
 
   return (
     <>
