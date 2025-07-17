@@ -11,11 +11,21 @@ export const Login: React.FC = () => {
     loggedIn,
     loadingUser,
     showPopupMessage,
-    accessToken
+    accessToken,
+    setShowPopupMessage,
+    setLoggedOut
   } = useUserStore();
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+
+    const handleLogOut = () => {
+    setShowPopupMessage(true);
+    setLoggedOut();
+    setTimeout(() => {
+      navigate("/");
+    }, 2000);
+  };
 
  useEffect(() => {
     if (loggedIn) {
@@ -35,15 +45,22 @@ export const Login: React.FC = () => {
   return (
     <>
       {showPopupMessage && <PopupMessage />}
-      <section className="w-full flex animate-fadeIn">
+      <section className="w-full flex animate-fadeIn h-screen flex-flex-col">
+   
         <form
           className="w-3/4 tablet:w-1/2 max-w-[400px] bg-white m-auto mt-[30vh] p-8 shadow-md "
           onSubmit={handleLogin}
         >
+                <button
+            onClick={handleLogOut}
+            className="p-2 h-10 bg-black rounded-2xl text-white font-body"
+          >
+            Log out
+          </button>
           <h2 className="text-2xl mb-6 font-semibold text-center font-heading text-main-dark">
             Login
           </h2>
-
+    
           <div className="mb-4 font-body">
             <label
               htmlFor="user"
