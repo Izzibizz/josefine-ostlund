@@ -2,8 +2,8 @@ import { useUserStore } from "../stores/UserStore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PopupMessage } from "../components/PopupMessage";
-import Lottie from "lottie-react";
-import animation from "../assets/Cosmos.json";
+/* import Lottie from "lottie-react";
+import animation from "../assets/Cosmos.json"; */
 
 export const Login: React.FC = () => {
   const {
@@ -80,12 +80,12 @@ export const Login: React.FC = () => {
           </div>
           {loadingUser ? (
             <div className="w-full flex justify-center items-center">
-              <Lottie
+             {/*  <Lottie
                 animationData={animation}
                 loop
                 autoPlay
                 style={{ width: 50, height: 50 }}
-              />
+              /> */}
             </div>
           ) : (
             <button
