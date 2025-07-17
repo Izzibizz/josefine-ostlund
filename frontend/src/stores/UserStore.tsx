@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { PersistOptions } from "zustand/middleware";
 
 interface UserState {
   loggedIn: boolean;
@@ -23,11 +22,9 @@ interface UserState {
   loginUser: (userName: string, password: string) => Promise<void>;
 }
 
-type UserStorePersist = PersistOptions<UserState>;
-
 export const useUserStore = create<UserState>()(
-  persist<UserState>(
-    (set) => ({
+  persist(
+    (set): UserState => ({
       loggedIn: false,
       loggedOut: false,
       showPopupMessage: false,
@@ -41,7 +38,8 @@ export const useUserStore = create<UserState>()(
       loginMessage: "",
 
       setLoggedIn: () => set({ loggedIn: true, loggedOut: false }),
-      setShowPopupMessage: (input) => set({ showPopupMessage: input }),
+      setShowPopupMessage: (input: boolean) =>
+        set({ showPopupMessage: input }),
       setLoggedOut: () =>
         set({
           loggedOut: true,
@@ -51,11 +49,12 @@ export const useUserStore = create<UserState>()(
           loginMessage: "",
           showPopupMessage: true,
         }),
-      setLoginError: (input) => set({ loginError: input }),
+      setLoginError: (input: boolean) => set({ loginError: input }),
 
-      loginUser: async (userName, password) => {
+      loginUser: async (userName: string, password: string) => {
         set({ loadingUser: true, loginError: false, loggedIn: false });
         const URL_login = "https://josefine-ostlund.onrender.com/users/login";
+
         try {
           const response = await fetch(URL_login, {
             method: "POST",
@@ -80,7 +79,7 @@ export const useUserStore = create<UserState>()(
               showPopupMessage: true,
             });
           }
-        } catch (error: unknown) {
+        } catch (error) {
           console.error("error in login:", error);
           set({ loginError: true, showPopupMessage: true });
         } finally {
@@ -90,6 +89,6 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: "User-storage",
-    } as UserStorePersist
+    }
   )
 );
