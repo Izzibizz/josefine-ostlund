@@ -10,38 +10,39 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   try {
     const { userName, password } = req.body;
-    console.log(userName, password);
 
     if (!userName) {
-      return res.status(400).json({ message: "username is required." });
+      return res.status(400).json({ message: "Username is required." });
     }
     if (!password) {
       return res.status(400).json({ message: "Password is required." });
     }
-
     if (password.length < 8) {
       return res
         .status(400)
         .json({ message: "Password must be at least 8 characters long." });
     }
 
-    //Create a new user
+    // Create a new user WITHOUT accessToken
     const user = new User({
-      userName: userName,
-      password: password, 
+      userName,
+      password,
+      // don't set accessToken here
     });
 
     await user.save();
+
     res.status(201).json({
-      message: `Your Registration was successfull ${user.userName}. Please log in now.`,
+      message: `Your registration was successful, ${user.userName}. Please log in now.`,
       id: user._id,
-      accessToken: user.accessToken,
+      // don't send accessToken here
     });
   } catch (error) {
     console.error("Register Endpoint", error);
     res.status(400).json({ message: "Could not register user." });
   }
 });
+
 
 router.post("/login", async (req, res) => {
   try {
