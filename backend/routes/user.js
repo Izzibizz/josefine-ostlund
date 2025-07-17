@@ -1,6 +1,7 @@
 import express from "express";
 import { authenticateUser } from "../middlewares/authenticateUser.js";
 import { User } from "../models/userSchema.js";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
@@ -51,10 +52,15 @@ router.post("/login", async (req, res) => {
     if (user) {
       const isPasswordCorrect = await user.comparePassword(password);
       if (isPasswordCorrect) {
+        // 🔐 Skapa JWT-token här:
+        const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+          expiresIn: "24h", // eller längre
+        });
+
         res.status(202).json({
           message: `You are logged in ${user.userName}.`,
           id: user._id,
-          accessToken: user.accessToken,
+          accessToken: accessToken,
         });
       } else {
         res.status(401).json({ message: "This password is incorrect." });
