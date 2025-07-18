@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PopupMessage } from "../components/PopupMessage";
 import Lottie from "lottie-react";
-import animation from "../assets/Cosmos.json" with { type: "json" };
+import animation from "../assets/Cosmos.json";
 
 export const Login: React.FC = () => {
   const {
@@ -16,6 +16,7 @@ export const Login: React.FC = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const animationClone = JSON.parse(JSON.stringify(animation));
 
  useEffect(() => {
     if (loggedIn) {
@@ -81,7 +82,7 @@ export const Login: React.FC = () => {
           {loadingUser ? (
             <div className="w-full flex justify-center items-center">
              <Lottie
-                animationData={animation}
+                animationData={animationClone}
                 loop
                 autoPlay
                 style={{ width: 50, height: 50 }}

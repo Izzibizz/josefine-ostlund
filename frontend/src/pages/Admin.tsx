@@ -26,7 +26,7 @@ export const Admin: React.FC = () => {
   return (
     <>
       {showPopupMessage && <PopupMessage />}
-      <section className="w-full h-full mt-40 w-11/12 laptop:w-9/12 mx-auto">
+      <section className=" mt-40 w-11/12 laptop:w-9/12 mx-auto">
         <div className=" flex justify-between">
           <h2 className="text-2xl mb-6 font-header text-black">Admin</h2>
                        <button

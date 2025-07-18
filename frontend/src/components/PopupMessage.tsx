@@ -2,9 +2,9 @@ import { useUserStore } from "../stores/UserStore";
 /* import { useProjectStore } from "../stores/ProjectsStore"; */
 import { useEffect } from "react";
 import Lottie from "lottie-react";
-import greenAnimation from "../assets/Animation-green-done.json"  with { type: "json" };
-import redAnimation from "../assets/fail-animation.json"  with { type: "json" };
-import loadingAnimation from "../assets/Circle-loading-Animation.json"  with { type: "json" };
+import greenAnimation from "../assets/Animation-green-done.json";
+import redAnimation from "../assets/fail-animation.json";
+import loadingAnimation from "../assets/Circle-loading-Animation.json"
 
 export const PopupMessage = () => {
   const {
@@ -32,6 +32,10 @@ export const PopupMessage = () => {
     setEditSuccessful,
     setEditError,
   } = useProjectStore(); */
+
+  const animationCloneGreen = JSON.parse(JSON.stringify(greenAnimation));
+  const animationCloneRed = JSON.parse(JSON.stringify(redAnimation));
+  const animationCloneLoad = JSON.parse(JSON.stringify(loadingAnimation));
 
 
   const getMessage = () => {
@@ -62,9 +66,9 @@ export const PopupMessage = () => {
   } */
 
   const getAnimation = () => {
-    if (loginError /* || uploadError || deleteError, editError */) return redAnimation;
-     if (/* loadingDelete || */ loadingUser) return loadingAnimation; 
-    return greenAnimation;
+    if (loginError /* || uploadError || deleteError, editError */) return animationCloneRed;
+     if (/* loadingDelete || */ loadingUser) return animationCloneLoad; 
+    return animationCloneGreen;
   };
 
   useEffect(() => {
