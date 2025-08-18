@@ -7,7 +7,7 @@ export const LandingPage: React.FC = () => {
 
       useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024)
+      setIsMobile(window.innerWidth < 768)
       setIsTablet(window.innerWidth > 767 && window.innerWidth < 1025)
     };
 

@@ -2,7 +2,6 @@ import cors from "cors";
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import documentationRoutes from "./routes/documentation.js";
 import projectRoutes from "./routes/projects.js";
 import userRoutes from "./routes/user.js";
 import aboutRoutes from "./routes/about.js"
@@ -33,7 +32,7 @@ app.use("/projects", projectRoutes);
 app.use("/users", userRoutes);
 app.use("/about", aboutRoutes);
 app.use("/contact", contactRoutes);
-app.use("/", documentationRoutes);
+
 
 // Start servern
 app.listen(port, () => {
