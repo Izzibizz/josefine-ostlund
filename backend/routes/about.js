@@ -1,9 +1,12 @@
 import express from "express";
 import About from "../models/aboutSchema.js";
+import cloudinary from "../config/cloudinaryConfig.js";
+import multer from "multer";
 
 const router = express.Router();
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-// Hämta det enda About-dokumentet
 router.get("/", async (req, res) => {
   try {
     const about = await About.findOne();
@@ -13,7 +16,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Uppdatera About (utan id)
 router.patch("/", async (req, res) => {
   try {
     const updated = await About.findOneAndUpdate(
@@ -32,7 +34,6 @@ router.patch("/", async (req, res) => {
   }
 });
 
-// Lägg till en utställning
 router.post("/utstallningar", async (req, res) => {
   try {
     const about = await About.findOne();
@@ -47,7 +48,6 @@ router.post("/utstallningar", async (req, res) => {
   }
 });
 
-// Ta bort en utställning
 router.delete("/utstallningar/:exhibitionId", async (req, res) => {
   try {
     const { exhibitionId } = req.params;
@@ -65,7 +65,6 @@ router.delete("/utstallningar/:exhibitionId", async (req, res) => {
   }
 });
 
-// Lägg till ett stipendium
 router.post("/stipendier", async (req, res) => {
   try {
     const about = await About.findOne();
@@ -80,7 +79,6 @@ router.post("/stipendier", async (req, res) => {
   }
 });
 
-// Ta bort ett stipendium
 router.delete("/stipendier/:scholarshipId", async (req, res) => {
   try {
     const { scholarshipId } = req.params;
@@ -98,5 +96,32 @@ router.delete("/stipendier/:scholarshipId", async (req, res) => {
   }
 });
 
-export default router;
+router.patch("/image", upload.single("image"), async (req, res) => {
+  try {
+    const about = await About.findOne(); // hämtar ditt enda about-dokument
+    if (!about) return res.status(404).json({ message: "About not found" });
 
+    // Radera tidigare bild från Cloudinary om det finns
+    if (about.imagePublicId) {
+      await cloudinary.uploader.destroy(about.imagePublicId);
+    }
+
+    // Ladda upp ny bild till Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "about",
+    });
+
+    // Spara ny bild-url och publicId i dokumentet
+    about.imageUrl = result.secure_url;
+    about.imagePublicId = result.public_id;
+    await about.save();
+
+    res.json({ message: "Image updated", imageUrl: result.secure_url });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+export default router;

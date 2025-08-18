@@ -1,6 +1,27 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+interface Exhibition {
+  place: string;
+  city?: string | null;
+  year?: number | null;
+  type?: string;
+  with?: string;
+}
+
+interface Scholarship {
+  name: string;
+  year?: number | null;
+}
+
+interface About {
+  bio_1: string;
+  bio_2: string;
+  exhibitions: Exhibition[];
+  scholarships: Scholarship[];
+  image: string;
+}
+
 interface UserState {
   loggedIn: boolean;
   loggedOut: boolean;
@@ -13,13 +34,20 @@ interface UserState {
   signedUp: boolean;
   signupMessage: string;
   loginMessage: string;
+  bio: string;
+  about: About;
 
-  // Actions
   setLoggedIn: () => void;
   setLoggedOut: () => void;
   setShowPopupMessage: (input: boolean) => void;
   setLoginError: (input: boolean) => void;
   loginUser: (userName: string, password: string) => Promise<void>;
+  fetchAbout: () => Promise<void>;
+  patchAbout: (data: Partial<About>) => Promise<void>;
+  patchExhibition: (updatedExh: Exhibition, index: number) => Promise<void>;
+  deleteExhibition: (index: number) => Promise<void>;
+  patchScholarship: (updatedSch: Scholarship, index: number) => Promise<void>;
+  deleteScholarship: (index: number) => Promise<void>;
 }
 
 export const useUserStore = create<UserState>()(
@@ -36,10 +64,17 @@ export const useUserStore = create<UserState>()(
       signedUp: false,
       signupMessage: "",
       loginMessage: "",
+      bio: "",
+      about: {
+        bio_1: "",
+        bio_2: "",
+        exhibitions: [],
+        scholarships: [],
+        image: "",
+      },
 
       setLoggedIn: () => set({ loggedIn: true, loggedOut: false }),
-      setShowPopupMessage: (input: boolean) =>
-        set({ showPopupMessage: input }),
+      setShowPopupMessage: (input: boolean) => set({ showPopupMessage: input }),
       setLoggedOut: () =>
         set({
           loggedOut: true,
@@ -84,6 +119,99 @@ export const useUserStore = create<UserState>()(
           set({ loginError: true, showPopupMessage: true });
         } finally {
           set({ loadingUser: false });
+        }
+      },
+      fetchAbout: async () => {
+        try {
+          const response = await fetch(
+            "https://josefine-ostlund.onrender.com/about"
+          );
+          if (!response.ok) throw new Error("Failed to fetch about");
+          const data: About = await response.json();
+          set({ about: data, bio: data.bio_1 });
+        } catch (error) {
+          console.error("Error fetching about:", error);
+        }
+      },
+      patchAbout: async (data) => {
+        try {
+          const response = await fetch(
+            "https://josefine-ostlund.onrender.com/about",
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            }
+          );
+          if (!response.ok) throw new Error("Failed to update about");
+          const updated: About = await response.json();
+          set({ about: updated });
+        } catch (error) {
+          console.error(error);
+        }
+      },
+
+      patchExhibition: async (updatedExh, index) => {
+        try {
+          const response = await fetch(
+            `https://josefine-ostlund.onrender.com/about/exhibitions/${index}`,
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updatedExh),
+            }
+          );
+          if (!response.ok) throw new Error("Failed to update exhibition");
+          const updated: About = await response.json();
+          set({ about: updated });
+        } catch (error) {
+          console.error(error);
+        }
+      },
+
+      deleteExhibition: async (index) => {
+        try {
+          const response = await fetch(
+            `https://josefine-ostlund.onrender.com/about/exhibitions/${index}`,
+            { method: "DELETE" }
+          );
+          if (!response.ok) throw new Error("Failed to delete exhibition");
+          const updated: About = await response.json();
+          set({ about: updated });
+        } catch (error) {
+          console.error(error);
+        }
+      },
+
+      patchScholarship: async (updatedSch, index) => {
+        try {
+          const response = await fetch(
+            `https://josefine-ostlund.onrender.com/about/scholarships/${index}`,
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(updatedSch),
+            }
+          );
+          if (!response.ok) throw new Error("Failed to update scholarship");
+          const updated: About = await response.json();
+          set({ about: updated });
+        } catch (error) {
+          console.error(error);
+        }
+      },
+
+      deleteScholarship: async (index) => {
+        try {
+          const response = await fetch(
+            `https://josefine-ostlund.onrender.com/about/scholarships/${index}`,
+            { method: "DELETE" }
+          );
+          if (!response.ok) throw new Error("Failed to delete scholarship");
+          const updated: About = await response.json();
+          set({ about: updated });
+        } catch (error) {
+          console.error(error);
         }
       },
     }),

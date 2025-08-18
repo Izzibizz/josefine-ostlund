@@ -27,6 +27,7 @@
       { "place": "Konsthall Väst på Fjället", "city": null, "year": 2025 },
       { "place": "Galleri Alva", "city": "Umeå", "year": 2026, "type": "solo" }
     ],
-    "scholarships": [{ "name": "Åke Andrén stiftelse stipendium", "year": 2024 }]
+    "scholarships": [{ "name": "Åke Andrén stiftelse stipendium", "year": 2024 }],
+    "image": "https://res.cloudinary.com/dctpyfz60/image/upload/v1752570553/josefine-ostlund-konstnar-performance_aas63q.png"
   }
 ]
