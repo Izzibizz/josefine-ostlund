@@ -27,6 +27,6 @@
       { "place": "Konsthall Väst på Fjället", "city": null, "year": 2025 },
       { "place": "Galleri Alva", "city": "Umeå", "year": 2026, "type": "solo" }
     ],
-    "scholarships": [{ "namn": "Åke Andrén stiftelse stipendium", "year": 2024 }]
+    "scholarships": [{ "name": "Åke Andrén stiftelse stipendium", "year": 2024 }]
   }
 ]

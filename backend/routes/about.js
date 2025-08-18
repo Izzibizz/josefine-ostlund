@@ -1,10 +1,9 @@
-
 import express from "express";
 import About from "../models/aboutSchema.js";
 
 const router = express.Router();
 
-
+// Hämta det enda About-dokumentet
 router.get("/", async (req, res) => {
   try {
     const about = await About.findOne();
@@ -14,12 +13,11 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.patch("/:id", async (req, res) => {
+// Uppdatera About (utan id)
+router.patch("/", async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const updated = await About.findByIdAndUpdate(
-      id,
+    const updated = await About.findOneAndUpdate(
+      {},
       { $set: req.body },
       { new: true }
     );
@@ -34,11 +32,10 @@ router.patch("/:id", async (req, res) => {
   }
 });
 
-router.post("/:id/utstallningar", async (req, res) => {
+// Lägg till en utställning
+router.post("/utstallningar", async (req, res) => {
   try {
-    const { id } = req.params;
-    const about = await About.findById(id);
-
+    const about = await About.findOne();
     if (!about) return res.status(404).json({ message: "About ej hittad" });
 
     about.utställningar.push(req.body);
@@ -50,12 +47,11 @@ router.post("/:id/utstallningar", async (req, res) => {
   }
 });
 
-
-router.delete("/:id/utstallningar/:exhibitionId", async (req, res) => {
+// Ta bort en utställning
+router.delete("/utstallningar/:exhibitionId", async (req, res) => {
   try {
-    const { id, exhibitionId } = req.params;
-
-    const about = await About.findById(id);
+    const { exhibitionId } = req.params;
+    const about = await About.findOne();
     if (!about) return res.status(404).json({ message: "About ej hittad" });
 
     about.utställningar = about.utställningar.filter(
@@ -69,11 +65,10 @@ router.delete("/:id/utstallningar/:exhibitionId", async (req, res) => {
   }
 });
 
-router.post("/:id/stipendier", async (req, res) => {
+// Lägg till ett stipendium
+router.post("/stipendier", async (req, res) => {
   try {
-    const { id } = req.params;
-    const about = await About.findById(id);
-
+    const about = await About.findOne();
     if (!about) return res.status(404).json({ message: "About ej hittad" });
 
     about.stipendier.push(req.body);
@@ -85,11 +80,11 @@ router.post("/:id/stipendier", async (req, res) => {
   }
 });
 
-router.delete("/:id/stipendier/:scholarshipId", async (req, res) => {
+// Ta bort ett stipendium
+router.delete("/stipendier/:scholarshipId", async (req, res) => {
   try {
-    const { id, scholarshipId } = req.params;
-
-    const about = await About.findById(id);
+    const { scholarshipId } = req.params;
+    const about = await About.findOne();
     if (!about) return res.status(404).json({ message: "About ej hittad" });
 
     about.stipendier = about.stipendier.filter(
@@ -104,3 +99,4 @@ router.delete("/:id/stipendier/:scholarshipId", async (req, res) => {
 });
 
 export default router;
+
