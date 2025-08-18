@@ -1,8 +1,14 @@
 // seedDatabase.js
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import Project from "./models/projectSchema.js";
-import projectData from "./data/projects.json";
+
+import Contact from "./models/contactSchema.js";
+import About from "./models/aboutSchema.js";
+
+import { readFileSync } from "fs";
+
+const aboutData = JSON.parse(readFileSync(new URL("./data/about.json", import.meta.url)));
+const contactData = JSON.parse(readFileSync(new URL("./data/contact.json", import.meta.url)));
 
 dotenv.config();
 
@@ -12,8 +18,12 @@ mongoose.Promise = Promise;
 
 const seedDatabase = async () => {
   try {
-    await Project.deleteMany();
-    await Project.insertMany(projectData);
+    await About.deleteMany();
+    await Contact.deleteMany();
+
+    await About.insertMany(aboutData);
+    await Contact.insertMany(contactData);
+
     console.log("Database seeded successfully!");
   } catch (err) {
     console.error("Error seeding database:", err);

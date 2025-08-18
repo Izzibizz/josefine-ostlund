@@ -3,12 +3,15 @@ import { MainRoutes } from "./routes/MainRoutes";
 import { Footer } from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import { useProjectStore } from "./stores/ProjectsStore"; 
+import { useUserStore } from "./stores/UserStore";
 import { useEffect } from "react"
+import { AdminFooter } from "./components/AdminFooter";
 
 
-function App() {
+const App = () => {
 
-  const fetchProjects = useProjectStore((state) => state.fetchProjects);
+const fetchProjects = useProjectStore((state) => state.fetchProjects);
+const { loggedIn } = useUserStore()
 
   useEffect(() => {
     fetchProjects();
@@ -22,6 +25,7 @@ function App() {
       <main className="flex-grow mb-20">
         <MainRoutes />
       </main>
+      {loggedIn && <AdminFooter />}
       <Footer />
     </div>
     </>

@@ -11,9 +11,9 @@ type Props = {
 
 export const ProjectsOverview: React.FC<Props> = ({ category }) => {
   const projects = useProjectStore((state) => state.projects);
-  const projectsToDisplay = projects.filter(
-    (project) => project.category === category
-  );
+const projectsToDisplay = projects
+  .filter((project) => project.category === category)
+  .sort((a, b) => b.year - a.year);
 
   const [isLaptop, setIsLaptop] = useState(window.innerWidth > 1024);
   const categories = ["utställningar", "performance", "skulpturer"];

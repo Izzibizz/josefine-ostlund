@@ -1,0 +1,32 @@
+[
+  {
+    "bio_1": "Josefine Östlund (f.1990 Eskilstuna) är baserad i Umeå och arbetar med skulptur, video och performance. Östlund tog sin masterexamen vid Umeå Konsthögskola 2020 och presenterade separatutställningar på Konsthall Väst på fjället 2024, samt Prins Eugene Waldemarsudde, Stockholm 2024.",
+    "bio_2": "Med otympliga rester och material som människans våldsamma framfart lämnar i sin omgivning, på så väl kalhyggen som byggarbetsplaceer, skapar Josefine Östlund intresseväckande och innovativa storskaliga skulpturer, performance och videor. Med hjälp av sin kropp och i samarbete med industri- och maskinföretag, undersöker hon och tillvaratar såväl rörelsen och kraften som oljudet av transformationen på ett fascinerande sätt. Josefines skulpturer bestyear av skrotmaterial från skövlad skog och demolerade byggnader. Hon kombinerar uppslitna trädrötter med industriella skrotmaterial som asfalt, betong och metall. Materialet har slitits isär, krossats och knuffats på. Skulpturerna talar om det maskinella våldet i landskapet och är födda ur dramatiken på dess ursprungsplaceer. Fram träder också något som kan upplevas mycket kroppsligt och levande.",
+    "exhibitions": [
+      { "place": "Bildmuseet", "city": "Umeå", "year": 2022 },
+      { "place": "V-Z-O-R Artspace", "city": "Berlin", "year": null },
+      {
+        "place": "Museum Of Modern Art",
+        "city": "Skopje, Makedonien",
+        "year": 2023
+      },
+      { "place": "Liljevalchs konsthall", "city": "Stockholm", "year": 2024 },
+      {
+        "place": "Gallery Steinsland Berliner",
+        "city": "Stockholm",
+        "year": 2024
+      },
+      {
+        "place": "Umeå Konsthall",
+        "city": "Umeå",
+        "year": 2025,
+        "type": "duo",
+        "with": "Gerd Aurell"
+      },
+      { "place": "Galleri Syster", "city": "Luleå", "year": 2025 },
+      { "place": "Konsthall Väst på Fjället", "city": null, "year": 2025 },
+      { "place": "Galleri Alva", "city": "Umeå", "year": 2026, "type": "solo" }
+    ],
+    "scholarships": [{ "namn": "Åke Andrén stiftelse stipendium", "year": 2024 }]
+  }
+]

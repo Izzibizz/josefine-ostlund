@@ -20,7 +20,7 @@ export const Login: React.FC = () => {
 
  useEffect(() => {
     if (loggedIn) {
-      navigate("/");
+      navigate("/admin");
       setUserName("");
       setPassword("");
     }
