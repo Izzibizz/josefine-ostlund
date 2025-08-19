@@ -22,6 +22,13 @@ interface About {
   image: string;
 }
 
+interface Contact {
+  telefon: string;
+  mail: string;
+  instagram: string;
+  cv: string;
+}
+
 interface UserState {
   loggedIn: boolean;
   loggedOut: boolean;
@@ -34,9 +41,13 @@ interface UserState {
   signedUp: boolean;
   signupMessage: string;
   loginMessage: string;
-  bio: string;
   about: About;
+  contact: Contact[];
+  editMode: boolean;
+  loadingEdit: boolean;
+  success: boolean;
 
+  setEditMode: (value: boolean) => void;
   setLoggedIn: () => void;
   setLoggedOut: () => void;
   setShowPopupMessage: (input: boolean) => void;
@@ -48,6 +59,8 @@ interface UserState {
   deleteExhibition: (index: number) => Promise<void>;
   patchScholarship: (updatedSch: Scholarship, index: number) => Promise<void>;
   deleteScholarship: (index: number) => Promise<void>;
+  fetchContact: () => Promise<void>;
+  patchContact: (data: Partial<Contact>) => Promise<void>;
 }
 
 export const useUserStore = create<UserState>()(
@@ -64,7 +77,6 @@ export const useUserStore = create<UserState>()(
       signedUp: false,
       signupMessage: "",
       loginMessage: "",
-      bio: "",
       about: {
         bio_1: "",
         bio_2: "",
@@ -72,7 +84,19 @@ export const useUserStore = create<UserState>()(
         scholarships: [],
         image: "",
       },
+      contact: [
+        {
+          telefon: "",
+          mail: "",
+          instagram: "",
+          cv: "",
+        },
+      ],
+      editMode: false,
+      loadingEdit: false,
+      success: false,
 
+      setEditMode: (value) => set({ editMode: value }),
       setLoggedIn: () => set({ loggedIn: true, loggedOut: false }),
       setShowPopupMessage: (input: boolean) => set({ showPopupMessage: input }),
       setLoggedOut: () =>
@@ -128,7 +152,7 @@ export const useUserStore = create<UserState>()(
           );
           if (!response.ok) throw new Error("Failed to fetch about");
           const data: About = await response.json();
-          set({ about: data, bio: data.bio_1 });
+          set({ about: data });
         } catch (error) {
           console.error("Error fetching about:", error);
         }
@@ -212,6 +236,39 @@ export const useUserStore = create<UserState>()(
           set({ about: updated });
         } catch (error) {
           console.error(error);
+        }
+      },
+      fetchContact: async () => {
+        try {
+          const response = await fetch(
+            "https://josefine-ostlund.onrender.com/contact"
+          );
+          if (!response.ok) throw new Error("Failed to fetch contact");
+          const data: Contact[] = await response.json();
+          set({ contact: data });
+        } catch (error) {
+          console.error("Error fetching about:", error);
+        }
+      },
+      patchContact: async (data) => {
+        set({ loadingEdit: true, success: false });
+        try {
+          const response = await fetch(
+            `https://josefine-ostlund.onrender.com/contact`,
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            }
+          );
+          if (!response.ok) throw new Error("Failed to update about");
+          const updated: Contact[] = await response.json();
+          set({ contact: updated, success: true, loadingEdit: false });
+        } catch (error) {
+          console.error(error);
+          set({ success: false });
+        } finally {
+          set({ loadingEdit: false });
         }
       },
     }),

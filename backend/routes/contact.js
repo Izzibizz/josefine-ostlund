@@ -12,18 +12,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.patch("/:id", async (req, res) => {
+router.patch("/", async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const updatedContact = await Contact.findByIdAndUpdate(
-      id,
-      { $set: req.body },
-      { new: true } 
+    const updatedContact = await Contact.findOneAndUpdate(
+      {},                 
+      { $set: req.body }, 
+      { new: true }     
     );
 
     if (!updatedContact) {
-      return res.status(404).json({ message: "Kontakt ej hittad" });
+      return res.status(404).json({ message: "Ingen kontakt hittad" });
     }
 
     res.json(updatedContact);

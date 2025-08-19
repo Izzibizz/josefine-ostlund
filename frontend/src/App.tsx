@@ -6,6 +6,7 @@ import { useProjectStore } from "./stores/ProjectsStore";
 import { useUserStore } from "./stores/UserStore";
 import { useEffect } from "react"
 import { AdminFooter } from "./components/AdminFooter";
+import { EditModeResetter } from "./components/EditModeResetter";
 
 
 const App = () => {
@@ -20,6 +21,7 @@ const { loggedIn } = useUserStore()
   return (
     <>
     <ScrollToTop />
+    <EditModeResetter/>
     <div className="max-w-screen min-h-screen flex flex-col overflow-hidden relative">
       <Header />
       <main className="flex-grow mb-20">

@@ -53,7 +53,7 @@ export const SingleProject: React.FC = () => {
 
   console.log();
   return (
-    <section className="w-11/12 laptop:w-9/12 mx-auto pt-24 laptop:pt-40 flex flex-col gap-10">
+    <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 laptop:pt-48 flex flex-col gap-10">
       <div className="flex flex-col gap-4 laptop:flex-row laptop:justify-between">
         <img
           src={imageToDisplay.url}
