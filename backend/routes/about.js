@@ -16,110 +16,34 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.patch("/", async (req, res) => {
+router.patch("/", upload.single("image"), async (req, res) => {
   try {
-    const updated = await About.findOneAndUpdate(
-      {},
-      { $set: req.body },
-      { new: true }
-    );
+    const about = await About.findOne();
+    if (!about) return res.status(404).json({ message: "About ej hittad" });
 
-    if (!updated) {
-      return res.status(404).json({ message: "About ej hittad" });
+    // Hantera bilduppdatering om en fil skickas
+    if (req.file) {
+      if (about.imagePublicId) {
+        await cloudinary.uploader.destroy(about.imagePublicId);
+      }
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "about",
+      });
+      req.body.imageUrl = result.secure_url;
+      req.body.imagePublicId = result.public_id;
     }
 
-    res.json(updated);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-router.post("/utstallningar", async (req, res) => {
-  try {
-    const about = await About.findOne();
-    if (!about) return res.status(404).json({ message: "About ej hittad" });
-
-    about.utställningar.push(req.body);
-    await about.save();
-
-    res.json(about);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-router.delete("/utstallningar/:exhibitionId", async (req, res) => {
-  try {
-    const { exhibitionId } = req.params;
-    const about = await About.findOne();
-    if (!about) return res.status(404).json({ message: "About ej hittad" });
-
-    about.utställningar = about.utställningar.filter(
-      (ex) => ex._id.toString() !== exhibitionId
-    );
-    await about.save();
-
-    res.json(about);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-router.post("/stipendier", async (req, res) => {
-  try {
-    const about = await About.findOne();
-    if (!about) return res.status(404).json({ message: "About ej hittad" });
-
-    about.stipendier.push(req.body);
-    await about.save();
-
-    res.json(about);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-router.delete("/stipendier/:scholarshipId", async (req, res) => {
-  try {
-    const { scholarshipId } = req.params;
-    const about = await About.findOne();
-    if (!about) return res.status(404).json({ message: "About ej hittad" });
-
-    about.stipendier = about.stipendier.filter(
-      (st) => st._id.toString() !== scholarshipId
-    );
-    await about.save();
-
-    res.json(about);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-router.patch("/image", upload.single("image"), async (req, res) => {
-  try {
-    const about = await About.findOne(); // hämtar ditt enda about-dokument
-    if (!about) return res.status(404).json({ message: "About not found" });
-
-    // Radera tidigare bild från Cloudinary om det finns
-    if (about.imagePublicId) {
-      await cloudinary.uploader.destroy(about.imagePublicId);
-    }
-
-    // Ladda upp ny bild till Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "about",
+    // Uppdatera fälten dynamiskt
+    Object.keys(req.body).forEach((key) => {
+      // Om det är arrayer (utställningar/stipendier) kan vi ersätta hela listan
+      about[key] = req.body[key];
     });
 
-    // Spara ny bild-url och publicId i dokumentet
-    about.imageUrl = result.secure_url;
-    about.imagePublicId = result.public_id;
     await about.save();
-
-    res.json({ message: "Image updated", imageUrl: result.secure_url });
+    res.json(about);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(400).json({ error: err.message });
   }
 });
 

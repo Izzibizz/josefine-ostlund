@@ -42,7 +42,7 @@ interface UserState {
   signupMessage: string;
   loginMessage: string;
   about: About;
-  contact: Contact[];
+  contact: Contact;
   editMode: boolean;
   loadingEdit: boolean;
   success: boolean;
@@ -84,14 +84,14 @@ export const useUserStore = create<UserState>()(
         scholarships: [],
         image: "",
       },
-      contact: [
+      contact:
         {
           telefon: "",
           mail: "",
           instagram: "",
           cv: "",
-        },
-      ],
+        }
+      ,
       editMode: false,
       loadingEdit: false,
       success: false,
@@ -245,7 +245,7 @@ export const useUserStore = create<UserState>()(
           );
           if (!response.ok) throw new Error("Failed to fetch contact");
           const data: Contact[] = await response.json();
-          set({ contact: data });
+          set({ contact: data[0] });
         } catch (error) {
           console.error("Error fetching about:", error);
         }
@@ -262,13 +262,13 @@ export const useUserStore = create<UserState>()(
             }
           );
           if (!response.ok) throw new Error("Failed to update about");
-          const updated: Contact[] = await response.json();
+          const updated: Contact = await response.json();
           set({ contact: updated, success: true, loadingEdit: false });
         } catch (error) {
           console.error(error);
           set({ success: false });
         } finally {
-          set({ loadingEdit: false });
+          set({ loadingEdit: false, editMode: false });
         }
       },
     }),
