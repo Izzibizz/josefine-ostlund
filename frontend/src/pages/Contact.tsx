@@ -11,8 +11,8 @@ export const Contact: React.FC = () => {
     fetchContact,
     editMode,
     patchContact,
-    success,
-    loadingEdit,
+   /*  success,
+    loadingEdit, */
   } = useUserStore();
   const [formData, setFormData] = useState({
     telefon: "",

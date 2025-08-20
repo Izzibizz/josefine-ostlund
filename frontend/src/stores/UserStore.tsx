@@ -7,11 +7,13 @@ interface Exhibition {
   year?: number | null;
   type?: string;
   with?: string;
+  _id: string;
 }
 
 interface Scholarship {
   name: string;
   year?: number | null;
+  _id: string;
 }
 
 interface About {
@@ -54,18 +56,14 @@ interface UserState {
   setLoginError: (input: boolean) => void;
   loginUser: (userName: string, password: string) => Promise<void>;
   fetchAbout: () => Promise<void>;
-  patchAbout: (data: Partial<About>) => Promise<void>;
-  patchExhibition: (updatedExh: Exhibition, index: number) => Promise<void>;
-  deleteExhibition: (index: number) => Promise<void>;
-  patchScholarship: (updatedSch: Scholarship, index: number) => Promise<void>;
-  deleteScholarship: (index: number) => Promise<void>;
+  patchAbout: (data: Partial<About>, imageFile?: File) => Promise<void>;
   fetchContact: () => Promise<void>;
   patchContact: (data: Partial<Contact>) => Promise<void>;
 }
 
 export const useUserStore = create<UserState>()(
   persist(
-    (set): UserState => ({
+    (set, get): UserState => ({
       loggedIn: false,
       loggedOut: false,
       showPopupMessage: false,
@@ -84,14 +82,12 @@ export const useUserStore = create<UserState>()(
         scholarships: [],
         image: "",
       },
-      contact:
-        {
-          telefon: "",
-          mail: "",
-          instagram: "",
-          cv: "",
-        }
-      ,
+      contact: {
+        telefon: "",
+        mail: "",
+        instagram: "",
+        cv: "",
+      },
       editMode: false,
       loadingEdit: false,
       success: false,
@@ -157,82 +153,42 @@ export const useUserStore = create<UserState>()(
           console.error("Error fetching about:", error);
         }
       },
-      patchAbout: async (data) => {
+      patchAbout: async (data: Partial<About>, imageFile?: File) => {
         try {
-          const response = await fetch(
+          const current = get().about;
+
+          let body: BodyInit;
+          const headers: HeadersInit = {};
+
+          if (imageFile) {
+            const formData = new FormData();
+            Object.keys(data).forEach((key) => {
+              const value = data[key as keyof About];
+              if (Array.isArray(value)) {
+                formData.append(key, JSON.stringify(value));
+              } else if (value !== undefined && value !== null) {
+                formData.append(key, String(value));
+              }
+            });
+            formData.append("image", imageFile);
+            body = formData; 
+          } else {
+            body = JSON.stringify({ ...current, ...data });
+            headers["Content-Type"] = "application/json";
+          }
+
+          const res = await fetch(
             "https://josefine-ostlund.onrender.com/about",
             {
               method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(data),
+              headers,
+              body,
             }
           );
-          if (!response.ok) throw new Error("Failed to update about");
-          const updated: About = await response.json();
-          set({ about: updated });
-        } catch (error) {
-          console.error(error);
-        }
-      },
 
-      patchExhibition: async (updatedExh, index) => {
-        try {
-          const response = await fetch(
-            `https://josefine-ostlund.onrender.com/about/exhibitions/${index}`,
-            {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(updatedExh),
-            }
-          );
-          if (!response.ok) throw new Error("Failed to update exhibition");
-          const updated: About = await response.json();
-          set({ about: updated });
-        } catch (error) {
-          console.error(error);
-        }
-      },
+          if (!res.ok) throw new Error("Failed to update about");
 
-      deleteExhibition: async (index) => {
-        try {
-          const response = await fetch(
-            `https://josefine-ostlund.onrender.com/about/exhibitions/${index}`,
-            { method: "DELETE" }
-          );
-          if (!response.ok) throw new Error("Failed to delete exhibition");
-          const updated: About = await response.json();
-          set({ about: updated });
-        } catch (error) {
-          console.error(error);
-        }
-      },
-
-      patchScholarship: async (updatedSch, index) => {
-        try {
-          const response = await fetch(
-            `https://josefine-ostlund.onrender.com/about/scholarships/${index}`,
-            {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(updatedSch),
-            }
-          );
-          if (!response.ok) throw new Error("Failed to update scholarship");
-          const updated: About = await response.json();
-          set({ about: updated });
-        } catch (error) {
-          console.error(error);
-        }
-      },
-
-      deleteScholarship: async (index) => {
-        try {
-          const response = await fetch(
-            `https://josefine-ostlund.onrender.com/about/scholarships/${index}`,
-            { method: "DELETE" }
-          );
-          if (!response.ok) throw new Error("Failed to delete scholarship");
-          const updated: About = await response.json();
+          const updated: About = await res.json();
           set({ about: updated });
         } catch (error) {
           console.error(error);

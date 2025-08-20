@@ -33,10 +33,12 @@ router.patch("/", upload.single("image"), async (req, res) => {
       req.body.imagePublicId = result.public_id;
     }
 
-    // Uppdatera fälten dynamiskt
     Object.keys(req.body).forEach((key) => {
-      // Om det är arrayer (utställningar/stipendier) kan vi ersätta hela listan
-      about[key] = req.body[key];
+      if (["exhibitions", "scholarships"].includes(key)) {
+        about[key] = JSON.parse(req.body[key]);
+      } else {
+        about[key] = req.body[key];
+      }
     });
 
     await about.save();
@@ -46,6 +48,5 @@ router.patch("/", upload.single("image"), async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
-
 
 export default router;
