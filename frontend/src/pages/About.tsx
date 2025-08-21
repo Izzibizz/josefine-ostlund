@@ -244,9 +244,9 @@ const handleAddScholarship = () => {
                     <button
                       type="button"
                       onClick={() => handleDeleteExhibition(ex._id)}
-                      className="bg-black text-white rounded-4xl px-4 py-2 cursor-pointer"
+                      className="bg-black text-xs w-fit text-white rounded-4xl p-2 cursor-pointer"
                     >
-                      Delete
+                      Radera
                     </button>
                   </div>
                 ))}
@@ -295,9 +295,9 @@ const handleAddScholarship = () => {
                     <button
                       type="button"
                       onClick={() => handleDeleteScholarship(st._id)}
-                      className="bg-black text-white rounded-4xl px-4 py-2 cursor-pointer"
+                      className="bg-black text-xs text-white rounded-4xl p-2 cursor-pointer"
                     >
-                      Delete
+                      Radera
                     </button>
                   </div>
                 ))}

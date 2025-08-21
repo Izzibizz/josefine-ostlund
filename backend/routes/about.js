@@ -16,14 +16,11 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.patch("/", upload.single("image"), async (req, res) => {
+router.post("/", upload.single("image"), async (req, res) => {
   try {
-    const about = await About.findOne();
-    if (!about) return res.status(404).json({ message: "About not found" });
-
     let updateData = { ...req.body };
 
-    // 🔹 Konvertera JSON-strängar till arrays
+    // 🔹 Konvertera JSON-strängar till arrayer
     if (updateData.exhibitions && typeof updateData.exhibitions === "string") {
       updateData.exhibitions = JSON.parse(updateData.exhibitions);
     }
@@ -47,35 +44,24 @@ router.patch("/", upload.single("image"), async (req, res) => {
       updateData.image = uploadResult.secure_url;
     }
 
-    // 🔹 Uppdatera/addera exhibitions
-    if (updateData.exhibitions) {
-      about.exhibitions = updateData.exhibitions.map((item) => {
-        const existing = about.exhibitions.id(item._id);
-        return existing ? Object.assign(existing, item) : item;
-      });
+    // 🔹 Kolla om About redan finns
+    let about = await About.findOne();
+
+    if (about) {
+      // uppdatera allt
+      about = await About.findByIdAndUpdate(about._id, updateData, { new: true });
+    } else {
+      // skapa nytt
+      about = new About(updateData);
+      await about.save();
     }
 
-    // 🔹 Uppdatera/addera scholarships
-    if (updateData.scholarships) {
-      about.scholarships = updateData.scholarships.map((item) => {
-        const existing = about.scholarships.id(item._id);
-        return existing ? Object.assign(existing, item) : item;
-      });
-    }
-
-    // 🔹 Uppdatera övriga fält
-    Object.keys(updateData).forEach((key) => {
-      if (key !== "exhibitions" && key !== "scholarships" && key !== "image") {
-        about[key] = updateData[key];
-      }
-    });
-
-    const updated = await about.save();
-    res.json(updated);
+    res.json(about);
   } catch (err) {
-    console.error("PATCH /about error:", err);
+    console.error("POST /about error:", err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 export default router;
