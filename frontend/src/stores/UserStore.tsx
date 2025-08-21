@@ -63,7 +63,7 @@ interface UserState {
 
 export const useUserStore = create<UserState>()(
   persist(
-    (set): UserState => ({
+    (set, get): UserState => ({
       loggedIn: false,
       loggedOut: false,
       showPopupMessage: false,
@@ -153,36 +153,51 @@ export const useUserStore = create<UserState>()(
           console.error("Error fetching about:", error);
         }
       },
-   patchAbout: async (data: Partial<About>, imageFile?: File) => {
-  try {
-    const formData = new FormData();
+      patchAbout: async (data: Partial<About>, imageFile?: File) => {
+        try {
+          const current = get().about;
 
-    Object.keys(data).forEach((key) => {
-      const value = data[key as keyof About];
-      if (Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value));
-      } else if (value !== undefined && value !== null) {
-        formData.append(key, String(value));
-      }
-    });
+          let body: BodyInit;
+          const headers: HeadersInit = {};
 
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
+          // 🔹 Om det finns en fil → använd FormData
+          if (imageFile) {
+            const formData = new FormData();
+            Object.keys(data).forEach((key) => {
+              const value = data[key as keyof About];
+              if (key === "image") return;
 
-    const res = await fetch("https://josefine-ostlund.onrender.com/about", {
-      method: "PATCH",
-      body: formData,
-    });
+              if (Array.isArray(value)) {
+                formData.append(key, JSON.stringify(value)); // alltid stringify arrays
+              } else if (value !== undefined && value !== null) {
+                formData.append(key, String(value));
+              }
+            });
 
-    if (!res.ok) throw new Error("Failed to update about");
+            if (imageFile) formData.append("image", imageFile);
+            body = formData;
+          } else {
+            body = JSON.stringify({ ...current, ...data });
+            headers["Content-Type"] = "application/json";
+          }
 
-    const updated: About = await res.json();
-    set({ about: updated });
-  } catch (error) {
-    console.error(error);
-  }
-},
+          const res = await fetch(
+            "https://josefine-ostlund.onrender.com/about",
+            {
+              method: "PATCH",
+              headers,
+              body,
+            }
+          );
+
+          if (!res.ok) throw new Error("Failed to update about");
+
+          const updated: About = await res.json();
+          set({ about: updated });
+        } catch (error) {
+          console.error("patchAbout error:", error);
+        }
+      },
 
       fetchContact: async () => {
         try {

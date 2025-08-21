@@ -23,11 +23,13 @@ router.patch("/", upload.single("image"), async (req, res) => {
 
     let updateData = { ...req.body };
 
-    // 🔹 Hantera arrayer (för exhibitions & scholarships)
-    if (updateData.exhibitions) {
+    if (updateData.exhibitions && typeof updateData.exhibitions === "string") {
       updateData.exhibitions = JSON.parse(updateData.exhibitions);
     }
-    if (updateData.scholarships) {
+    if (
+      updateData.scholarships &&
+      typeof updateData.scholarships === "string"
+    ) {
       updateData.scholarships = JSON.parse(updateData.scholarships);
     }
 
@@ -37,7 +39,7 @@ router.patch("/", upload.single("image"), async (req, res) => {
 
       const uploadResult = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "about" },
+          { folder: "portratt" },
           (error, result) => {
             if (error) reject(error);
             else resolve(result);
@@ -59,7 +61,5 @@ router.patch("/", upload.single("image"), async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-
 
 export default router;
