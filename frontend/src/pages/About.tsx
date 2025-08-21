@@ -2,11 +2,43 @@ import { useEffect, useState } from "react";
 import { useUserStore } from "../stores/UserStore";
 import { useDropzone } from "react-dropzone";
 
+interface Exhibition {
+  place: string;
+  city?: string | null;
+  year?: number | null;
+  type?: string;
+  with?: string;
+  _id: string;
+}
+
+interface Scholarship {
+  name: string;
+  year?: number | null;
+  _id: string;
+}
+
+interface About {
+  bio_1: string;
+  bio_2: string;
+  exhibitions: Exhibition[];
+  scholarships: Scholarship[];
+  image: string;
+}
+
+
 export const About: React.FC = () => {
   const { about, fetchAbout, patchAbout, editMode } = useUserStore();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [formData, setFormData] = useState(about);
   const [newImage, setNewImage] = useState<File | null>(null);
+
+  const defaultAbout: About = {
+  bio_1: "",
+  bio_2: "",
+  exhibitions: [],
+  scholarships: [],
+  image: "",
+};
+const [formData, setFormData] = useState<About>(defaultAbout);
 
 const handleDeleteExhibition = (idToDelete: string) => {
   setFormData((prev) => ({
@@ -75,7 +107,9 @@ const handleAddScholarship = () => {
   }, []);
 
   useEffect(() => {
+    if (about) {
     setFormData(about);
+    }
   }, [about]);
 
   useEffect(() => {

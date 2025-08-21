@@ -153,51 +153,67 @@ export const useUserStore = create<UserState>()(
           console.error("Error fetching about:", error);
         }
       },
-      patchAbout: async (data: Partial<About>, imageFile?: File) => {
-        try {
-          const current = get().about;
+   patchAbout: async (data: Partial<About>, imageFile?: File) => {
+  try {
+    const current = get().about;
 
-          let body: BodyInit;
-          const headers: HeadersInit = {};
+    // 🔹 Slå ihop arrays
+    const updatedExhibitions = data.exhibitions?.map(newItem => {
+      const existing = current.exhibitions?.find(e => e._id === newItem._id);
+      return existing ? { ...existing, ...newItem } : newItem;
+    }) ?? current.exhibitions;
 
-          // 🔹 Om det finns en fil → använd FormData
-          if (imageFile) {
-            const formData = new FormData();
-            Object.keys(data).forEach((key) => {
-              const value = data[key as keyof About];
-              if (key === "image") return;
+    const updatedScholarships = data.scholarships?.map(newItem => {
+      const existing = current.scholarships?.find(s => s._id === newItem._id);
+      return existing ? { ...existing, ...newItem } : newItem;
+    }) ?? current.scholarships;
 
-              if (Array.isArray(value)) {
-                formData.append(key, JSON.stringify(value)); // alltid stringify arrays
-              } else if (value !== undefined && value !== null) {
-                formData.append(key, String(value));
-              }
-            });
+    // 🔹 Bygg patchdata
+    const patchData: Partial<About> = {
+      ...data,
+      exhibitions: updatedExhibitions,
+      scholarships: updatedScholarships,
+    };
 
-            if (imageFile) formData.append("image", imageFile);
-            body = formData;
-          } else {
-            body = JSON.stringify({ ...current, ...data });
-            headers["Content-Type"] = "application/json";
-          }
+    let body: BodyInit;
+    const headers: HeadersInit = {};
 
-          const res = await fetch(
-            "https://josefine-ostlund.onrender.com/about",
-            {
-              method: "PATCH",
-              headers,
-              body,
-            }
-          );
+    // 🔹 Om det finns en fil → använd FormData
+    if (imageFile) {
+      const formData = new FormData();
+      Object.keys(patchData).forEach((key) => {
+        const value = patchData[key as keyof About];
+        if (key === "image") return;
 
-          if (!res.ok) throw new Error("Failed to update about");
-
-          const updated: About = await res.json();
-          set({ about: updated });
-        } catch (error) {
-          console.error("patchAbout error:", error);
+        if (Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value)); // alltid stringify arrays
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, String(value));
         }
-      },
+      });
+
+      formData.append("image", imageFile);
+      body = formData;
+    } else {
+      body = JSON.stringify({ ...current, ...patchData });
+      headers["Content-Type"] = "application/json";
+    }
+
+    const res = await fetch("https://josefine-ostlund.onrender.com/about", {
+      method: "PATCH",
+      headers,
+      body,
+    });
+
+    if (!res.ok) throw new Error("Failed to update about");
+
+    const updated: About = await res.json();
+    set({ about: updated });
+  } catch (error) {
+    console.error("patchAbout error:", error);
+  }
+},
+
 
       fetchContact: async () => {
         try {

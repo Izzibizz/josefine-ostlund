@@ -23,20 +23,17 @@ router.patch("/", upload.single("image"), async (req, res) => {
 
     let updateData = { ...req.body };
 
+    // 🔹 Konvertera JSON-strängar till arrays
     if (updateData.exhibitions && typeof updateData.exhibitions === "string") {
       updateData.exhibitions = JSON.parse(updateData.exhibitions);
     }
-    if (
-      updateData.scholarships &&
-      typeof updateData.scholarships === "string"
-    ) {
+    if (updateData.scholarships && typeof updateData.scholarships === "string") {
       updateData.scholarships = JSON.parse(updateData.scholarships);
     }
 
     // 🔹 Hantera bild via Cloudinary
     if (req.file) {
       const buffer = req.file.buffer;
-
       const uploadResult = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           { folder: "portratt" },
@@ -47,12 +44,31 @@ router.patch("/", upload.single("image"), async (req, res) => {
         );
         stream.end(buffer);
       });
-
       updateData.image = uploadResult.secure_url;
     }
 
-    // 🔹 Slå ihop med befintlig data
-    Object.assign(about, updateData);
+    // 🔹 Uppdatera/addera exhibitions
+    if (updateData.exhibitions) {
+      about.exhibitions = updateData.exhibitions.map((item) => {
+        const existing = about.exhibitions.id(item._id);
+        return existing ? Object.assign(existing, item) : item;
+      });
+    }
+
+    // 🔹 Uppdatera/addera scholarships
+    if (updateData.scholarships) {
+      about.scholarships = updateData.scholarships.map((item) => {
+        const existing = about.scholarships.id(item._id);
+        return existing ? Object.assign(existing, item) : item;
+      });
+    }
+
+    // 🔹 Uppdatera övriga fält
+    Object.keys(updateData).forEach((key) => {
+      if (key !== "exhibitions" && key !== "scholarships" && key !== "image") {
+        about[key] = updateData[key];
+      }
+    });
 
     const updated = await about.save();
     res.json(updated);
