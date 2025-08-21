@@ -19,34 +19,34 @@ router.get("/", async (req, res) => {
 router.patch("/", upload.single("image"), async (req, res) => {
   try {
     const about = await About.findOne();
-    if (!about) return res.status(404).json({ message: "About ej hittad" });
+    if (!about) return res.status(404).json({ message: "About not found" });
 
-    // Hantera bilduppdatering om en fil skickas
-    if (req.file) {
-      if (about.imagePublicId) {
-        await cloudinary.uploader.destroy(about.imagePublicId);
-      }
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: "about",
-      });
-      req.body.imageUrl = result.secure_url;
-      req.body.imagePublicId = result.public_id;
+    // Hantera arrayer
+    if (req.body.exhibitions) {
+      req.body.exhibitions = JSON.parse(req.body.exhibitions);
+    }
+    if (req.body.scholarships) {
+      req.body.scholarships = JSON.parse(req.body.scholarships);
     }
 
-    Object.keys(req.body).forEach((key) => {
-      if (["exhibitions", "scholarships"].includes(key)) {
-        about[key] = JSON.parse(req.body[key]);
-      } else {
-        about[key] = req.body[key];
-      }
-    });
+    // Hantera bild
+    if (req.file) {
+      const upload = await cloudinary.uploader.upload(req.file.path, {
+        folder: "about",
+      });
+      req.body.image = upload.secure_url;
+    }
 
-    await about.save();
-    res.json(about);
+    // Merge fälten in i dokumentet
+    Object.assign(about, req.body);
+
+    const updated = await about.save();
+    res.json(updated);
   } catch (err) {
-    console.error(err);
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
+
+
 
 export default router;

@@ -8,52 +8,64 @@ export const About: React.FC = () => {
   const [formData, setFormData] = useState(about);
   const [newImage, setNewImage] = useState<File | null>(null);
 
-  const handleDeleteExhibition = (idToDelete: string) => {
-    const updatedExhibitions = about.exhibitions.filter(
-      (ex) => ex._id !== idToDelete
-    );
+const handleDeleteExhibition = (idToDelete: string) => {
+  setFormData((prev) => ({
+    ...prev,
+    exhibitions: prev.exhibitions.filter((ex) => ex._id !== idToDelete),
+  }));
+};
 
-    patchAbout({ exhibitions: updatedExhibitions });
-  };
+const handleDeleteScholarship = (idToDelete: string) => {
+  setFormData((prev) => ({
+    ...prev,
+    scholarships: prev.scholarships.filter((st) => st._id !== idToDelete),
+  }));
+};
 
-  const handleDeleteScholarship = (idToDelete: string) => {
-    const updatedScholarships = about.scholarships.filter(
-      (st) => st._id !== idToDelete
-    );
-
-    patchAbout({ scholarships: updatedScholarships });
-  };
-
-  const handleAddExhibition = () => {
+const handleAddExhibition = () => {
   const newEx = {
-    _id: Date.now().toString(),
+    _id: Date.now().toString(), // temporärt id
     place: "",
     city: "",
     year: null,
     type: "",
-    with: "",
+    with: ""
   };
-  setFormData({ ...formData, exhibitions: [...formData.exhibitions, newEx] });
+
+  setFormData((prev) => ({
+    ...prev,
+    exhibitions: [...prev.exhibitions, newEx],
+  }));
 };
 
 const handleAddScholarship = () => {
   const newSt = {
-    _id: Date.now().toString(),
+    _id: Date.now().toString(), 
     name: "",
     year: null,
   };
-  setFormData({ ...formData, scholarships: [...formData.scholarships, newSt] });
+
+  setFormData((prev) => ({
+    ...prev,
+    scholarships: [...prev.scholarships, newSt],
+  }));
 };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
- await patchAbout(formData, newImage ?? undefined);
-  setNewImage(null); // rensa dropzone
-};
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newImage) {
+      await patchAbout(formData, newImage);
+    } else {
+      await patchAbout(formData);
+    }
 
-const { getRootProps, getInputProps } = useDropzone({
-  onDrop: (acceptedFiles) => setNewImage(acceptedFiles[0]),
-});
+    setNewImage(null);
+  };
+
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: (acceptedFiles) => setNewImage(acceptedFiles[0]),
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,9 +86,7 @@ const { getRootProps, getInputProps } = useDropzone({
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobile]);
 
-  
-
-  console.log("is editing", editMode);
+  console.log("formdata", formData);
 
   return (
     <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 laptop:pt-48 gap-10 bg-white flex flex-col min-h-screen">
@@ -130,7 +140,11 @@ const { getRootProps, getInputProps } = useDropzone({
             >
               <input {...getInputProps()} />
               {newImage ? (
-                <p>{newImage.name}</p>
+                <img
+                  src={URL.createObjectURL(newImage)}
+                  alt="preview"
+                  className="object-cover w-full h-full"
+                />
               ) : (
                 <>
                   <img
@@ -150,14 +164,14 @@ const { getRootProps, getInputProps } = useDropzone({
                 onChange={(e) =>
                   setFormData({ ...formData, bio_1: e.target.value })
                 }
-                className="border p-2 w-full"
+                className="border p-2 w-full min-h-[150px]"
               />
               <textarea
                 value={formData.bio_2}
                 onChange={(e) =>
                   setFormData({ ...formData, bio_2: e.target.value })
                 }
-                className="border p-2 w-full"
+                className="border p-2 w-full min-h-[250px]"
               />
 
               <div className="flex flex-col gap-2">
@@ -200,17 +214,15 @@ const { getRootProps, getInputProps } = useDropzone({
                     >
                       Delete
                     </button>
-                    
                   </div>
-                  
                 ))}
                 <button
-    type="button"
-    onClick={handleAddExhibition}
-    className="bg-gray-200 rounded-4xl px-4 py-2 w-fit mt-2 cursor-pointer"
-  >
-    + Lägg till utställning
-  </button>
+                  type="button"
+                  onClick={handleAddExhibition}
+                  className="bg-gray-200 rounded-4xl px-4 py-2 w-fit mt-2 cursor-pointer"
+                >
+                  + Lägg till utställning
+                </button>
               </div>
 
               <div>
@@ -227,7 +239,7 @@ const { getRootProps, getInputProps } = useDropzone({
                       placeholder="Name"
                       className="border p-1"
                     />
-                     <select
+                    <select
                       value={st.year || ""}
                       onChange={(e) => {
                         const newSt = [...formData.scholarships];
@@ -256,12 +268,12 @@ const { getRootProps, getInputProps } = useDropzone({
                   </div>
                 ))}
                 <button
-    type="button"
-    onClick={handleAddScholarship}
-    className="bg-gray-200 rounded-4xl px-4 py-2 w-fit mt-2 cursor-pointer"
-  >
-    + Lägg till stipendium
-  </button>
+                  type="button"
+                  onClick={handleAddScholarship}
+                  className="bg-gray-200 rounded-4xl px-4 py-2 w-fit mt-2 cursor-pointer"
+                >
+                  + Lägg till stipendium
+                </button>
               </div>
 
               <button
