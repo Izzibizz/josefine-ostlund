@@ -21,28 +21,41 @@ router.patch("/", upload.single("image"), async (req, res) => {
     const about = await About.findOne();
     if (!about) return res.status(404).json({ message: "About not found" });
 
-    // Hantera arrayer
-    if (req.body.exhibitions) {
-      req.body.exhibitions = JSON.parse(req.body.exhibitions);
+    let updateData = { ...req.body };
+
+    // 🔹 Hantera arrayer (för exhibitions & scholarships)
+    if (updateData.exhibitions) {
+      updateData.exhibitions = JSON.parse(updateData.exhibitions);
     }
-    if (req.body.scholarships) {
-      req.body.scholarships = JSON.parse(req.body.scholarships);
+    if (updateData.scholarships) {
+      updateData.scholarships = JSON.parse(updateData.scholarships);
     }
 
-    // Hantera bild
+    // 🔹 Hantera bild via Cloudinary
     if (req.file) {
-      const upload = await cloudinary.uploader.upload(req.file.path, {
-        folder: "about",
+      const buffer = req.file.buffer;
+
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "about" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(buffer);
       });
-      req.body.image = upload.secure_url;
+
+      updateData.image = uploadResult.secure_url;
     }
 
-    // Merge fälten in i dokumentet
-    Object.assign(about, req.body);
+    // 🔹 Slå ihop med befintlig data
+    Object.assign(about, updateData);
 
     const updated = await about.save();
     res.json(updated);
   } catch (err) {
+    console.error("PATCH /about error:", err);
     res.status(500).json({ error: err.message });
   }
 });
