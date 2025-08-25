@@ -17,15 +17,16 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173", 
+    "https://josefine-ostlund.netlify.app", 
+  ],
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
 app.use(express.json());
 
-/* { origin: [
-    "https://josefine-ostlund.netlify.app",
-    "https://josefineostlund.se",
-    "https://josefineostlund.com",
-    "http://localhost:5173"
-  ],}  */
 
 // Routes
 app.use("/projects", projectRoutes);

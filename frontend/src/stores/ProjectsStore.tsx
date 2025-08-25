@@ -81,41 +81,64 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
   // --- UPDATE ---
   updateProject: async (
-    id,
-    updates,
-    newImages,
-    newVideo,
-    removeImages,
-    removeVideo
-  ) => {
-    try {
-      const formData = new FormData();
-      Object.entries(updates).forEach(([key, value]) => {
-        if (value !== undefined) formData.append(key, value as string);
+  id,
+  updates,
+  newImages,
+  newVideo,
+  removeImages,
+  removeVideo
+) => {
+  try {
+    const formData = new FormData();
+
+    // Lägg till textfält
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value.toString());
+      }
+    });
+
+    // Lägg till nya bilder
+    if (newImages?.length) {
+      newImages.forEach((file) => {
+        formData.append("images", file);
       });
-
-      if (newImages)
-        newImages.forEach((file) => formData.append("images", file));
-      if (newVideo) formData.append("video", newVideo);
-      if (removeImages)
-        removeImages.forEach((id) => formData.append("removeImages", id));
-      if (removeVideo) formData.append("removeVideo", "true");
-
-      const res = await axios.patch(
-        `https://josefine-ostlund.onrender.com/projects/${id}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      set((state) => ({
-        projects: state.projects.map((p) =>
-          p._id === id ? res.data.project : p
-        ),
-      }));
-    } catch (err) {
-      console.error("Error updating project", err);
     }
-  },
+
+    // Lägg till ny video
+    if (newVideo) {
+      formData.append("video", newVideo);
+    }
+
+    // Lägg till removeImages
+    if (removeImages?.length) {
+      removeImages.forEach((id) => {
+        formData.append("removeImages", id);
+      });
+    }
+
+    // Lägg till removeVideo
+    if (removeVideo) {
+      formData.append("removeVideo", "true");
+    }
+
+    const res = await axios.patch(
+      `https://josefine.ostlund.onrender.com/projects/${id}`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    // uppdatera i state
+    set((state) => ({
+      projects: state.projects.map((p) =>
+        p._id === id ? res.data.project : p
+      ),
+    }));
+  } catch (err) {
+    console.error("Error updating project", err);
+  }
+},
+
 }));
