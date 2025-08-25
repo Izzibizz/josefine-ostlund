@@ -8,27 +8,28 @@ interface Image {
 }
 
 interface Project  {
- _id: string;
-  name: string;
-  year: number;
-  material: string;
-  exhibited_at: string;
-  category: string;
-  description: string;
-  images: Image[];
+ _id?: string;
+  name?: string;
+  year?: number;
+  material?: string;
+  exhibited_at?: string;
+  category?: string;
+  description?: string;
+  images?: Image[];
   video?: Image;
 }
 
 interface ProjectProps {
   project: Project;
   handlePreviewClick: (image: Image) => void;
+  slides: number;
 }
 
-export const SwiperComp:React.FC<ProjectProps> = ({project, handlePreviewClick}) => {
+export const SwiperComp:React.FC<ProjectProps> = ({project, handlePreviewClick, slides}) => {
   return (
      <Swiper
                   key={project?.name}
-                  slidesPerView={3}
+                  slidesPerView={slides}
                   spaceBetween={20}
                   speed={1200}
                   loop
@@ -57,7 +58,7 @@ export const SwiperComp:React.FC<ProjectProps> = ({project, handlePreviewClick})
                   modules={[Autoplay]}
                   className="w-full h-auto"
                 >
-                  {project?.images.map((file, index) => (
+                  {project?.images?.map((file, index) => (
                     <SwiperSlide key={index}>
                       <div className="relative group">
                         <img

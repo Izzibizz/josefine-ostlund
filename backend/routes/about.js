@@ -16,11 +16,13 @@ router.get("/", async (req, res) => {
   }
 });
 
+// POST → skapa eller uppdatera hela About
 router.post("/", upload.single("image"), async (req, res) => {
   try {
+    const existing = await About.findOne();
     let updateData = { ...req.body };
 
-    // 🔹 Konvertera JSON-strängar till arrayer
+    // Om arrays skickas som string → parse
     if (updateData.exhibitions && typeof updateData.exhibitions === "string") {
       updateData.exhibitions = JSON.parse(updateData.exhibitions);
     }
@@ -28,7 +30,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       updateData.scholarships = JSON.parse(updateData.scholarships);
     }
 
-    // 🔹 Hantera bild via Cloudinary
+    // Hantera bild
     if (req.file) {
       const buffer = req.file.buffer;
       const uploadResult = await new Promise((resolve, reject) => {
@@ -41,27 +43,45 @@ router.post("/", upload.single("image"), async (req, res) => {
         );
         stream.end(buffer);
       });
-      updateData.image = uploadResult.secure_url;
+      updateData.image = (uploadResult).secure_url;
     }
 
-    // 🔹 Kolla om About redan finns
-    let about = await About.findOne();
-
-    if (about) {
-      // uppdatera allt
-      about = await About.findByIdAndUpdate(about._id, updateData, { new: true });
+    if (existing) {
+      const updated = await About.findByIdAndUpdate(existing._id, updateData, { new: true });
+      return res.json(updated);
     } else {
-      // skapa nytt
-      about = new About(updateData);
-      await about.save();
+      const created = new About(updateData);
+      await created.save();
+      return res.status(201).json(created);
     }
-
-    res.json(about);
-  } catch (err) {
-    console.error("POST /about error:", err);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error("POST /about error:", error);
+    res.status(500).json({ message: "Failed to save About content." });
   }
 });
+
+// DELETE → ta bort ett objekt från exhibitions eller scholarships
+router.delete("/", async (req, res) => {
+  try {
+    const { type, id } = req.body;
+
+    if (!["exhibitions", "scholarships"].includes(type) || !id) {
+      return res.status(400).json({ message: "Invalid delete request." });
+    }
+
+    const about = await About.findOne();
+    if (!about) return res.status(404).json({ message: "About not found." });
+
+    about[type] = about[type].filter((item) => item._id.toString() !== id);
+    await about.save();
+
+    res.json(about);
+  } catch (error) {
+    console.error("DELETE /about error:", error);
+    res.status(500).json({ message: "Failed to delete item from About." });
+  }
+});
+
 
 
 export default router;

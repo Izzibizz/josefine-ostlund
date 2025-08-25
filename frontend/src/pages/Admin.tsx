@@ -38,7 +38,7 @@ export const Admin: React.FC = () => {
         </div>
         {!showPopupMessage && (
           <div className="flex flex-col gap-8 animate-fadeIn">
-            <NavLink to="/upload" aria-label="Link to upload project">
+            <NavLink to="/nytt" aria-label="Link to upload project">
               <div className="bg-white border border-black w-2/3 max-w-[400px] m-auto flex p-4 rounded-2xl mt-20">
                 <FiPlusCircle className="w-10 h-10 text-black" />
                 <p className="p-2 text-black font-body inline-block ">

@@ -68,127 +68,167 @@ router.get("/:projectId", async (req, res) => {
   }
 });
 
-// CREATE a new project
-router.post("/newProject", async (req, res) => {
-  try {
-    const newProject = new Projects(req.body);
-    await newProject.save();
-    res
-      .status(201)
-      .json({ message: "Project created successfully", project: newProject });
-  } catch (error) {
-    console.error("Error creating project:", error);
-    res.status(500).json({ message: "Error creating project" });
-  }
-});
-
-// UPDATE an existing project
-router.patch("/:projectId", async (req, res) => {
-  try {
-    const { projectId } = req.params;
-    const updatedProject = await Projects.findByIdAndUpdate(
-      projectId,
-      req.body,
-      { new: true }
-    );
-
-    if (updatedProject) {
-      res
-        .status(200)
-        .json({ message: "Project updated successfully", project: updatedProject });
-    } else {
-      res.status(404).json({ message: "Project not found" });
-    }
-  } catch (error) {
-    console.error("Error updating project:", error);
-    res.status(500).json({ message: "Error updating project" });
-  }
-});
-
-// DELETE a project
-router.delete("/:projectId", async (req, res) => {
-  try {
-    const { projectId } = req.params;
-    const deletedProject = await Projects.findByIdAndDelete(projectId);
-
-    if (deletedProject) {
-      res.status(200).json({ message: "Project deleted successfully" });
-    } else {
-      res.status(404).json({ message: "Project not found" });
-    }
-  } catch (error) {
-    console.error("Error deleting project:", error);
-    res.status(500).json({ message: "Error deleting project" });
-  }
-});
-
-// ADD image to a project
 router.post(
-  "/:projectId/addImage",
-  upload.single("image"),
+  "/newProject",
+  upload.fields([{ name: "images" }, { name: "video" }]),
   async (req, res) => {
     try {
-      const { projectId } = req.params;
+      const { name, year, material, exhibited_at, category, description } =
+        req.body;
 
-      if (!req.file) {
-        return res.status(400).json({ message: "No image file provided." });
+      const imageFiles = req.files?.images || [];
+      const imageUploads = await Promise.all(
+        imageFiles.map(
+          (file) =>
+            new Promise((resolve, reject) => {
+              cloudinary.uploader
+                .upload_stream({ resource_type: "image" }, (err, result) => {
+                  if (err) return reject(err);
+                  resolve({
+                    url: result.secure_url,
+                    public_id: result.public_id,
+                  });
+                })
+                .end(file.buffer);
+            })
+        )
+      );
+      let videoUpload = null;
+      if (req.files && req.files.video && req.files.video.length > 0) {
+        const file = req.files.video[0];
+        if (file.buffer) {
+          videoUpload = await new Promise((resolve, reject) => {
+            cloudinary.uploader
+              .upload_stream({ resource_type: "video" }, (err, result) => {
+                if (err) return reject(err);
+                resolve({
+                  url: result.secure_url,
+                  public_id: result.public_id,
+                });
+              })
+              .end(file.buffer);
+          });
+        }
       }
 
-      const fileStr = `data:${req.file.mimetype};base64,${req.file.buffer.toString(
-        "base64"
-      )}`;
-
-      const uploaded = await cloudinary.uploader.upload(fileStr, {
-        folder: "project-images",
+      const newProject = new Projects({
+        name,
+        year: Number(year),
+        material,
+        exhibited_at,
+        category,
+        description,
+        images: imageUploads,
+        video: videoUpload,
       });
 
-      // Push an object with url and public_id
-      const updatedProject = await Projects.findByIdAndUpdate(
-        projectId,
-        {
-          $push: {
-            images: {
-              url: uploaded.secure_url,
-              public_id: uploaded.public_id,
-            },
-          },
-        },
-        { new: true }
-      );
-
-      res.status(200).json({ message: "Image uploaded", project: updatedProject });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to upload image" });
+      await newProject.save();
+      res
+        .status(201)
+        .json({ message: "Project created successfully", project: newProject });
+    } catch (error) {
+      console.error("Error creating project:", error);
+      res.status(500).json({ message: "Error creating project" });
     }
   }
 );
 
-// DELETE image from a project
-router.delete("/:projectId/deleteImage", async (req, res) => {
-  try {
-    const { projectId } = req.params;
-    const { public_id } = req.body;
+router.patch(
+  "/:id",
+  upload.fields([{ name: "images" }, { name: "video" }]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      let {
+        name,
+        year,
+        material,
+        exhibited_at,
+        category,
+        description,
+        removeImages,
+        removeVideo,
+      } = req.body;
 
-    if (!public_id) {
-      return res.status(400).json({ message: "public_id is required" });
+      const project = await Projects.findById(id);
+      if (!project)
+        return res.status(404).json({ message: "Project not found" });
+
+      // normalisera removeImages
+      const removeList = !removeImages
+        ? []
+        : Array.isArray(removeImages)
+        ? removeImages
+        : [removeImages];
+
+      // ta bort markerade bilder
+      for (const public_id of removeList) {
+        await cloudinary.uploader.destroy(public_id);
+        project.images = project.images.filter(
+          (img) => img.public_id !== public_id
+        );
+      }
+
+      // ta bort befintlig video?
+      if ((removeVideo === "true" || removeVideo === true) && project.video) {
+        await cloudinary.uploader.destroy(project.video.public_id, {
+          resource_type: "video",
+        });
+        project.video = undefined;
+      }
+
+      // lägg till nya bilder
+      if (req.files?.images?.length) {
+        for (const file of req.files.images) {
+          const uploaded = await new Promise((resolve, reject) => {
+            cloudinary.uploader
+              .upload_stream({ resource_type: "image" }, (err, result) => {
+                if (err) return reject(err);
+                resolve({
+                  url: result.secure_url,
+                  public_id: result.public_id,
+                });
+              })
+              .end(file.buffer);
+          });
+          project.images.push(uploaded);
+        }
+      }
+
+      // ny video? (ersätter ev. gammal)
+      if (req.files?.video?.[0]) {
+        if (project.video) {
+          await cloudinary.uploader.destroy(project.video.public_id, {
+            resource_type: "video",
+          });
+        }
+        const file = req.files.video[0];
+        const uploadedVideo = await new Promise((resolve, reject) => {
+          cloudinary.uploader
+            .upload_stream({ resource_type: "video" }, (err, result) => {
+              if (err) return reject(err);
+              resolve({ url: result.secure_url, public_id: result.public_id });
+            })
+            .end(file.buffer);
+        });
+        project.video = uploadedVideo;
+      }
+
+      // uppdatera textfält
+      if (name !== undefined) project.name = name;
+      if (year !== undefined) project.year = Number(year);
+      if (material !== undefined) project.material = material;
+      if (exhibited_at !== undefined) project.exhibited_at = exhibited_at;
+      if (category !== undefined) project.category = category;
+      if (description !== undefined) project.description = description;
+
+      await project.save();
+      res.json({ message: "Project updated successfully", project });
+    } catch (error) {
+      console.error("Error updating project:", error);
+      res.status(500).json({ message: "Error updating project" });
     }
-
-    // Delete image from Cloudinary
-    await cloudinary.uploader.destroy(public_id);
-
-    // Remove image from MongoDB array by public_id
-    const updatedProject = await Projects.findByIdAndUpdate(
-      projectId,
-      { $pull: { images: { public_id } } },
-      { new: true }
-    );
-
-    res.status(200).json({ message: "Image deleted", project: updatedProject });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to delete image" });
   }
-});
+);
 
 export default router;

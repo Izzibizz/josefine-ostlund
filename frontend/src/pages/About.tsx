@@ -27,7 +27,7 @@ interface About {
 
 
 export const About: React.FC = () => {
-  const { about, fetchAbout, patchAbout, editMode } = useUserStore();
+  const { about, fetchAbout, updateAbout, editMode } = useUserStore();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [newImage, setNewImage] = useState<File | null>(null);
 
@@ -86,9 +86,9 @@ const handleAddScholarship = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newImage) {
-      await patchAbout(formData, newImage);
+      await updateAbout(formData, newImage);
     } else {
-      await patchAbout(formData);
+      await updateAbout(formData);
     }
 
     setNewImage(null);

@@ -7,6 +7,7 @@ import { Contact } from "../pages/Contact";
 import { Login } from "../pages/Login"
 import { ProjectsOverview } from "../pages/ProjectsOverview";
 import { Admin } from "../pages/Admin";
+import { CreateProject } from "../pages/CreateProject"
 
 
 export const MainRoutes: React.FC = () => {
@@ -19,6 +20,7 @@ export const MainRoutes: React.FC = () => {
         <Route path="/kontakt" element={<Contact />} />
         <Route path="/login" element={<Login />} />
          <Route path="/admin" element={<Admin />} />
+         <Route path="/nytt" element={<CreateProject/>} />
 
         <Route path="/utstallningar" element={<ProjectsOverview category="utställningar" />} />
         <Route path="/performance" element={<ProjectsOverview category="performance"/>} />

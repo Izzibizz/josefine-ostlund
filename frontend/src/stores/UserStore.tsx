@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import axios from "axios";
 
 interface Exhibition {
   place: string;
@@ -56,14 +57,15 @@ interface UserState {
   setLoginError: (input: boolean) => void;
   loginUser: (userName: string, password: string) => Promise<void>;
   fetchAbout: () => Promise<void>;
-  patchAbout: (data: Partial<About>, imageFile?: File) => Promise<void>;
+  updateAbout: (data: Partial<About>, imageFile?: File) => Promise<void>;
+  deleteAboutItem: (type: "exhibitions" | "scholarships", id: string) => Promise<void>;
   fetchContact: () => Promise<void>;
   patchContact: (data: Partial<Contact>) => Promise<void>;
 }
 
 export const useUserStore = create<UserState>()(
   persist(
-    (set, get): UserState => ({
+    (set): UserState => ({
       loggedIn: false,
       loggedOut: false,
       showPopupMessage: false,
@@ -153,67 +155,54 @@ export const useUserStore = create<UserState>()(
           console.error("Error fetching about:", error);
         }
       },
-   patchAbout: async (data: Partial<About>, imageFile?: File) => {
+updateAbout: async (data: Partial<About>, imageFile?: File) => {
   try {
-    const current = get().about;
+    let body: FormData | object;
 
-    // 🔹 Slå ihop arrays
-    const updatedExhibitions = data.exhibitions?.map(newItem => {
-      const existing = current.exhibitions?.find(e => e._id === newItem._id);
-      return existing ? { ...existing, ...newItem } : newItem;
-    }) ?? current.exhibitions;
-
-    const updatedScholarships = data.scholarships?.map(newItem => {
-      const existing = current.scholarships?.find(s => s._id === newItem._id);
-      return existing ? { ...existing, ...newItem } : newItem;
-    }) ?? current.scholarships;
-
-    // 🔹 Bygg patchdata
-    const patchData: Partial<About> = {
-      ...data,
-      exhibitions: updatedExhibitions,
-      scholarships: updatedScholarships,
-    };
-
-    let body: BodyInit;
-    const headers: HeadersInit = {};
-
-    // 🔹 Om det finns en fil → använd FormData
     if (imageFile) {
       const formData = new FormData();
-      Object.keys(patchData).forEach((key) => {
-        const value = patchData[key as keyof About];
+
+      // Lägg till alla fält utom image
+      Object.keys(data).forEach((key) => {
+        const value = data[key as keyof About];
+
         if (key === "image") return;
 
-        if (Array.isArray(value)) {
-          formData.append(key, JSON.stringify(value)); // alltid stringify arrays
-        } else if (value !== undefined && value !== null) {
-          formData.append(key, String(value));
-        }
+        // Om array, konvertera till JSON
+        if (Array.isArray(value)) formData.append(key, JSON.stringify(value));
+        else if (value !== undefined && value !== null) formData.append(key, String(value));
       });
 
+      // Lägg till filen
       formData.append("image", imageFile);
       body = formData;
     } else {
-      body = JSON.stringify({ ...current, ...patchData });
-      headers["Content-Type"] = "application/json";
+      // Skicka som ren JSON
+      body = data;
     }
 
-    const res = await fetch("https://josefine-ostlund.onrender.com/about", {
-      method: "PATCH",
-      headers,
-      body,
+    const res = await axios.post("https://josefine-ostlund.onrender.com/about", body, {
+      headers: imageFile ? undefined : { "Content-Type": "application/json" },
     });
 
-    if (!res.ok) throw new Error("Failed to update about");
-
-    const updated: About = await res.json();
-    set({ about: updated });
+    // Backend returnerar alltid fullständig About med alla arrays uppdaterade
+    set({ about: res.data });
   } catch (error) {
     console.error("patchAbout error:", error);
   }
 },
 
+
+deleteAboutItem: async (type, id) => {
+  try {
+    const res = await axios.delete("https://josefine-ostlund.onrender.com/about", { 
+      data: { type, id },
+    });
+    if (res.data) set({ about: res.data });
+  } catch (error) {
+    console.error("deleteAboutItem error:", error);
+  }
+},
 
       fetchContact: async () => {
         try {
