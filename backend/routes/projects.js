@@ -139,55 +139,48 @@ router.patch(
   async (req, res) => {
     try {
       const { id } = req.params;
-      let {
+      const {
         name,
         year,
         material,
         exhibited_at,
         category,
         description,
-        removeImages,
         removeVideo,
       } = req.body;
 
+      console.log("removeImages raw:", req.body.removeImages);
+      console.log("removeVideo raw:", removeVideo);
+
       const project = await Projects.findById(id);
-      if (!project)
-        return res.status(404).json({ message: "Project not found" });
+      if (!project) return res.status(404).json({ message: "Project not found" });
 
-      // normalisera removeImages
-      const removeList = !removeImages
-        ? []
-        : Array.isArray(removeImages)
-        ? removeImages
-        : [removeImages];
-
-      // ta bort markerade bilder
-      for (const public_id of removeList) {
-        await cloudinary.uploader.destroy(public_id);
-        project.images = project.images.filter(
-          (img) => img.public_id !== public_id
-        );
+      let removeList = [];
+      if (req.body.removeImages) {
+        if (Array.isArray(req.body.removeImages)) {
+          removeList = req.body.removeImages;
+        } else if (typeof req.body.removeImages === "string") {
+          removeList = [req.body.removeImages];
+        }
       }
 
-      // ta bort befintlig video?
-      if ((removeVideo === "true" || removeVideo === true) && project.video) {
-        await cloudinary.uploader.destroy(project.video.public_id, {
-          resource_type: "video",
-        });
+      for (const public_id of removeList) {
+        await cloudinary.uploader.destroy(public_id);
+        project.images = project.images.filter((img) => img.public_id !== public_id);
+      }
+
+      if (removeVideo === "true" && project.video) {
+        await cloudinary.uploader.destroy(project.video.public_id, { resource_type: "video" });
         project.video = undefined;
       }
 
-      // lägg till nya bilder
       if (req.files?.images?.length) {
         for (const file of req.files.images) {
           const uploaded = await new Promise((resolve, reject) => {
             cloudinary.uploader
               .upload_stream({ resource_type: "image" }, (err, result) => {
                 if (err) return reject(err);
-                resolve({
-                  url: result.secure_url,
-                  public_id: result.public_id,
-                });
+                resolve({ url: result.secure_url, public_id: result.public_id });
               })
               .end(file.buffer);
           });
@@ -195,12 +188,9 @@ router.patch(
         }
       }
 
-      // ny video? (ersätter ev. gammal)
       if (req.files?.video?.[0]) {
         if (project.video) {
-          await cloudinary.uploader.destroy(project.video.public_id, {
-            resource_type: "video",
-          });
+          await cloudinary.uploader.destroy(project.video.public_id, { resource_type: "video" });
         }
         const file = req.files.video[0];
         const uploadedVideo = await new Promise((resolve, reject) => {
@@ -214,7 +204,7 @@ router.patch(
         project.video = uploadedVideo;
       }
 
-      // uppdatera textfält
+      // --- Textfält ---
       if (name !== undefined) project.name = name;
       if (year !== undefined) project.year = Number(year);
       if (material !== undefined) project.material = material;
@@ -230,5 +220,6 @@ router.patch(
     }
   }
 );
+
 
 export default router;
