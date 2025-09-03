@@ -2,7 +2,6 @@ import { useUserStore } from "../stores/UserStore";
 import { useNavigate, NavLink } from "react-router-dom";
 import { FiPlusCircle } from "react-icons/fi";
 import { useEffect } from "react";
-import { PopupMessage } from "../components/PopupMessage";
 
 export const Admin: React.FC = () => {
   const { loggedOut, setLoggedOut, showPopupMessage, setShowPopupMessage } =
@@ -25,7 +24,6 @@ export const Admin: React.FC = () => {
 
   return (
     <>
-      {showPopupMessage && <PopupMessage />}
       <section className=" mt-40 w-11/12 laptop:w-9/12 mx-auto">
         <div className=" flex justify-between">
           <h2 className="text-2xl mb-6 font-header text-black">Admin</h2>

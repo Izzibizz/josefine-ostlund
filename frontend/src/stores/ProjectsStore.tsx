@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
+import { useUserStore } from "./UserStore"; 
 
 interface Image {
   url: string;
@@ -54,6 +55,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
   // --- CREATE ---
   createProject: async (data, images, video) => {
+   useUserStore.setState({ success: false, fail: false, loadingEdit: true, showPopupMessage: true})
     try {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
@@ -74,8 +76,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
       console.log("Saved successfully");
 
       set((state) => ({ projects: [...state.projects, res.data.project] }));
+      useUserStore.setState({ editMode: false, loadingEdit: false, success: true, showPopupMessage: true });
     } catch (err) {
       console.error("Error creating project", err);
+      useUserStore.setState({ loadingEdit: false, fail: true, showPopupMessage: true });
     }
   },
 
@@ -89,6 +93,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
   removeVideo
 ) => {
   try {
+     useUserStore.setState({ success: false, fail: false, loadingEdit: true, showPopupMessage: true})
     const formData = new FormData();
 
     // Lägg till textfält
@@ -123,7 +128,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     }
 
     const res = await axios.patch(
-      `https://josefine.ostlund.onrender.com/projects/${id}`,
+      `https://josefine-ostlund.onrender.com/projects/${id}`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -136,7 +141,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
         p._id === id ? res.data.project : p
       ),
     }));
+    useUserStore.setState({ editMode: false, loadingEdit: false, success: true, showPopupMessage: true});
+    console.log("Update successful")
   } catch (err) {
+    useUserStore.setState({ loadingEdit: false, fail: true, showPopupMessage: true});
     console.error("Error updating project", err);
   }
 },

@@ -1,4 +1,5 @@
-import { useRef, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
+import { useUserStore } from "../stores/UserStore";
 
 interface Image {
   url: string;
@@ -9,10 +10,13 @@ interface Image {
 interface ImageModalProps {
   image: Image;
   onClose: () => void;
+  onUpdatePhotographer?: (id: string, photographer: string) => void;
 }
 
-export const ImageModal: React.FC<ImageModalProps> = ({ image, onClose }) => {
+export const ImageModal: React.FC<ImageModalProps> = ({ image, onClose, onUpdatePhotographer }) => {
  const modalRef = useRef<HTMLDivElement | null>(null);
+ const [photographer, setPhotographer] = useState(image.photographer ?? "");
+ const { editMode } = useUserStore()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -37,7 +41,35 @@ export const ImageModal: React.FC<ImageModalProps> = ({ image, onClose }) => {
           className="object-contain cursor-pointer max-w-[90vw] max-h-[80vh]"
           onClick={onClose}
         />
-        <p className="text-white font-medium">Fotograf: {image.photographer}</p>
+        {editMode ? (
+          <>
+            <input
+              className="border p-2 mb-2 text-white"
+              placeholder="Fotograf"
+              value={photographer}
+              onChange={(e) => setPhotographer(e.target.value)}
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  onUpdatePhotographer?.(image.public_id, photographer);
+                  onClose();
+                }}
+                className="bg-black text-white rounded px-4 py-2"
+              >
+                Spara
+              </button>
+              <button
+                onClick={onClose}
+                className="bg-gray-300 rounded px-4 py-2"
+              >
+                Avbryt
+              </button>
+            </div>
+          </>
+        ) : (
+        image.photographer && <p className="text-white font-medium">Fotograf: {image.photographer}</p>
+        )}
       </div>
     </div>
   );

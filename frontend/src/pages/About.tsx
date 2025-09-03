@@ -314,7 +314,7 @@ const handleAddScholarship = () => {
                 type="submit"
                 className="bg-black text-white rounded-4xl px-4 py-2 cursor-pointer w-fit"
               >
-                Save
+                Spara
               </button>
             </div>
           </div>

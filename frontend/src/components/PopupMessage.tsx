@@ -14,24 +14,13 @@ export const PopupMessage = () => {
     loginError,
     loadingUser,
     setLoginError,
+    success,
+    fail,
+    loadingEdit,
+    setSuccess,
+    setFail,
+    setLoadingEdit
   } = useUserStore();
-/*   const {
-    uploadSuccessful,
-    setUploadSuccessful,
-    uploadError,
-    setUploadError,
-    deleteValidationProcess,
-    setDeleteValidationProcess,
-    setDeleteConfirmed,
-    loadingDelete,
-    deleteSuccessful,
-    deleteError,
-    setDeleteError,
-    editSuccessful,
-    editError,
-    setEditSuccessful,
-    setEditError,
-  } = useProjectStore(); */
 
   const animationCloneGreen = JSON.parse(JSON.stringify(greenAnimation));
   const animationCloneRed = JSON.parse(JSON.stringify(redAnimation));
@@ -39,35 +28,20 @@ export const PopupMessage = () => {
 
 
   const getMessage = () => {
-/*     if (deleteValidationProcess)
-      return "Are you sure you want to delete this project?";
-    if (loadingDelete) return "Deleting.."
-    if (deleteSuccessful) return "Your project has been deleted";
-    if (deleteError) return "Try again, could not delete";
-    if (editSuccessful) return "Your project was successfully updated"
-    if (editError) return "Something went wrong, please try again";
-    if (loginError) return "Incorrect user or password, please try again"; */
-   /*  if (uploadSuccessful) return "Your project has been uploaded";
-    if (uploadError) return "Could not save, please try again"; */
+    if (loginError) return "Fel inloggningsuppgifter";
+    if (loadingEdit) return ""
+    if (success) return "Ditt projekt har sparats";
+    if (fail) return "Kunde inte spara, prova igen"; 
     if (loggedIn) return `Välkommen!`;
     if (loggedOut) return "Du är nu utloggad";
 
     return "";
   };
 
-/*   const confirmDelete = () => {
-    setDeleteConfirmed(true)
-    setDeleteValidationProcess(false)
-  }
-
-  const abortDelete = () => {
-    setDeleteConfirmed(false)
-    setDeleteValidationProcess(false)
-  } */
 
   const getAnimation = () => {
-    if (loginError /* || uploadError || deleteError, editError */) return animationCloneRed;
-     if (/* loadingDelete || */ loadingUser) return animationCloneLoad; 
+    if (loginError || fail ) return animationCloneRed;
+     if ( loadingEdit ||  loadingUser) return animationCloneLoad; 
     return animationCloneGreen;
   };
 
@@ -77,15 +51,13 @@ export const PopupMessage = () => {
 
   useEffect(() => {
     setTimeout(() => {
-     /*  setUploadSuccessful(false);
-      setEditSuccessful(false)
-      setEditError(false)
-      setDeleteError(false); */
+      setSuccess(false)
+      setLoadingEdit(false)
+      setFail(false)
       setShowPopupMessage(false);
       setLoginError(false);
-  /*     setUploadError(false); */
-    }, 2000);
-  }, [/* uploadSuccessful, */ loginError,/*  uploadError, */ loggedIn, loggedOut, /* deleteError, editError, editSuccessful */] );
+    }, 3000);
+  }, [success, loginError, fail, loggedIn, loggedOut, loadingEdit] );
 
 
   console.log(loginError)

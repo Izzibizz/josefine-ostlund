@@ -7,12 +7,13 @@ import { useUserStore } from "./stores/UserStore";
 import { useEffect } from "react"
 import { AdminFooter } from "./components/AdminFooter";
 import { EditModeResetter } from "./components/EditModeResetter";
+import { PopupMessage } from "./components/PopupMessage";
 
 
 const App = () => {
 
 const fetchProjects = useProjectStore((state) => state.fetchProjects);
-const { loggedIn } = useUserStore()
+const { loggedIn, showPopupMessage } = useUserStore()
 
   useEffect(() => {
     fetchProjects();
@@ -22,6 +23,7 @@ const { loggedIn } = useUserStore()
     <>
     <ScrollToTop />
     <EditModeResetter/>
+    {showPopupMessage && <PopupMessage />}
     <div className="max-w-screen min-h-screen flex flex-col overflow-hidden relative">
       <Header />
       <main className="flex-grow mb-20">

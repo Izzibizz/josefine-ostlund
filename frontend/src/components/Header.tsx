@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { displayCategory } from "./CategoryUtils";
 import { useNavigate, NavLink, useLocation } from "react-router-dom";
 import { MenuToggle } from "./MenuToggle";
 
@@ -16,9 +17,9 @@ export const Header: React.FC = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const navlinks = [
-    { name: "Skulpturer", path: "/skulpturer" },
-    { name: "Performance", path: "/performance" },
-    { name: "Utställningar", path: "/utstallningar" },
+    { name: displayCategory("skulpturer"), path: "/skulpturer" },
+    { name: displayCategory("performance"), path: "/performance" },
+    { name: displayCategory("utställningar"), path: "/utstallningar" },
     { name: "biografi", path: "/bio" },
     { name: "kontakt", path: "/kontakt" },
   ];
@@ -149,7 +150,11 @@ export const Header: React.FC = () => {
         </>
       ) : (
         <>
-          <ul className={`flex gap-10 ${homePage? "text-lg" : "text-sm"} uppercase`}>
+          <ul
+            className={`flex gap-10 ${
+              homePage ? "text-lg" : "text-sm"
+            } uppercase`}
+          >
             {navlinks.map((link) => (
               <NavLink
                 key={link.path}

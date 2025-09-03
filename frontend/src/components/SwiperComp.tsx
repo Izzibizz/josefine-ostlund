@@ -23,9 +23,16 @@ interface ProjectProps {
   project: Project;
   handlePreviewClick: (image: Image) => void;
   slides: number;
+  style: string;
+  aspect: string;
+thumbnail: boolean;
 }
 
-export const SwiperComp:React.FC<ProjectProps> = ({project, handlePreviewClick, slides}) => {
+export const SwiperComp:React.FC<ProjectProps> = ({project, handlePreviewClick, slides, style, thumbnail, aspect}) => {
+
+  const getThumbnailUrl = (url: string, width: number, height:number) => {
+  return url.replace("/upload/", `/upload/w_${width},h_${height},c_fill/`);
+};
   return (
      <Swiper
                   key={project?.name}
@@ -62,12 +69,12 @@ export const SwiperComp:React.FC<ProjectProps> = ({project, handlePreviewClick, 
                     <SwiperSlide key={index}>
                       <div className="relative group">
                         <img
-                          src={file.url}
+                          src={thumbnail === true ? getThumbnailUrl(file.url, 400, 300) : file.url}
                           alt={file.photographer}
-                          className="w-full h-full aspect-[4/3] object-cover "
+                          className={`w-full h-full ${aspect} `}
                         />
                         <div
-                          className="absolute max-w-full max-h-full inset-0 bg-black opacity-40 group-hover:opacity-0 transition-opacity duration-500 ease-in-out hover:cursor-pointer"
+                          className={`${style} absolute max-w-full max-h-full inset-0 bg-black opacity-40 group-hover:opacity-0 transition-opacity duration-500 ease-in-out hover:cursor-pointer`}
                           onClick={() => handlePreviewClick(file)}
                           onTouchStart={() =>
                             handlePreviewClick(file)

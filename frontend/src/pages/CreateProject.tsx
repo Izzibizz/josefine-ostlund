@@ -1,8 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
 import { useProjectStore } from "../stores/ProjectsStore";
-import { SwiperComp } from "../components/SwiperComp";
+import { useUserStore } from "../stores/UserStore";
 import { ImageModal } from "../components/ImageModal";
 import Dropzone from "react-dropzone";
+import { FiPlus } from "react-icons/fi";
 
 interface Image {
   url: string;
@@ -10,7 +11,7 @@ interface Image {
   photographer?: string;
 }
 
-type TempImage = { file: File; url: string; tempId: string };
+type TempImage = { file: File; url: string; tempId: string, photographer: string };
 
 const CATEGORIES = ["performance", "skulpturer", "utställningar"] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -19,6 +20,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   projectId,
 }) => {
   const { projects, updateProject, createProject } = useProjectStore();
+  const { setEditMode, showPopupMessage } = useUserStore();
   const existingProject = useMemo(
     () => projects.find((p) => p._id === projectId),
     [projects, projectId]
@@ -42,10 +44,23 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     existingProject?.images ?? []
   );
   const [newImages, setNewImages] = useState<TempImage[]>([]);
-  const gallery: Image[] = [
-    ...existingImages,
-    ...newImages.map((n) => ({ url: n.url, public_id: n.tempId })),
-  ];
+const [imagesOrder, setImagesOrder] = useState<string[]>([
+  ...(existingProject?.images?.map((img) => img.public_id) ?? [])
+]);
+const gallery: Image[] = imagesOrder
+  .map((id) => {
+    const existing = existingImages.find((img) => img.public_id === id);
+    if (existing) return existing;
+
+    const temp = newImages.find((img) => img.tempId === id);
+    if (temp) {
+      return { url: temp.url, public_id: temp.tempId, photographer: temp.photographer };
+    }
+
+    return null;
+  })
+  .filter((img): img is Image => img !== null);
+
 
   const [removeImages, setRemoveImages] = useState<string[]>([]);
 
@@ -59,6 +74,50 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   const [imageToDisplay, setImageToDisplay] = useState<Image | null>(
     gallery[0] ?? null
   );
+
+  const handleUpdatePhotographer = (id: string, photographer: string) => {
+    setExistingImages((prev) =>
+      prev.map((img) => (img.public_id === id ? { ...img, photographer } : img))
+    );
+
+    setNewImages((prev) =>
+      prev.map((img) => (img.tempId === id ? { ...img, photographer } : img))
+    );
+  };
+
+const moveImage = (index: number, direction: "left" | "right") => {
+  const newOrder = [...imagesOrder];
+  const targetIndex = direction === "left" ? index - 1 : index + 1;
+
+  if (targetIndex < 0 || targetIndex >= newOrder.length) return;
+
+  const [moved] = newOrder.splice(index, 1);
+  newOrder.splice(targetIndex, 0, moved);
+
+  setImagesOrder(newOrder);
+
+  // sätt imageToDisplay till den första bilden i nya ordningen
+  const firstId = newOrder[0];
+
+  let newFirst: Image | TempImage | null = null;
+
+  const existing = existingImages.find((img) => img.public_id === firstId);
+  if (existing) {
+    newFirst = existing;
+  } else {
+    const temp = newImages.find((img) => img.tempId === firstId);
+    if (temp) newFirst = temp;
+  }
+
+  if (newFirst) {
+    setImageToDisplay({
+      url: newFirst.url,
+      public_id: "public_id" in newFirst ? newFirst.public_id : newFirst.tempId,
+      photographer: newFirst.photographer || "",
+    });
+  }
+};
+
 
   const handleDeleteThumb = (img: Image) => {
     const isTemp = img.public_id.startsWith("temp-");
@@ -138,49 +197,48 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     setImageToDisplay(gallery[0] ?? null);
   }, [gallery.length]);
 
-  const handleDropImages = (accepted: File[]) => {
-    const additions: TempImage[] = accepted.map((file) => ({
-      file,
-      url: URL.createObjectURL(file),
-      tempId: `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-    }));
-    setNewImages((prev) => [...prev, ...additions]);
+const handleDropImages = (accepted: File[]) => {
+  const additions: TempImage[] = accepted.map((file) => {
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return { file, url: URL.createObjectURL(file), tempId, photographer: "" };
+  });
+
+  setNewImages((prev) => [...prev, ...additions]);
+  setImagesOrder((prev) => [...prev, ...additions.map((a) => a.tempId)]);
+};
+
+
+
+  const handlePreviewClick = (image: Image) => {
+    setIsModalOpen(true);
+    setImageToDisplay({
+      url: image.url,
+      public_id: image.public_id,
+      photographer: image.photographer || "",
+    });
   };
 
-  const swiperProject = existingProject
-    ? { ...existingProject, images: gallery }
-    : {
-        _id: "temp",
-        name,
-        year,
-        material,
-        exhibited_at: exhibitedAt,
-        category,
-        description,
-        images: gallery,
-      };
+  useEffect(() => {
+    if (!projectId) {
+      setEditMode(true);
+    }
+  }, [projectId]);
 
+console.log(showPopupMessage)
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto mt-40 flex flex-col gap-10">
       {!projectId && (
         <h2 className="font-header uppercase text-lg">Nytt projekt</h2>
       )}
 
-      <div className="flex flex-col gap-4 laptop:flex-row laptop:justify-between">
-        <div className="w-full laptop:w-2/3">
-          {gallery.length > 1 ? (
-            <SwiperComp
-              project={swiperProject}
-              handlePreviewClick={(img: Image) => setImageToDisplay(img)}
-              slides={1}
-            />
-          ) : (
-            <div className="w-full aspect-[4/3] bg-gray-300 flex justify-center items-center">
+      <div className="flex flex-col gap-4 laptop:gap-10 laptop:flex-row laptop:justify-between">
+        <div className="w-full flex flex-col laptop:w-2/3 gap-4">
+            <div className="w-full flex ">
               {imageToDisplay ? (
                 <img
                   src={imageToDisplay.url}
                   alt="Preview"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full max-w-[900px] laptop:h-[650px] object-contain object-left"
                   onClick={() => setIsModalOpen(true)}
                 />
               ) : (
@@ -191,11 +249,70 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
                       className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer"
                     >
                       <input {...getInputProps()} />
-                      <p>Släpp eller klicka för att lägga till bilder</p>
+                      <p className="font-body flex gap-2 items-center">
+                        {" "}
+                        <FiPlus /> Släpp eller klicka för att lägga till bilder
+                      </p>
                     </div>
                   )}
                 </Dropzone>
               )}
+            </div>
+          {gallery.length >= 1 && (
+            <div className="flex flex-col laptop:flex-row gap-10">
+              <div className="flex flex-wrap gap-2">
+                {gallery.map((img, index) => (
+                  <div
+                    key={img.public_id}
+                    className="w-28 h-20 relative cursor-pointer"
+                  >
+                    <img
+                      src={img.url}
+                      className="w-full h-full object-cover"
+                      onClick={() => handlePreviewClick(img)}
+                    />
+                    <button
+                      onClick={() => handleDeleteThumb(img)}
+                      className="absolute top-1 right-1 bg-black text-white rounded-full px-2 cursor-pointer"
+                      aria-label="Ta bort bild"
+                    >
+                      ×
+                    </button>
+                    {index > 0 && (
+                      <button
+                        onClick={() => moveImage(index, "left")}
+                        className="absolute bottom-1 left-1 bg-white/80 rounded-full px-2 cursor-pointer"
+                        aria-label="Flytta vänster"
+                      >
+                        ←
+                      </button>
+                    )}
+                     {index < gallery.length - 1 && (
+      <button
+        onClick={() => moveImage(index, "right")}
+        className="absolute bottom-1 right-1 bg-white/80 rounded-full px-2 cursor-pointer"
+      >
+        →
+      </button>
+    )}
+                  </div>
+                ))}
+              </div>
+              <Dropzone onDrop={handleDropImages} accept={{ "image/*": [] }}>
+                {({ getRootProps, getInputProps }) => (
+                  <div
+                    {...getRootProps()}
+                    className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer"
+                  >
+                    <input {...getInputProps()} />
+                    <p className="font-body flex gap-2 items-center">
+                      {" "}
+                      <FiPlus /> Släpp eller klicka för att lägga till fler
+                      bilder
+                    </p>
+                  </div>
+                )}
+              </Dropzone>
             </div>
           )}
         </div>
@@ -243,41 +360,6 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          {gallery.length >= 1 && (
-            <Dropzone onDrop={handleDropImages} accept={{ "image/*": [] }}>
-              {({ getRootProps, getInputProps }) => (
-                <div
-                  {...getRootProps()}
-                  className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer"
-                >
-                  <input {...getInputProps()} />
-                  <p>Släpp eller klicka för att lägga till fler bilder</p>
-                </div>
-              )}
-            </Dropzone>
-          )}
-
-          <div className="flex flex-wrap gap-2">
-            {gallery.map((img) => (
-              <div
-                key={img.public_id}
-                className="w-28 h-20 relative cursor-pointer"
-              >
-                <img
-                  src={img.url}
-                  className="w-full h-full object-cover"
-                  onClick={() => setImageToDisplay(img)}
-                />
-                <button
-                  onClick={() => handleDeleteThumb(img)}
-                  className="absolute top-1 right-1 bg-black text-white rounded-full px-2"
-                  aria-label="Ta bort bild"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
 
           <div>
             {videoPreview ? (
@@ -324,6 +406,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
         <ImageModal
           image={imageToDisplay}
           onClose={() => setIsModalOpen(false)}
+          onUpdatePhotographer={handleUpdatePhotographer}
         />
       )}
     </section>

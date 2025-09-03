@@ -49,12 +49,16 @@ interface UserState {
   editMode: boolean;
   loadingEdit: boolean;
   success: boolean;
+  fail: boolean;
 
   setEditMode: (value: boolean) => void;
   setLoggedIn: () => void;
   setLoggedOut: () => void;
   setShowPopupMessage: (input: boolean) => void;
   setLoginError: (input: boolean) => void;
+  setFail: (input: boolean) => void;
+  setSuccess: (input: boolean) => void;
+  setLoadingEdit:(input: boolean) => void;
   loginUser: (userName: string, password: string) => Promise<void>;
   fetchAbout: () => Promise<void>;
   updateAbout: (data: Partial<About>, imageFile?: File) => Promise<void>;
@@ -93,6 +97,7 @@ export const useUserStore = create<UserState>()(
       editMode: false,
       loadingEdit: false,
       success: false,
+      fail: false,
 
       setEditMode: (value) => set({ editMode: value }),
       setLoggedIn: () => set({ loggedIn: true, loggedOut: false }),
@@ -107,6 +112,9 @@ export const useUserStore = create<UserState>()(
           showPopupMessage: true,
         }),
       setLoginError: (input: boolean) => set({ loginError: input }),
+        setFail: (input: boolean) => set({fail: input}),
+  setSuccess: (input: boolean) =>  set({success: input}),
+  setLoadingEdit:(input: boolean) =>  set({loadingEdit: input}),
 
       loginUser: async (userName: string, password: string) => {
         set({ loadingUser: true, loginError: false, loggedIn: false });
@@ -186,8 +194,9 @@ updateAbout: async (data: Partial<About>, imageFile?: File) => {
     });
 
     // Backend returnerar alltid fullständig About med alla arrays uppdaterade
-    set({ about: res.data });
+    set({ about: res.data, success: true, editMode: false, showPopupMessage: true });
   } catch (error) {
+    set({fail: true, showPopupMessage: true})
     console.error("patchAbout error:", error);
   }
 },
@@ -198,8 +207,9 @@ deleteAboutItem: async (type, id) => {
     const res = await axios.delete("https://josefine-ostlund.onrender.com/about", { 
       data: { type, id },
     });
-    if (res.data) set({ about: res.data });
+    if (res.data) set({ about: res.data, success: true, editMode: false, showPopupMessage: true });
   } catch (error) {
+    set({fail: true, showPopupMessage: true})
     console.error("deleteAboutItem error:", error);
   }
 },
@@ -229,10 +239,10 @@ deleteAboutItem: async (type, id) => {
           );
           if (!response.ok) throw new Error("Failed to update about");
           const updated: Contact = await response.json();
-          set({ contact: updated, success: true, loadingEdit: false });
+          set({ contact: updated, success: true, loadingEdit: false, showPopupMessage: true });
         } catch (error) {
           console.error(error);
-          set({ success: false });
+          set({ loadingEdit: false, fail: true, showPopupMessage: true });
         } finally {
           set({ loadingEdit: false, editMode: false });
         }

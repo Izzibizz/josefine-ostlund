@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import { displayCategory } from "../components/CategoryUtils"
 import { useProjectStore } from "../stores/ProjectsStore";
 import { slugify } from "../utils/slugify";
 import { RiArrowRightDoubleLine } from "react-icons/ri";
@@ -32,7 +33,7 @@ const projectsToDisplay = projects
   console.log(projectsToDisplay);
   return (
     <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 laptop:pt-48 gap-10 bg-white flex flex-col min-h-screen">
-      <h2 className="font-header uppercase text-lg">{category}</h2>
+      <h2 className="font-header uppercase text-lg">{displayCategory(category)}</h2>
       {!projectsToDisplay ? (
         <div className="mx-auto mt-40">
           <p>Loading</p>
@@ -44,7 +45,7 @@ const projectsToDisplay = projects
               {projectsToDisplay.map((project) => (
                 <NavLink
                   key={project._id}
-                  to={`/${category}/${slugify(project.name)}`}
+                  to={`/${slugify(category)}/${slugify(project.name)}`}
                 >
                   <img
                     src={project.images[0].url}
@@ -63,7 +64,7 @@ const projectsToDisplay = projects
                 to={`/${slugify(category)}/${slugify(
                   projectsToDisplay[0]?.name
                 )}`}
-                className="flex flex-col gap-4  flex-1"
+                className="flex flex-col flex-1"
               >
                 <img
                   src={projectsToDisplay[0]?.images[0]?.url}
@@ -71,7 +72,7 @@ const projectsToDisplay = projects
                   className="w-full aspect-[4/3] object-cover"
                 />
                 <h3 className="text-sm laptop:text-base font-body font-bold text-end">
-                  {projectsToDisplay[0].name}, {projectsToDisplay[0].year}
+                  {projectsToDisplay[0].name}
                 </h3>
               </NavLink>
             )
