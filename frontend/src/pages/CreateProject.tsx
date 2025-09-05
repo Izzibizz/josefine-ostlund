@@ -20,7 +20,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   projectId,
 }) => {
   const { projects, updateProject, createProject } = useProjectStore();
-  const { setEditMode, showPopupMessage } = useUserStore();
+  const { setEditMode } = useUserStore();
   const existingProject = useMemo(
     () => projects.find((p) => p._id === projectId),
     [projects, projectId]
@@ -185,6 +185,7 @@ const moveImage = (index: number, direction: "left" | "right") => {
         await createProject(
           textData,
           newImages.map((n) => n.file),
+          newImages.map((n) => n.photographer || ""),
           videoFile || undefined
         );
       }
@@ -224,7 +225,10 @@ const handleDropImages = (accepted: File[]) => {
     }
   }, [projectId]);
 
-console.log(showPopupMessage)
+useEffect(() => {
+  console.log("Fotografer:", gallery.map((img) => img.photographer));
+}, [gallery]);
+
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto mt-40 flex flex-col gap-10">
       {!projectId && (

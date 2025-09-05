@@ -23,9 +23,10 @@ export interface Project {
 interface ProjectState {
   projects: Project[];
   fetchProjects: () => Promise<void>;
-  createProject: (
+   createProject: (
     data: Omit<Project, "_id" | "images" | "video">,
     images: File[],
+    photographers: string[],
     video?: File
   ) => Promise<void>;
   updateProject: (
@@ -34,7 +35,8 @@ interface ProjectState {
     newImages?: File[],
     newVideo?: File | null,
     removeImages?: string[],
-    removeVideo?: boolean
+    removeVideo?: boolean,
+    photographers?: { public_id: string; photographer: string }[] // 👈 för PATCH
   ) => Promise<void>;
 }
 
@@ -53,18 +55,34 @@ export const useProjectStore = create<ProjectState>((set) => ({
     }
   },
 
-  // --- CREATE ---
-  createProject: async (data, images, video) => {
-   useUserStore.setState({ success: false, fail: false, loadingEdit: true, showPopupMessage: true})
+   createProject: async (data, images, photographers, video) => {
+    useUserStore.setState({
+      success: false,
+      fail: false,
+      loadingEdit: true,
+      showPopupMessage: true,
+    });
+
     try {
       const formData = new FormData();
+
+      // Lägg till textfält
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, String(value));
       });
+
+      // Lägg till bilder
       images.forEach((file) => formData.append("images", file));
+
+      // Lägg till fotografer (i samma ordning som images)
+      if (photographers.length > 0) {
+        formData.append("photographers", JSON.stringify(photographers));
+      }
+
+      // Lägg till video
       if (video) formData.append("video", video);
 
-      console.log([...formData.entries()]);
+      console.log("CREATE formData:", [...formData.entries()]);
 
       const res = await axios.post(
         "https://josefine-ostlund.onrender.com/projects/newProject",
@@ -73,80 +91,112 @@ export const useProjectStore = create<ProjectState>((set) => ({
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
+
       console.log("Saved successfully");
 
       set((state) => ({ projects: [...state.projects, res.data.project] }));
-      useUserStore.setState({ editMode: false, loadingEdit: false, success: true, showPopupMessage: true });
+      useUserStore.setState({
+        editMode: false,
+        loadingEdit: false,
+        success: true,
+        showPopupMessage: true,
+      });
     } catch (err) {
       console.error("Error creating project", err);
-      useUserStore.setState({ loadingEdit: false, fail: true, showPopupMessage: true });
+      useUserStore.setState({
+        loadingEdit: false,
+        fail: true,
+        showPopupMessage: true,
+      });
     }
   },
 
   // --- UPDATE ---
   updateProject: async (
-  id,
-  updates,
-  newImages,
-  newVideo,
-  removeImages,
-  removeVideo
-) => {
-  try {
-     useUserStore.setState({ success: false, fail: false, loadingEdit: true, showPopupMessage: true})
-    const formData = new FormData();
-
-    // Lägg till textfält
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value.toString());
-      }
-    });
-
-    // Lägg till nya bilder
-    if (newImages?.length) {
-      newImages.forEach((file) => {
-        formData.append("images", file);
+    id,
+    updates,
+    newImages,
+    newVideo,
+    removeImages,
+    removeVideo,
+    photographers
+  ) => {
+    try {
+      useUserStore.setState({
+        success: false,
+        fail: false,
+        loadingEdit: true,
+        showPopupMessage: true,
       });
-    }
 
-    // Lägg till ny video
-    if (newVideo) {
-      formData.append("video", newVideo);
-    }
+      const formData = new FormData();
 
-    // Lägg till removeImages
-    if (removeImages?.length) {
-      removeImages.forEach((id) => {
-        formData.append("removeImages", id);
+      // Lägg till textfält
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, value.toString());
+        }
       });
-    }
 
-    // Lägg till removeVideo
-    if (removeVideo) {
-      formData.append("removeVideo", "true");
-    }
-
-    const res = await axios.patch(
-      `https://josefine-ostlund.onrender.com/projects/${id}`,
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
+      // Lägg till nya bilder
+      if (newImages?.length) {
+        newImages.forEach((file) => {
+          formData.append("images", file);
+        });
       }
-    );
 
-    // uppdatera i state
-    set((state) => ({
-      projects: state.projects.map((p) =>
-        p._id === id ? res.data.project : p
-      ),
-    }));
-    useUserStore.setState({ editMode: false, loadingEdit: false, success: true, showPopupMessage: true});
-    console.log("Update successful")
-  } catch (err) {
-    useUserStore.setState({ loadingEdit: false, fail: true, showPopupMessage: true});
-    console.error("Error updating project", err);
-  }
-},
+      // Lägg till fotografer
+      if (photographers?.length) {
+        formData.append("photographers", JSON.stringify(photographers));
+      }
+
+      // Lägg till ny video
+      if (newVideo) {
+        formData.append("video", newVideo);
+      }
+
+      // Lägg till removeImages
+      if (removeImages?.length) {
+        removeImages.forEach((id) => {
+          formData.append("removeImages", id);
+        });
+      }
+
+      // Lägg till removeVideo
+      if (removeVideo) {
+        formData.append("removeVideo", "true");
+      }
+
+      const res = await axios.patch(
+        `https://josefine-ostlund.onrender.com/projects/${id}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      // uppdatera i state
+      set((state) => ({
+        projects: state.projects.map((p) =>
+          p._id === id ? res.data.project : p
+        ),
+      }));
+
+      useUserStore.setState({
+        editMode: false,
+        loadingEdit: false,
+        success: true,
+        showPopupMessage: true,
+      });
+      console.log("Update successful");
+    } catch (err) {
+      useUserStore.setState({
+        loadingEdit: false,
+        fail: true,
+        showPopupMessage: true,
+      });
+      console.error("Error updating project", err);
+    }
+  },
 
 }));

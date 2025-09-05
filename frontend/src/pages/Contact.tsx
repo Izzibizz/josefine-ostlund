@@ -46,7 +46,7 @@ export const Contact: React.FC = () => {
   console.log(contact);
 
   return (
-    <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 laptop:pt-48 gap-16 laptop:gap-32 max-w-[1300px] laptop:mx-auto bg-white flex flex-col min-h-screen">
+    <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 laptop:pt-0 gap-16 max-w-[1300px] laptop:mx-auto bg-white flex flex-col laptop:justify-center h-screen">
       <h2 className="font-header uppercase text-lg">Kontakt</h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-8 font-body">

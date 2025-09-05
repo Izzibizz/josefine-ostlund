@@ -73,13 +73,19 @@ router.post(
   upload.fields([{ name: "images" }, { name: "video" }]),
   async (req, res) => {
     try {
-      const { name, year, material, exhibited_at, category, description } =
-        req.body;
+      const { name, year, material, exhibited_at, category, description } = req.body;
+
+      // 📸 ta emot fotografer
+      const photographers = Array.isArray(req.body.photographers)
+        ? req.body.photographers
+        : req.body.photographers
+        ? [req.body.photographers]
+        : [];
 
       const imageFiles = req.files?.images || [];
       const imageUploads = await Promise.all(
         imageFiles.map(
-          (file) =>
+          (file, i) =>
             new Promise((resolve, reject) => {
               cloudinary.uploader
                 .upload_stream({ resource_type: "image" }, (err, result) => {
@@ -87,28 +93,29 @@ router.post(
                   resolve({
                     url: result.secure_url,
                     public_id: result.public_id,
+                    photographer: photographers[i] || "", // ✅ lägg till rätt fotograf
                   });
                 })
                 .end(file.buffer);
             })
         )
       );
+
+      // 📹 video samma som innan...
       let videoUpload = null;
-      if (req.files && req.files.video && req.files.video.length > 0) {
+      if (req.files?.video?.length > 0) {
         const file = req.files.video[0];
-        if (file.buffer) {
-          videoUpload = await new Promise((resolve, reject) => {
-            cloudinary.uploader
-              .upload_stream({ resource_type: "video" }, (err, result) => {
-                if (err) return reject(err);
-                resolve({
-                  url: result.secure_url,
-                  public_id: result.public_id,
-                });
-              })
-              .end(file.buffer);
-          });
-        }
+        videoUpload = await new Promise((resolve, reject) => {
+          cloudinary.uploader
+            .upload_stream({ resource_type: "video" }, (err, result) => {
+              if (err) return reject(err);
+              resolve({
+                url: result.secure_url,
+                public_id: result.public_id,
+              });
+            })
+            .end(file.buffer);
+        });
       }
 
       const newProject = new Projects({
@@ -123,15 +130,14 @@ router.post(
       });
 
       await newProject.save();
-      res
-        .status(201)
-        .json({ message: "Project created successfully", project: newProject });
+      res.status(201).json({ message: "Project created successfully", project: newProject });
     } catch (error) {
       console.error("Error creating project:", error);
       res.status(500).json({ message: "Error creating project" });
     }
   }
 );
+
 
 router.patch(
   "/:id",
