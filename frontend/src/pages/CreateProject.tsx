@@ -26,7 +26,7 @@ type Category = (typeof CATEGORIES)[number];
 export const CreateProject: React.FC<{ projectId?: string }> = ({
   projectId,
 }) => {
-  const { projects, updateProject, createProject } = useProjectStore();
+  const { projects, updateProject, createProject, deleteSuccess } = useProjectStore();
   const { setEditMode, success } = useUserStore();
   const navigate = useNavigate();
   const existingProject = useMemo(
@@ -236,10 +236,10 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   }, [projectId, setEditMode]);
 
   useEffect(() => {
-    if (success) {
+    if (success || deleteSuccess ) {
       navigate("/");
     }
-  });
+  }, [success, deleteSuccess]);
 
   useEffect(() => {
     console.log(
