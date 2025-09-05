@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useProjectStore } from "../stores/ProjectsStore";
 import { useUserStore } from "../stores/UserStore";
 import { ImageModal } from "../components/ImageModal";
@@ -11,7 +12,12 @@ interface Image {
   photographer?: string;
 }
 
-type TempImage = { file: File; url: string; tempId: string, photographer: string };
+type TempImage = {
+  file: File;
+  url: string;
+  tempId: string;
+  photographer: string;
+};
 
 const CATEGORIES = ["performance", "skulpturer", "utställningar"] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -20,7 +26,8 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   projectId,
 }) => {
   const { projects, updateProject, createProject } = useProjectStore();
-  const { setEditMode } = useUserStore();
+  const { setEditMode, success } = useUserStore();
+  const navigate = useNavigate()
   const existingProject = useMemo(
     () => projects.find((p) => p._id === projectId),
     [projects, projectId]
@@ -39,28 +46,30 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   const [description, setDescription] = useState(
     existingProject?.description ?? ""
   );
-
   const [existingImages, setExistingImages] = useState<Image[]>(
     existingProject?.images ?? []
   );
   const [newImages, setNewImages] = useState<TempImage[]>([]);
-const [imagesOrder, setImagesOrder] = useState<string[]>([
-  ...(existingProject?.images?.map((img) => img.public_id) ?? [])
-]);
-const gallery: Image[] = imagesOrder
-  .map((id) => {
-    const existing = existingImages.find((img) => img.public_id === id);
-    if (existing) return existing;
+  const [imagesOrder, setImagesOrder] = useState<string[]>([
+    ...(existingProject?.images?.map((img) => img.public_id) ?? []),
+  ]);
+  const gallery: Image[] = imagesOrder
+    .map((id) => {
+      const existing = existingImages.find((img) => img.public_id === id);
+      if (existing) return existing;
 
-    const temp = newImages.find((img) => img.tempId === id);
-    if (temp) {
-      return { url: temp.url, public_id: temp.tempId, photographer: temp.photographer };
-    }
+      const temp = newImages.find((img) => img.tempId === id);
+      if (temp) {
+        return {
+          url: temp.url,
+          public_id: temp.tempId,
+          photographer: temp.photographer,
+        };
+      }
 
-    return null;
-  })
-  .filter((img): img is Image => img !== null);
-
+      return null;
+    })
+    .filter((img): img is Image => img !== null);
 
   const [removeImages, setRemoveImages] = useState<string[]>([]);
 
@@ -85,39 +94,39 @@ const gallery: Image[] = imagesOrder
     );
   };
 
-const moveImage = (index: number, direction: "left" | "right") => {
-  const newOrder = [...imagesOrder];
-  const targetIndex = direction === "left" ? index - 1 : index + 1;
+  const moveImage = (index: number, direction: "left" | "right") => {
+    const newOrder = [...imagesOrder];
+    const targetIndex = direction === "left" ? index - 1 : index + 1;
 
-  if (targetIndex < 0 || targetIndex >= newOrder.length) return;
+    if (targetIndex < 0 || targetIndex >= newOrder.length) return;
 
-  const [moved] = newOrder.splice(index, 1);
-  newOrder.splice(targetIndex, 0, moved);
+    const [moved] = newOrder.splice(index, 1);
+    newOrder.splice(targetIndex, 0, moved);
 
-  setImagesOrder(newOrder);
+    setImagesOrder(newOrder);
 
-  // sätt imageToDisplay till den första bilden i nya ordningen
-  const firstId = newOrder[0];
+    // sätt imageToDisplay till den första bilden i nya ordningen
+    const firstId = newOrder[0];
 
-  let newFirst: Image | TempImage | null = null;
+    let newFirst: Image | TempImage | null = null;
 
-  const existing = existingImages.find((img) => img.public_id === firstId);
-  if (existing) {
-    newFirst = existing;
-  } else {
-    const temp = newImages.find((img) => img.tempId === firstId);
-    if (temp) newFirst = temp;
-  }
+    const existing = existingImages.find((img) => img.public_id === firstId);
+    if (existing) {
+      newFirst = existing;
+    } else {
+      const temp = newImages.find((img) => img.tempId === firstId);
+      if (temp) newFirst = temp;
+    }
 
-  if (newFirst) {
-    setImageToDisplay({
-      url: newFirst.url,
-      public_id: "public_id" in newFirst ? newFirst.public_id : newFirst.tempId,
-      photographer: newFirst.photographer || "",
-    });
-  }
-};
-
+    if (newFirst) {
+      setImageToDisplay({
+        url: newFirst.url,
+        public_id:
+          "public_id" in newFirst ? newFirst.public_id : newFirst.tempId,
+        photographer: newFirst.photographer || "",
+      });
+    }
+  };
 
   const handleDeleteThumb = (img: Image) => {
     const isTemp = img.public_id.startsWith("temp-");
@@ -198,17 +207,17 @@ const moveImage = (index: number, direction: "left" | "right") => {
     setImageToDisplay(gallery[0] ?? null);
   }, [gallery.length]);
 
-const handleDropImages = (accepted: File[]) => {
-  const additions: TempImage[] = accepted.map((file) => {
-    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    return { file, url: URL.createObjectURL(file), tempId, photographer: "" };
-  });
+  const handleDropImages = (accepted: File[]) => {
+    const additions: TempImage[] = accepted.map((file) => {
+      const tempId = `temp-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2)}`;
+      return { file, url: URL.createObjectURL(file), tempId, photographer: "" };
+    });
 
-  setNewImages((prev) => [...prev, ...additions]);
-  setImagesOrder((prev) => [...prev, ...additions.map((a) => a.tempId)]);
-};
-
-
+    setNewImages((prev) => [...prev, ...additions]);
+    setImagesOrder((prev) => [...prev, ...additions.map((a) => a.tempId)]);
+  };
 
   const handlePreviewClick = (image: Image) => {
     setIsModalOpen(true);
@@ -225,9 +234,18 @@ const handleDropImages = (accepted: File[]) => {
     }
   }, [projectId]);
 
-useEffect(() => {
-  console.log("Fotografer:", gallery.map((img) => img.photographer));
-}, [gallery]);
+  useEffect(() => {
+    if (success) {
+      navigate("/");
+    }
+  });
+
+  useEffect(() => {
+    console.log(
+      "Fotografer:",
+      gallery.map((img) => img.photographer)
+    );
+  }, [gallery]);
 
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto mt-40 flex flex-col gap-10">
@@ -237,31 +255,31 @@ useEffect(() => {
 
       <div className="flex flex-col gap-4 laptop:gap-10 laptop:flex-row laptop:justify-between">
         <div className="w-full flex flex-col laptop:w-2/3 gap-4">
-            <div className="w-full flex ">
-              {imageToDisplay ? (
-                <img
-                  src={imageToDisplay.url}
-                  alt="Preview"
-                  className="w-full h-full max-w-[900px] laptop:h-[650px] object-contain object-left"
-                  onClick={() => setIsModalOpen(true)}
-                />
-              ) : (
-                <Dropzone onDrop={handleDropImages} accept={{ "image/*": [] }}>
-                  {({ getRootProps, getInputProps }) => (
-                    <div
-                      {...getRootProps()}
-                      className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer"
-                    >
-                      <input {...getInputProps()} />
-                      <p className="font-body flex gap-2 items-center">
-                        {" "}
-                        <FiPlus /> Släpp eller klicka för att lägga till bilder
-                      </p>
-                    </div>
-                  )}
-                </Dropzone>
-              )}
-            </div>
+          <div className="w-full flex ">
+            {imageToDisplay ? (
+              <img
+                src={imageToDisplay.url}
+                alt="Preview"
+                className="w-full h-full max-w-[900px] laptop:h-[650px] object-contain object-left"
+                onClick={() => setIsModalOpen(true)}
+              />
+            ) : (
+              <Dropzone onDrop={handleDropImages} accept={{ "image/*": [] }}>
+                {({ getRootProps, getInputProps }) => (
+                  <div
+                    {...getRootProps()}
+                    className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer"
+                  >
+                    <input {...getInputProps()} />
+                    <p className="font-body flex gap-2 items-center">
+                      {" "}
+                      <FiPlus /> Släpp eller klicka för att lägga till bilder
+                    </p>
+                  </div>
+                )}
+              </Dropzone>
+            )}
+          </div>
           {gallery.length >= 1 && (
             <div className="flex flex-col laptop:flex-row gap-10">
               <div className="flex flex-wrap gap-2">
@@ -291,14 +309,14 @@ useEffect(() => {
                         ←
                       </button>
                     )}
-                     {index < gallery.length - 1 && (
-      <button
-        onClick={() => moveImage(index, "right")}
-        className="absolute bottom-1 right-1 bg-white/80 rounded-full px-2 cursor-pointer"
-      >
-        →
-      </button>
-    )}
+                    {index < gallery.length - 1 && (
+                      <button
+                        onClick={() => moveImage(index, "right")}
+                        className="absolute bottom-1 right-1 bg-white/80 rounded-full px-2 cursor-pointer"
+                      >
+                        →
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>

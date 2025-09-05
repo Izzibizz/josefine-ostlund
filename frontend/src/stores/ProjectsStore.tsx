@@ -55,7 +55,76 @@ export const useProjectStore = create<ProjectState>((set) => ({
     }
   },
 
-   createProject: async (data, images, photographers, video) => {
+createProject: async (data, images, photographers, video) => {
+  useUserStore.setState({
+    success: false,
+    fail: false,
+    loadingEdit: true,
+    showPopupMessage: true,
+  });
+
+  try {
+    const formData = new FormData();
+
+    // Lägg till textfält
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, String(value));
+    });
+
+    // Bygg ihop imageData = [{ index: 0, photographer: "…" }, …]
+    const imageData = images.map((_, i) => ({
+      index: i,
+      photographer: photographers[i] || "",
+    }));
+
+    // Lägg till imageData som JSON
+    formData.append("imageData", JSON.stringify(imageData));
+
+    // Lägg till bilder
+    images.forEach((file) => formData.append("images", file));
+
+    // Lägg till video
+    if (video) formData.append("video", video);
+
+    console.log("CREATE formData:", [...formData.entries()]);
+
+    const res = await axios.post(
+      "https://josefine-ostlund.onrender.com/projects/newProject",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    set((state) => ({ projects: [...state.projects, res.data.project] }));
+    useUserStore.setState({
+      editMode: false,
+      loadingEdit: false,
+      success: true,
+      showPopupMessage: true,
+    });
+  } catch (err) {
+    console.error("Error creating project", err);
+    useUserStore.setState({
+      loadingEdit: false,
+      fail: true,
+      showPopupMessage: true,
+    });
+  }
+},
+
+
+  // --- UPDATE ---
+  updateProject: async (
+  id,
+  updates,
+  newImages,
+  newVideo,
+  removeImages,
+  removeVideo,
+  photographers // array med { public_id, photographer }
+) => {
+  try {
     useUserStore.setState({
       success: false,
       fail: false,
@@ -63,140 +132,74 @@ export const useProjectStore = create<ProjectState>((set) => ({
       showPopupMessage: true,
     });
 
-    try {
-      const formData = new FormData();
+    const formData = new FormData();
 
-      // Lägg till textfält
-      Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, String(value));
-      });
-
-      // Lägg till bilder
-      images.forEach((file) => formData.append("images", file));
-
-      // Lägg till fotografer (i samma ordning som images)
-      if (photographers.length > 0) {
-        formData.append("photographers", JSON.stringify(photographers));
+    // Lägg till textfält
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value.toString());
       }
+    });
 
-      // Lägg till video
-      if (video) formData.append("video", video);
-
-      console.log("CREATE formData:", [...formData.entries()]);
-
-      const res = await axios.post(
-        "https://josefine-ostlund.onrender.com/projects/newProject",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      console.log("Saved successfully");
-
-      set((state) => ({ projects: [...state.projects, res.data.project] }));
-      useUserStore.setState({
-        editMode: false,
-        loadingEdit: false,
-        success: true,
-        showPopupMessage: true,
-      });
-    } catch (err) {
-      console.error("Error creating project", err);
-      useUserStore.setState({
-        loadingEdit: false,
-        fail: true,
-        showPopupMessage: true,
+    // Lägg till nya bilder
+    if (newImages?.length) {
+      newImages.forEach((file) => {
+        formData.append("images", file);
       });
     }
-  },
 
-  // --- UPDATE ---
-  updateProject: async (
-    id,
-    updates,
-    newImages,
-    newVideo,
-    removeImages,
-    removeVideo,
-    photographers
-  ) => {
-    try {
-      useUserStore.setState({
-        success: false,
-        fail: false,
-        loadingEdit: true,
-        showPopupMessage: true,
-      });
-
-      const formData = new FormData();
-
-      // Lägg till textfält
-      Object.entries(updates).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, value.toString());
-        }
-      });
-
-      // Lägg till nya bilder
-      if (newImages?.length) {
-        newImages.forEach((file) => {
-          formData.append("images", file);
-        });
-      }
-
-      // Lägg till fotografer
-      if (photographers?.length) {
-        formData.append("photographers", JSON.stringify(photographers));
-      }
-
-      // Lägg till ny video
-      if (newVideo) {
-        formData.append("video", newVideo);
-      }
-
-      // Lägg till removeImages
-      if (removeImages?.length) {
-        removeImages.forEach((id) => {
-          formData.append("removeImages", id);
-        });
-      }
-
-      // Lägg till removeVideo
-      if (removeVideo) {
-        formData.append("removeVideo", "true");
-      }
-
-      const res = await axios.patch(
-        `https://josefine-ostlund.onrender.com/projects/${id}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      // uppdatera i state
-      set((state) => ({
-        projects: state.projects.map((p) =>
-          p._id === id ? res.data.project : p
-        ),
-      }));
-
-      useUserStore.setState({
-        editMode: false,
-        loadingEdit: false,
-        success: true,
-        showPopupMessage: true,
-      });
-      console.log("Update successful");
-    } catch (err) {
-      useUserStore.setState({
-        loadingEdit: false,
-        fail: true,
-        showPopupMessage: true,
-      });
-      console.error("Error updating project", err);
+    // Lägg till photographers JSON (för både nya och befintliga bilder)
+    if (photographers?.length) {
+      formData.append("imageData", JSON.stringify(photographers));
     }
-  },
+
+    // Lägg till ny video
+    if (newVideo) {
+      formData.append("video", newVideo);
+    }
+
+    // Lägg till removeImages
+    if (removeImages?.length) {
+      removeImages.forEach((id) => {
+        formData.append("removeImages", id);
+      });
+    }
+
+    // Lägg till removeVideo
+    if (removeVideo) {
+      formData.append("removeVideo", "true");
+    }
+
+    const res = await axios.patch(
+      `https://j-ostlund.onrender.com/projects/${id}`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    // Uppdatera state
+    set((state) => ({
+      projects: state.projects.map((p) =>
+        p._id === id ? res.data.project : p
+      ),
+    }));
+
+    useUserStore.setState({
+      editMode: false,
+      loadingEdit: false,
+      success: true,
+      showPopupMessage: true,
+    });
+    console.log("Update successful");
+  } catch (err) {
+    useUserStore.setState({
+      loadingEdit: false,
+      fail: true,
+      showPopupMessage: true,
+    });
+    console.error("Error updating project", err);
+  }
+},
 
 }));

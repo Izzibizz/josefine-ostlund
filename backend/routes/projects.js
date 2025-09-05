@@ -75,12 +75,15 @@ router.post(
     try {
       const { name, year, material, exhibited_at, category, description } = req.body;
 
-      // 📸 ta emot fotografer
-      const photographers = Array.isArray(req.body.photographers)
-        ? req.body.photographers
-        : req.body.photographers
-        ? [req.body.photographers]
-        : [];
+      // 📸 ta emot imageData (JSON med fotografer)
+      let imageData = [];
+      if (req.body.imageData) {
+        try {
+          imageData = JSON.parse(req.body.imageData);
+        } catch (e) {
+          console.error("Failed to parse imageData:", e);
+        }
+      }
 
       const imageFiles = req.files?.images || [];
       const imageUploads = await Promise.all(
@@ -90,10 +93,15 @@ router.post(
               cloudinary.uploader
                 .upload_stream({ resource_type: "image" }, (err, result) => {
                   if (err) return reject(err);
+
+                  // hitta rätt fotograf via index
+                  const photographer =
+                    imageData.find((d) => d.index === i)?.photographer || "";
+
                   resolve({
                     url: result.secure_url,
                     public_id: result.public_id,
-                    photographer: photographers[i] || "", // ✅ lägg till rätt fotograf
+                    photographer,
                   });
                 })
                 .end(file.buffer);
@@ -101,7 +109,7 @@ router.post(
         )
       );
 
-      // 📹 video samma som innan...
+      // 📹 video samma som innan
       let videoUpload = null;
       if (req.files?.video?.length > 0) {
         const file = req.files.video[0];
@@ -130,7 +138,9 @@ router.post(
       });
 
       await newProject.save();
-      res.status(201).json({ message: "Project created successfully", project: newProject });
+      res
+        .status(201)
+        .json({ message: "Project created successfully", project: newProject });
     } catch (error) {
       console.error("Error creating project:", error);
       res.status(500).json({ message: "Error creating project" });
@@ -155,12 +165,10 @@ router.patch(
         removeVideo,
       } = req.body;
 
-      console.log("removeImages raw:", req.body.removeImages);
-      console.log("removeVideo raw:", removeVideo);
-
       const project = await Projects.findById(id);
       if (!project) return res.status(404).json({ message: "Project not found" });
 
+      // --- Ta bort bilder ---
       let removeList = [];
       if (req.body.removeImages) {
         if (Array.isArray(req.body.removeImages)) {
@@ -169,24 +177,45 @@ router.patch(
           removeList = [req.body.removeImages];
         }
       }
-
       for (const public_id of removeList) {
         await cloudinary.uploader.destroy(public_id);
         project.images = project.images.filter((img) => img.public_id !== public_id);
       }
 
-      if (removeVideo === "true" && project.video) {
-        await cloudinary.uploader.destroy(project.video.public_id, { resource_type: "video" });
-        project.video = undefined;
+      // --- Uppdatera fotografer ---
+      if (req.body.imageData) {
+        let imageData = [];
+        try {
+          imageData = JSON.parse(req.body.imageData); 
+          // förväntar sig [{public_id: "...", photographer: "..."}]
+        } catch (e) {
+          console.error("Failed to parse imageData:", e);
+        }
+
+        imageData.forEach((ph) => {
+          const img = project.images.find((i) => i.public_id === ph.public_id);
+          if (img) img.photographer = ph.photographer;
+        });
       }
 
+      // --- Lägg till nya bilder ---
       if (req.files?.images?.length) {
-        for (const file of req.files.images) {
+        const newImageData = req.body.imageData ? JSON.parse(req.body.imageData) : [];
+        for (let i = 0; i < req.files.images.length; i++) {
+          const file = req.files.images[i];
           const uploaded = await new Promise((resolve, reject) => {
             cloudinary.uploader
               .upload_stream({ resource_type: "image" }, (err, result) => {
                 if (err) return reject(err);
-                resolve({ url: result.secure_url, public_id: result.public_id });
+
+                // matcha fotograf via imageData (index efter nya bilder)
+                const photographer = newImageData[i]?.photographer || "";
+
+                resolve({
+                  url: result.secure_url,
+                  public_id: result.public_id,
+                  photographer,
+                });
               })
               .end(file.buffer);
           });
@@ -194,6 +223,11 @@ router.patch(
         }
       }
 
+      // --- Video ---
+      if (removeVideo === "true" && project.video) {
+        await cloudinary.uploader.destroy(project.video.public_id, { resource_type: "video" });
+        project.video = undefined;
+      }
       if (req.files?.video?.[0]) {
         if (project.video) {
           await cloudinary.uploader.destroy(project.video.public_id, { resource_type: "video" });
@@ -226,6 +260,7 @@ router.patch(
     }
   }
 );
+
 
 
 export default router;
