@@ -5,6 +5,8 @@ import { useUserStore } from "../stores/UserStore";
 import { ImageModal } from "../components/ImageModal";
 import Dropzone from "react-dropzone";
 import { FiPlus } from "react-icons/fi";
+import { DeleteButton } from "../components/DeleteButton";
+import { SingleProject } from "./SingleProject";
 
 interface Image {
   url: string;
@@ -336,8 +338,8 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
                       <FiPlus /> Klicka för att lägga till fler bilder
                     </p>
                     <p className="text-xs">
-                      JPG, PNG eller WEBP (max-mått 1800px) <br /> glöm
-                      inte namnge med ditt namn, titel, fotograf
+                      JPG, PNG eller WEBP (max-mått 1800px) <br /> glöm inte
+                      namnge med ditt namn, titel, fotograf
                     </p>
                   </div>
                 )}
@@ -431,6 +433,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
           >
             Spara projekt
           </button>
+          {projectId && <DeleteButton projectId={projectId} />}
         </div>
       </div>
 

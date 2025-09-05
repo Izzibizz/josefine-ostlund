@@ -38,6 +38,7 @@ interface ProjectState {
     removeVideo?: boolean,
     imageData?: { public_id?: string; index?: number; photographer: string }[]
   ) => Promise<void>;
+  deleteProject: (id: string) => Promise<void>;
 }
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -131,4 +132,36 @@ export const useProjectStore = create<ProjectState>((set) => ({
       useUserStore.setState({ loadingEdit: false, fail: true, showPopupMessage: true });
     }
   },
+  deleteProject: async (id) => {
+  try {
+    useUserStore.setState({
+      success: false,
+      fail: false,
+      loadingEdit: true,
+      showPopupMessage: true,
+    });
+
+    await axios.delete(`https://josefine-ostlund.onrender.com/projects/${id}`);
+
+    // 🗑 Uppdatera state: ta bort projektet lokalt
+    set((state) => ({
+      projects: state.projects.filter((p) => p._id !== id),
+    }));
+
+    useUserStore.setState({
+      loadingEdit: false,
+      success: true,
+      showPopupMessage: true,
+    });
+    console.log("Delete successful");
+  } catch (err) {
+    console.error("Error deleting project", err);
+    useUserStore.setState({
+      loadingEdit: false,
+      fail: true,
+      showPopupMessage: true,
+    });
+  }
+},
+
 }));

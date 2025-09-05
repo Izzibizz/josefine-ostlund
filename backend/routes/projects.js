@@ -209,7 +209,37 @@ router.patch(
       console.error("Error updating project:", error);
       res.status(500).json({ message: "Error updating project" });
     }
+  },
+  // DELETE a project by ID
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const project = await Projects.findById(id);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    // 🖼 Ta bort alla bilder från Cloudinary
+    for (const img of project.images) {
+      await cloudinary.uploader.destroy(img.public_id);
+    }
+
+    // 📹 Ta bort ev. video
+    if (project.video) {
+      await cloudinary.uploader.destroy(project.video.public_id, { resource_type: "video" });
+    }
+
+    // 🚮 Ta bort projektet från databasen
+    await project.deleteOne();
+
+    res.json({ message: "Project deleted successfully", id });
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    res.status(500).json({ message: "Error deleting project" });
   }
+})
+
 );
 
 
