@@ -22,6 +22,8 @@ export interface Project {
 
 interface ProjectState {
   projects: Project[];
+  deleteFail: boolean;
+  deleteSuccess: boolean;
   fetchProjects: () => Promise<void>;
   createProject: (
     data: Omit<Project, "_id" | "images" | "video">,
@@ -39,10 +41,16 @@ interface ProjectState {
     imageData?: { public_id?: string; index?: number; photographer: string }[]
   ) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
+  setDeleteFail: (input: boolean) => void;
+  setDeleteSuccess: (input: boolean) => void;
 }
 
 export const useProjectStore = create<ProjectState>((set) => ({
   projects: [],
+  deleteFail: false,
+  deleteSuccess: false,
+  setDeleteFail: (input) => set({ deleteFail: input }),
+  setDeleteSuccess: (input) => set({ deleteSuccess: input }),
 
   // --- FETCH ---
   fetchProjects: async () => {
@@ -140,6 +148,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
       loadingEdit: true,
       showPopupMessage: true,
     });
+    set({ deleteFail: false, deleteSuccess: false})
 
     await axios.delete(`https://josefine-ostlund.onrender.com/projects/${id}`);
 
@@ -148,17 +157,18 @@ export const useProjectStore = create<ProjectState>((set) => ({
       projects: state.projects.filter((p) => p._id !== id),
     }));
 
+    set({deleteSuccess: true})
+
     useUserStore.setState({
       loadingEdit: false,
-      success: true,
       showPopupMessage: true,
     });
     console.log("Delete successful");
   } catch (err) {
     console.error("Error deleting project", err);
+    set({deleteFail: true})
     useUserStore.setState({
       loadingEdit: false,
-      fail: true,
       showPopupMessage: true,
     });
   }

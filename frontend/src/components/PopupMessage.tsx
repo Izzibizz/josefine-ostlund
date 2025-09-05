@@ -1,5 +1,5 @@
 import { useUserStore } from "../stores/UserStore";
-/* import { useProjectStore } from "../stores/ProjectsStore"; */
+ import { useProjectStore } from "../stores/ProjectsStore";
 import { useEffect } from "react";
 import Lottie from "lottie-react";
 import greenAnimation from "../assets/Animation-green-done.json";
@@ -21,6 +21,8 @@ export const PopupMessage = () => {
     setFail,
     setLoadingEdit
   } = useUserStore();
+  
+const { setDeleteFail, deleteFail, deleteSuccess, setDeleteSuccess } = useProjectStore()
 
   const animationCloneGreen = JSON.parse(JSON.stringify(greenAnimation));
   const animationCloneRed = JSON.parse(JSON.stringify(redAnimation));
@@ -30,7 +32,9 @@ export const PopupMessage = () => {
   const getMessage = () => {
     if (loginError) return "Fel inloggningsuppgifter";
     if (loadingEdit) return ""
+    if (deleteSuccess) return "Projektet har raderats"
     if (success) return "Ditt projekt har sparats";
+    if (deleteFail) return "Kunde inte radera projektet"
     if (fail) return "Kunde inte spara, prova igen"; 
     if (loggedIn) return `Välkommen!`;
     if (loggedOut) return "Du är nu utloggad";
@@ -40,7 +44,7 @@ export const PopupMessage = () => {
 
 
   const getAnimation = () => {
-    if (loginError || fail ) return animationCloneRed;
+    if (loginError || fail || deleteFail ) return animationCloneRed;
      if ( loadingEdit ||  loadingUser) return animationCloneLoad; 
     return animationCloneGreen;
   };
@@ -56,6 +60,8 @@ export const PopupMessage = () => {
       setFail(false)
       setShowPopupMessage(false);
       setLoginError(false);
+      setDeleteFail(false)
+      setDeleteSuccess(false)
     }, 3000);
   }, [success, loginError, fail, loggedIn, loggedOut, loadingEdit] );
 

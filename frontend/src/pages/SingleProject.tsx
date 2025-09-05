@@ -85,9 +85,11 @@ if (editMode && singleProject) {
         
           <div className="flex flex-col gap-2 text-end">
             <h2 className="font-extrabold text-lg">{singleProject?.name}</h2>
+             {singleProject.category === "utställningar" && <p><span className="font-semibold">Visad på: </span>{singleProject?.exhibited_at}</p> }
             <h3>{singleProject?.year}</h3>
             <p>{singleProject?.material}</p>
             <p>{singleProject?.description}</p>
+            {singleProject.category !== "utställningar" && <p><span className="font-semibold">Visad på: </span>{singleProject?.exhibited_at}</p> }
           </div>
             <SwiperComp
             handlePreviewClick={handlePreviewClick}
