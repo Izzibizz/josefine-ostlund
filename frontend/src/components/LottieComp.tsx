@@ -1,19 +1,20 @@
-import React, { Suspense } from "react";
 
-// Ladda lottie-react dynamiskt
-const Lottie = React.lazy(() => import("lottie-react"));
+import Lottie from "react-lottie-player";
 
 interface Props {
   animationData: object;
   loop?: boolean;
   autoplay?: boolean;
-  style?: object;
+  style?: React.CSSProperties;
 }
 
-export default function LottieComp({ animationData, loop, autoplay, style }: Props) {
+export default function LottieComp({ animationData, loop = true, autoplay = true, style }: Props) {
   return (
-    <Suspense fallback={<div />}>
-      <Lottie animationData={animationData} loop={loop} autoplay={autoplay} style={style} />
-    </Suspense>
+    <Lottie
+      play={autoplay}
+      loop={loop}
+      animationData={animationData}
+      style={style}
+    />
   );
 }
