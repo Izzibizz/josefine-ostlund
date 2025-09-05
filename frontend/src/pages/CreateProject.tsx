@@ -6,7 +6,6 @@ import { ImageModal } from "../components/ImageModal";
 import Dropzone from "react-dropzone";
 import { FiPlus } from "react-icons/fi";
 import { DeleteButton } from "../components/DeleteButton";
-import { SingleProject } from "./SingleProject";
 
 interface Image {
   url: string;
@@ -207,7 +206,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
 
   useEffect(() => {
     setImageToDisplay(gallery[0] ?? null);
-  }, [gallery.length]);
+  }, [gallery.length, gallery]);
 
   const handleDropImages = (accepted: File[]) => {
     const additions: TempImage[] = accepted.map((file) => {
@@ -234,7 +233,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     if (!projectId) {
       setEditMode(true);
     }
-  }, [projectId]);
+  }, [projectId, setEditMode]);
 
   useEffect(() => {
     if (success) {

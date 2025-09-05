@@ -31,7 +31,7 @@ export const AdminFooter: React.FC = () => {
     } else {
       setShowPlus(false);
     }
-  }, [location.pathname]);
+  }, []);
 
    useEffect(() => {
     const path = location.pathname; 
@@ -44,7 +44,7 @@ export const AdminFooter: React.FC = () => {
     } else {
       setShowPen(false);
     }
-  }, [location.pathname]);
+  }, []);
 
     console.log("is editing", editMode);
 
