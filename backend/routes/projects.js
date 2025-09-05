@@ -75,54 +75,35 @@ router.post(
     try {
       const { name, year, material, exhibited_at, category, description } = req.body;
 
-      // 📸 ta emot imageData (JSON med fotografer)
-      let imageData = [];
-      if (req.body.imageData) {
-        try {
-          imageData = JSON.parse(req.body.imageData);
-        } catch (e) {
-          console.error("Failed to parse imageData:", e);
-        }
-      }
+      // Ta emot fotografer som array
+      const photographers = req.body.photographers ? JSON.parse(req.body.photographers) : [];
 
       const imageFiles = req.files?.images || [];
       const imageUploads = await Promise.all(
-        imageFiles.map(
-          (file, i) =>
-            new Promise((resolve, reject) => {
-              cloudinary.uploader
-                .upload_stream({ resource_type: "image" }, (err, result) => {
-                  if (err) return reject(err);
-
-                  // hitta rätt fotograf via index
-                  const photographer =
-                    imageData.find((d) => d.index === i)?.photographer || "";
-
-                  resolve({
-                    url: result.secure_url,
-                    public_id: result.public_id,
-                    photographer,
-                  });
-                })
-                .end(file.buffer);
-            })
+        imageFiles.map((file, i) =>
+          new Promise((resolve, reject) => {
+            cloudinary.uploader
+              .upload_stream({ resource_type: "image" }, (err, result) => {
+                if (err) return reject(err);
+                resolve({
+                  url: result.secure_url,
+                  public_id: result.public_id,
+                  photographer: photographers[i] || "",
+                });
+              })
+              .end(file.buffer);
+          })
         )
       );
 
-      // 📹 video samma som innan
       let videoUpload = null;
-      if (req.files?.video?.length > 0) {
+      if (req.files?.video?.length) {
         const file = req.files.video[0];
         videoUpload = await new Promise((resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream({ resource_type: "video" }, (err, result) => {
-              if (err) return reject(err);
-              resolve({
-                url: result.secure_url,
-                public_id: result.public_id,
-              });
-            })
-            .end(file.buffer);
+          cloudinary.uploader.upload_stream({ resource_type: "video" }, (err, result) => {
+            if (err) return reject(err);
+            resolve({ url: result.secure_url, public_id: result.public_id });
+          }).end(file.buffer);
         });
       }
 
@@ -138,9 +119,7 @@ router.post(
       });
 
       await newProject.save();
-      res
-        .status(201)
-        .json({ message: "Project created successfully", project: newProject });
+      res.status(201).json({ message: "Project created successfully", project: newProject });
     } catch (error) {
       console.error("Error creating project:", error);
       res.status(500).json({ message: "Error creating project" });
@@ -148,22 +127,13 @@ router.post(
   }
 );
 
-
 router.patch(
   "/:id",
   upload.fields([{ name: "images" }, { name: "video" }]),
   async (req, res) => {
     try {
       const { id } = req.params;
-      const {
-        name,
-        year,
-        material,
-        exhibited_at,
-        category,
-        description,
-        removeVideo,
-      } = req.body;
+      const { name, year, material, exhibited_at, category, description, removeVideo } = req.body;
 
       const project = await Projects.findById(id);
       if (!project) return res.status(404).json({ message: "Project not found" });
@@ -171,11 +141,7 @@ router.patch(
       // --- Ta bort bilder ---
       let removeList = [];
       if (req.body.removeImages) {
-        if (Array.isArray(req.body.removeImages)) {
-          removeList = req.body.removeImages;
-        } else if (typeof req.body.removeImages === "string") {
-          removeList = [req.body.removeImages];
-        }
+        removeList = Array.isArray(req.body.removeImages) ? req.body.removeImages : [req.body.removeImages];
       }
       for (const public_id of removeList) {
         await cloudinary.uploader.destroy(public_id);
@@ -184,40 +150,29 @@ router.patch(
 
       // --- Uppdatera fotografer ---
       if (req.body.imageData) {
-        let imageData = [];
-        try {
-          imageData = JSON.parse(req.body.imageData); 
-          // förväntar sig [{public_id: "...", photographer: "..."}]
-        } catch (e) {
-          console.error("Failed to parse imageData:", e);
-        }
-
-        imageData.forEach((ph) => {
-          const img = project.images.find((i) => i.public_id === ph.public_id);
-          if (img) img.photographer = ph.photographer;
-        });
+        const imageData = JSON.parse(req.body.imageData);
+        imageData
+          .filter((d) => d.public_id)
+          .forEach((d) => {
+            const img = project.images.find((i) => i.public_id === d.public_id);
+            if (img) img.photographer = d.photographer;
+          });
       }
 
-      // --- Lägg till nya bilder ---
+      // --- Nya bilder ---
       if (req.files?.images?.length) {
-        const newImageData = req.body.imageData ? JSON.parse(req.body.imageData) : [];
+        const newImageData = req.body.imageData ? JSON.parse(req.body.imageData).filter(d => d.index !== undefined) : [];
         for (let i = 0; i < req.files.images.length; i++) {
           const file = req.files.images[i];
           const uploaded = await new Promise((resolve, reject) => {
-            cloudinary.uploader
-              .upload_stream({ resource_type: "image" }, (err, result) => {
-                if (err) return reject(err);
-
-                // matcha fotograf via imageData (index efter nya bilder)
-                const photographer = newImageData[i]?.photographer || "";
-
-                resolve({
-                  url: result.secure_url,
-                  public_id: result.public_id,
-                  photographer,
-                });
-              })
-              .end(file.buffer);
+            cloudinary.uploader.upload_stream({ resource_type: "image" }, (err, result) => {
+              if (err) return reject(err);
+              resolve({
+                url: result.secure_url,
+                public_id: result.public_id,
+                photographer: newImageData[i]?.photographer || "",
+              });
+            }).end(file.buffer);
           });
           project.images.push(uploaded);
         }
@@ -229,17 +184,13 @@ router.patch(
         project.video = undefined;
       }
       if (req.files?.video?.[0]) {
-        if (project.video) {
-          await cloudinary.uploader.destroy(project.video.public_id, { resource_type: "video" });
-        }
+        if (project.video) await cloudinary.uploader.destroy(project.video.public_id, { resource_type: "video" });
         const file = req.files.video[0];
         const uploadedVideo = await new Promise((resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream({ resource_type: "video" }, (err, result) => {
-              if (err) return reject(err);
-              resolve({ url: result.secure_url, public_id: result.public_id });
-            })
-            .end(file.buffer);
+          cloudinary.uploader.upload_stream({ resource_type: "video" }, (err, result) => {
+            if (err) return reject(err);
+            resolve({ url: result.secure_url, public_id: result.public_id });
+          }).end(file.buffer);
         });
         project.video = uploadedVideo;
       }

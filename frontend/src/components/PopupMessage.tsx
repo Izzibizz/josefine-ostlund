@@ -65,9 +65,9 @@ export const PopupMessage = () => {
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-overlay backdrop-blur-sm  flex items-center justify-center z-50 animate-fadeIn">
       <div className="w-10/12 tablet:w-1/2 laptop:w-1/4 mb-52 tablet:mb-72 laptop:mb-52 rounded-lg bg-medium-white backdrop-blur-base px-2 py-6 tablet:p-8 relative flex flex-col items-center justify-center justify-between">
-        <div className="font-heading text-text-light">
-          <h2 className="text-sm tablet:text-base mb-4">{getMessage()}</h2>
-        </div>
+        <div className="font-heading bg-white text-black p-4 px-6 flex flex-col justify-center items-center">
+          <h2 className="text-sm tablet:text-base bg-4">{getMessage()}</h2>
+        
        {/*  {deleteValidationProcess ? (
            <div className="flex gap-8"><button type="button" className="bg-peach hover:bg-main-dark p-2 px-4 rounded-xl text-main-white" onClick={()=> confirmDelete()}>Yes</button>
           <button type="button" className="bg-peach hover:bg-main-dark p-2 px-4 rounded-xl text-main-white" onClick={()=> abortDelete()}>No</button></div>
@@ -79,6 +79,7 @@ export const PopupMessage = () => {
             style={{ width: 100, height: 100 }}
           />
       {/*   )} */}
+      </div>
       </div>
     </div>
   );

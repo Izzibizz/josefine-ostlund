@@ -27,7 +27,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
 }) => {
   const { projects, updateProject, createProject } = useProjectStore();
   const { setEditMode, success } = useUserStore();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const existingProject = useMemo(
     () => projects.find((p) => p._id === projectId),
     [projects, projectId]
@@ -268,12 +268,16 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
                 {({ getRootProps, getInputProps }) => (
                   <div
                     {...getRootProps()}
-                    className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer"
+                    className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer flex flex-col gap-2 w-full laptop:min-h-[300px] justify-center items-center"
                   >
                     <input {...getInputProps()} />
-                    <p className="font-body flex gap-2 items-center">
+                    <p className="font-body text-sm tablet:text-base flex gap-2 items-center">
                       {" "}
-                      <FiPlus /> Släpp eller klicka för att lägga till bilder
+                      <FiPlus /> Klicka för att lägga till bilder
+                    </p>
+                    <p className="text-xs">
+                      JPG, PNG eller WEBP (max-mått 1800px) <br />
+                      glöm inte namnge med ditt namn, titel, fotograf
                     </p>
                   </div>
                 )}
@@ -324,13 +328,16 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
                 {({ getRootProps, getInputProps }) => (
                   <div
                     {...getRootProps()}
-                    className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer"
+                    className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer flex flex-col gap-2"
                   >
                     <input {...getInputProps()} />
-                    <p className="font-body flex gap-2 items-center">
+                    <p className="font-body text-sm tablet:text-base flex gap-2 items-center">
                       {" "}
-                      <FiPlus /> Släpp eller klicka för att lägga till fler
-                      bilder
+                      <FiPlus /> Klicka för att lägga till fler bilder
+                    </p>
+                    <p className="text-xs">
+                      JPG, PNG eller WEBP (max-mått 1800px) <br /> glöm
+                      inte namnge med ditt namn, titel, fotograf
                     </p>
                   </div>
                 )}
@@ -407,7 +414,10 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
                     className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer"
                   >
                     <input {...getInputProps()} />
-                    <p>Släpp eller klicka för att ladda upp en video</p>
+                    <p className="text-sm">
+                      Släpp eller klicka för att ladda upp en video{" "}
+                      <span className="text-xs">(max 100 MB)</span>
+                    </p>
                   </div>
                 )}
               </Dropzone>
