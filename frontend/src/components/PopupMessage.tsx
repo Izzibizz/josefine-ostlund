@@ -1,10 +1,10 @@
 import { useUserStore } from "../stores/UserStore";
 import { useProjectStore } from "../stores/ProjectsStore";
 import { useEffect } from "react";
-/* import loading from "../assets/loading_gray.gif"
+import loading from "../assets/loading_gray.gif"
 import done from "../assets/Done.gif"
 import failed from "../assets/Failed.gif"
- */
+
 
 export const PopupMessage = () => {
   const {
@@ -12,7 +12,7 @@ export const PopupMessage = () => {
     loggedOut,
     setShowPopupMessage,
     loginError,
-   /*  loadingUser, */
+    loadingUser,
     setLoginError,
     success,
     fail,
@@ -38,11 +38,11 @@ export const PopupMessage = () => {
     return "";
   };
 
-/*   const getAnimation = () => {
+  const getAnimation = () => {
     if (loginError || fail || deleteFail) return failed;
     if (loadingEdit || loadingUser) return loading ;
     return done;
-  }; */
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -67,9 +67,9 @@ export const PopupMessage = () => {
       <div className="w-10/12 tablet:w-1/2 laptop:w-1/4 mb-52 tablet:mb-72 laptop:mb-52 rounded-lg bg-medium-white backdrop-blur-base px-2 py-6 tablet:p-8 relative flex flex-col items-center justify-center justify-between">
         <div className="font-heading bg-white font-header p-4 px-6 flex flex-col justify-center items-center">
           <h2 className="text-sm tablet:text-base bg-4">{getMessage()}</h2>
-         {/*  <img
+          <img
             src={getAnimation()}
-          /> */}
+          /> 
         </div>
       </div>
     </div>

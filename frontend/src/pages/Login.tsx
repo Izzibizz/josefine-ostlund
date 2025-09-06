@@ -2,6 +2,7 @@ import { useUserStore } from "../stores/UserStore";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PopupMessage } from "../components/PopupMessage";
+import loading from "../assets/loading_gray.gif"
 
 export const Login: React.FC = () => {
   const {
@@ -79,7 +80,9 @@ export const Login: React.FC = () => {
           </div>
           {loadingUser ? (
             <div className="w-full flex justify-center items-center">
-          laddar..
+           <img
+            src={loading}
+          /> 
             </div>
           ) : (
             <button
