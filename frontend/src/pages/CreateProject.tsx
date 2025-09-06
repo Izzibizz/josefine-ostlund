@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { useProjectStore } from "../stores/ProjectsStore";
-import { useUserStore } from "../stores/UserStore";
+
 import { ImageModal } from "../components/ImageModal";
 import Dropzone from "react-dropzone";
 import { FiPlus } from "react-icons/fi";
@@ -26,9 +26,7 @@ type Category = (typeof CATEGORIES)[number];
 export const CreateProject: React.FC<{ projectId?: string }> = ({
   projectId,
 }) => {
-  const { projects, updateProject, createProject, deleteSuccess } = useProjectStore();
-  const { setEditMode, success } = useUserStore();
-  const navigate = useNavigate();
+  const { projects, updateProject, createProject } = useProjectStore();
   const existingProject = useMemo(
     () => projects.find((p) => p._id === projectId),
     [projects, projectId]
@@ -192,7 +190,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
         );
       } else {
         console.log("Creating project...");
-        await createProject(
+         await createProject(
           textData,
           newImages.map((n) => n.file),
           newImages.map((n) => n.photographer || ""),
@@ -229,17 +227,6 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     });
   };
 
-  useEffect(() => {
-    if (!projectId) {
-      setEditMode(true);
-    }
-  }, [projectId, setEditMode]);
-
-  useEffect(() => {
-    if (success || deleteSuccess ) {
-      navigate("/");
-    }
-  }, [success, deleteSuccess]);
 
   useEffect(() => {
     console.log(

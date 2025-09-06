@@ -17,7 +17,7 @@ export const SingleProject: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate()
-  const projects = useProjectStore((state) => state.projects);
+  const {projects, loading} = useProjectStore();
   const singleProject = useMemo(() => {
   return projects.find((project) => slugify(project.name) === id);
 }, [projects, id]);
@@ -56,12 +56,12 @@ export const SingleProject: React.FC = () => {
     }
   }, [singleProject]);
 
-  useEffect(() => {
-    if (!singleProject) {
-      // Navigera bakåt i historiken
-      navigate(-1);
-    }
-  }, [singleProject, navigate]);
+  
+useEffect(() => {
+  if (!singleProject && !loading) {
+    navigate(-1);
+  }
+}, [singleProject, navigate]);
 
   console.log(id);
 
@@ -85,11 +85,11 @@ if (editMode && singleProject) {
         
           <div className="flex flex-col gap-2 text-end">
             <h2 className="font-extrabold text-lg">{singleProject?.name}</h2>
-             {singleProject.category === "utställningar" && <p><span className="font-semibold">Visad på: </span>{singleProject?.exhibited_at}</p> }
+             {singleProject?.category === "utställningar" && <p><span className="font-semibold">Visad på: </span>{singleProject?.exhibited_at}</p> }
             <h3>{singleProject?.year}</h3>
             <p>{singleProject?.material}</p>
             <p>{singleProject?.description}</p>
-            {singleProject.category !== "utställningar" && <p><span className="font-semibold">Visad på: </span>{singleProject?.exhibited_at}</p> }
+            {singleProject?.category !== "utställningar" && <p><span className="font-semibold">Visad på: </span>{singleProject?.exhibited_at}</p> }
           </div>
             <SwiperComp
             handlePreviewClick={handlePreviewClick}

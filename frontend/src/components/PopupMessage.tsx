@@ -1,10 +1,10 @@
 import { useUserStore } from "../stores/UserStore";
 import { useProjectStore } from "../stores/ProjectsStore";
 import { useEffect } from "react";
-import LottieComp from "./LottieComp";
-import greenAnimation from "../assets/Animation-green-done.json";
-import redAnimation from "../assets/fail-animation.json";
-import loadingAnimation from "../assets/Circle-loading-Animation.json";
+/* import loading from "../assets/loading_gray.gif"
+import done from "../assets/Done.gif"
+import failed from "../assets/Failed.gif"
+ */
 
 export const PopupMessage = () => {
   const {
@@ -12,7 +12,7 @@ export const PopupMessage = () => {
     loggedOut,
     setShowPopupMessage,
     loginError,
-    loadingUser,
+   /*  loadingUser, */
     setLoginError,
     success,
     fail,
@@ -24,10 +24,6 @@ export const PopupMessage = () => {
 
   const { setDeleteFail, deleteFail, deleteSuccess, setDeleteSuccess } =
     useProjectStore();
-
-  const animationCloneGreen = JSON.parse(JSON.stringify(greenAnimation));
-  const animationCloneRed = JSON.parse(JSON.stringify(redAnimation));
-  const animationCloneLoad = JSON.parse(JSON.stringify(loadingAnimation));
 
   const getMessage = () => {
     if (loginError) return "Fel inloggningsuppgifter";
@@ -42,11 +38,11 @@ export const PopupMessage = () => {
     return "";
   };
 
-  const getAnimation = () => {
-    if (loginError || fail || deleteFail) return animationCloneRed;
-    if (loadingEdit || loadingUser) return animationCloneLoad;
-    return animationCloneGreen;
-  };
+/*   const getAnimation = () => {
+    if (loginError || fail || deleteFail) return failed;
+    if (loadingEdit || loadingUser) return loading ;
+    return done;
+  }; */
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -69,15 +65,11 @@ export const PopupMessage = () => {
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-overlay backdrop-blur-sm  flex items-center justify-center z-50 animate-fadeIn">
       <div className="w-10/12 tablet:w-1/2 laptop:w-1/4 mb-52 tablet:mb-72 laptop:mb-52 rounded-lg bg-medium-white backdrop-blur-base px-2 py-6 tablet:p-8 relative flex flex-col items-center justify-center justify-between">
-        <div className="font-heading bg-white text-black p-4 px-6 flex flex-col justify-center items-center">
+        <div className="font-heading bg-white font-header p-4 px-6 flex flex-col justify-center items-center">
           <h2 className="text-sm tablet:text-base bg-4">{getMessage()}</h2>
-          <LottieComp
-            animationData={getAnimation()}
-            loop={false}
-            autoplay={true}
-            style={{ width: 100, height: 100 }}
-          />
-          {/*   )} */}
+         {/*  <img
+            src={getAnimation()}
+          /> */}
         </div>
       </div>
     </div>

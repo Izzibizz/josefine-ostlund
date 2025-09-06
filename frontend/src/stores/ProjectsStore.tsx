@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
-import { useUserStore } from "./UserStore"; 
+import { useUserStore } from "./UserStore";
 
 interface Image {
   url: string;
@@ -22,6 +22,7 @@ export interface Project {
 
 interface ProjectState {
   projects: Project[];
+  loading: boolean;
   deleteFail: boolean;
   deleteSuccess: boolean;
   fetchProjects: () => Promise<void>;
@@ -30,7 +31,8 @@ interface ProjectState {
     images: File[],
     photographers: string[],
     video?: File
-  ) => Promise<void>;
+  ) => Promise<Project | undefined>;
+
   updateProject: (
     id: string,
     updates: Partial<Project>,
@@ -47,6 +49,7 @@ interface ProjectState {
 
 export const useProjectStore = create<ProjectState>((set) => ({
   projects: [],
+  loading: false,
   deleteFail: false,
   deleteSuccess: false,
   setDeleteFail: (input) => set({ deleteFail: input }),
@@ -55,17 +58,24 @@ export const useProjectStore = create<ProjectState>((set) => ({
   // --- FETCH ---
   fetchProjects: async () => {
     try {
+      set({ loading: true });
       const res = await axios.get(
         "https://josefine-ostlund.onrender.com/projects"
       );
-      set({ projects: res.data.projects });
+      set({ projects: res.data.projects, loading: false });
     } catch (err) {
       console.error("Error fetching projects", err);
+      set({ loading: false });
     }
   },
 
   createProject: async (data, images, photographers, video) => {
-    useUserStore.setState({ success: false, fail: false, loadingEdit: true, showPopupMessage: true });
+    useUserStore.setState({
+      success: false,
+      fail: false,
+      loadingEdit: true,
+      showPopupMessage: true,
+    });
 
     try {
       const formData = new FormData();
@@ -92,37 +102,71 @@ export const useProjectStore = create<ProjectState>((set) => ({
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      set((state) => ({ projects: [...state.projects, res.data.project] }));
-      useUserStore.setState({ editMode: false, loadingEdit: false, success: true, showPopupMessage: true });
+      // 🔧 Klona projektet för att undvika "object is not extensible"
+      const newProject: Project = JSON.parse(JSON.stringify(res.data.project));
+
+      set((state) => ({
+        projects: [...state.projects, newProject],
+      }));
+
+      useUserStore.setState({
+        editMode: false,
+        loadingEdit: false,
+        success: true,
+        showPopupMessage: true,
+      });
+
+      return newProject;
     } catch (err) {
       console.error("Error creating project", err);
-      useUserStore.setState({ loadingEdit: false, fail: true, showPopupMessage: true });
+      useUserStore.setState({
+        loadingEdit: false,
+        fail: true,
+        showPopupMessage: true,
+      });
     }
   },
 
   // --- UPDATE ---
-  updateProject: async (id, updates, newImages, newVideo, removeImages, removeVideo, imageData) => {
+  updateProject: async (
+    id,
+    updates,
+    newImages,
+    newVideo,
+    removeImages,
+    removeVideo,
+    imageData
+  ) => {
     try {
-      useUserStore.setState({ success: false, fail: false, loadingEdit: true, showPopupMessage: true });
+      useUserStore.setState({
+        success: false,
+        fail: false,
+        loadingEdit: true,
+        showPopupMessage: true,
+      });
 
       const formData = new FormData();
 
       // Textfält
       Object.entries(updates).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) formData.append(key, String(value));
+        if (value !== undefined && value !== null)
+          formData.append(key, String(value));
       });
 
       // Nya bilder
-      if (newImages?.length) newImages.forEach((file) => formData.append("images", file));
+      if (newImages?.length)
+        newImages.forEach((file) => formData.append("images", file));
 
       // Fotografer (både gamla och nya)
-      if (imageData?.length) formData.append("imageData", JSON.stringify(imageData));
+      if (imageData?.length)
+        formData.append("imageData", JSON.stringify(imageData));
 
       // Video
       if (newVideo) formData.append("video", newVideo);
 
       // Remove
-      if (removeImages?.length) removeImages.forEach((id) => formData.append("removeImages", id));
+      if (removeImages?.length)
+        removeImages.forEach((id) => formData.append("removeImages", id));
       if (removeVideo) formData.append("removeVideo", "true");
 
       const res = await axios.patch(
@@ -131,47 +175,66 @@ export const useProjectStore = create<ProjectState>((set) => ({
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
+      // 🔧 Klona objektet innan det sätts i state
+      const updatedProject: Project = JSON.parse(
+        JSON.stringify(res.data.project)
+      );
+
       set((state) => ({
-        projects: state.projects.map((p) => (p._id === id ? res.data.project : p)),
+        projects: state.projects.map((p) =>
+          p._id === id ? updatedProject : p
+        ),
       }));
-      useUserStore.setState({ editMode: false, loadingEdit: false, success: true, showPopupMessage: true });
+
+      useUserStore.setState({
+        editMode: false,
+        loadingEdit: false,
+        success: true,
+        showPopupMessage: true,
+      });
     } catch (err) {
       console.error("Error updating project", err);
-      useUserStore.setState({ loadingEdit: false, fail: true, showPopupMessage: true });
+      useUserStore.setState({
+        loadingEdit: false,
+        fail: true,
+        showPopupMessage: true,
+      });
     }
   },
+
   deleteProject: async (id) => {
-  try {
-    useUserStore.setState({
-      success: false,
-      fail: false,
-      loadingEdit: true,
-      showPopupMessage: true,
-    });
-    set({ deleteFail: false, deleteSuccess: false})
+    try {
+      useUserStore.setState({
+        success: false,
+        fail: false,
+        loadingEdit: true,
+        showPopupMessage: true,
+      });
+      set({ deleteFail: false, deleteSuccess: false });
 
-    await axios.delete(`https://josefine-ostlund.onrender.com/projects/${id}`);
+      await axios.delete(
+        `https://josefine-ostlund.onrender.com/projects/${id}`
+      );
 
-    // 🗑 Uppdatera state: ta bort projektet lokalt
-    set((state) => ({
-      projects: state.projects.filter((p) => p._id !== id),
-    }));
+      // 🗑 Uppdatera state: ta bort projektet lokalt
+      set((state) => ({
+        projects: state.projects.filter((p) => p._id !== id),
+      }));
 
-    set({deleteSuccess: true})
+      set({ deleteSuccess: true });
 
-    useUserStore.setState({
-      loadingEdit: false,
-      showPopupMessage: true,
-    });
-    console.log("Delete successful");
-  } catch (err) {
-    console.error("Error deleting project", err);
-    set({deleteFail: true})
-    useUserStore.setState({
-      loadingEdit: false,
-      showPopupMessage: true,
-    });
-  }
-},
-
+      useUserStore.setState({
+        loadingEdit: false,
+        showPopupMessage: true,
+      });
+      console.log("Delete successful");
+    } catch (err) {
+      console.error("Error deleting project", err);
+      set({ deleteFail: true });
+      useUserStore.setState({
+        loadingEdit: false,
+        showPopupMessage: true,
+      });
+    }
+  },
 }));
