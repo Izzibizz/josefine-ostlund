@@ -151,8 +151,8 @@ export const Header: React.FC = () => {
       ) : (
         <>
           <ul
-            className={`flex gap-10 ${
-              homePage ? "text-lg" : "text-sm"
+            className={`flex gap-8 ${
+              homePage ? "text-base" : "text-xs"
             } uppercase`}
           >
             {navlinks.map((link) => (
@@ -169,8 +169,8 @@ export const Header: React.FC = () => {
           {!homePage && (
             <h1
               className={`${
-                smallerHeader ? "text-xl" : "text-2xl"
-              } cursor-pointer hover:scale-105 text-end transform transition-transform duration-100`}
+                smallerHeader ? "text-base" : "text-lg"
+              } cursor-pointer hover:scale-105 flex-shrink-0 text-end transform transition-transform duration-100`}
               onClick={() => logoClick()}
             >
               JOSEFINE ÖSTLUND

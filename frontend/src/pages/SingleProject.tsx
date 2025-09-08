@@ -21,6 +21,7 @@ export const SingleProject: React.FC = () => {
   const singleProject = useMemo(() => {
   return projects.find((project) => slugify(project.name) === id);
 }, [projects, id]);
+  const [isLaptop, setIsLaptop ] = useState(window.innerWidth > 1024)
   const [imageToDisplay, setImageToDisplay] = useState<Image | null>(null);
   const { editMode } = useUserStore()
 
@@ -63,6 +64,14 @@ useEffect(() => {
   }
 }, [singleProject, navigate]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsLaptop(window.innerWidth > 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isLaptop]);
   console.log(id);
 
   if (!singleProject ) {
@@ -82,15 +91,7 @@ if (editMode && singleProject) {
           onClick={() => handleOpenModal()}
         />
         <div className="flex flex-col gap-10 font-body laptop:w-1/3 laptop:self-end">
-        
-          <div className="flex flex-col gap-2 text-end">
-            <h2 className="font-extrabold text-lg">{singleProject?.name}</h2>
-             {singleProject?.category === "utställningar" && <p><span className="font-semibold">Visad på: </span>{singleProject?.exhibited_at}</p> }
-            <h3>{singleProject?.year}</h3>
-            <p>{singleProject?.material}</p>
-            <p>{singleProject?.description}</p>
-            {singleProject?.category !== "utställningar" && <p><span className="font-semibold">Visad på: </span>{singleProject?.exhibited_at}</p> }
-          </div>
+         {!isLaptop && 
             <SwiperComp
             handlePreviewClick={handlePreviewClick}
             project={{ ...singleProject, images: reorderedImages }}
@@ -99,6 +100,25 @@ if (editMode && singleProject) {
             aspect=" object-contain"
             thumbnail={true}
           />
+}
+          <div className="flex flex-col gap-2 text-end">
+            <h2 className="font-bold text-lg">{singleProject?.name}</h2>
+             {singleProject?.category === "utställningar" && <p><span className="font-semibold"></span>{singleProject?.exhibited_at}</p> }
+            <h3>{singleProject?.year}</h3>
+            <p>{singleProject?.material}</p>
+            <p>{singleProject?.description}</p>
+            {singleProject?.category !== "utställningar" && <p><span className="font-semibold"></span>{singleProject?.exhibited_at}</p> }
+          </div>
+          {isLaptop && 
+            <SwiperComp
+            handlePreviewClick={handlePreviewClick}
+            project={{ ...singleProject, images: reorderedImages }}
+            slides={3}
+            style=""
+            aspect=" object-contain"
+            thumbnail={true}
+          />
+}
         </div>
       </div>
       {singleProject?.video && (

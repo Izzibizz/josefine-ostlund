@@ -13,7 +13,7 @@ export const Footer: React.FC = () => {
     }, []);
 
   return (
-    <footer className="p-2 px-4 flex justify-between">
+    <footer className="p-1 px-4 flex justify-between">
       <div className="flex gap-3 laptop:gap-4 items-center">
         <a href={contact.instagram} target="_blank" rel="noopener noreferrer">
           <img src={insta} className="w-4 laptop:w-6" />
