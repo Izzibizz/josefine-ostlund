@@ -52,7 +52,7 @@ const projectsToDisplay = projects
                     alt={project.images[0].photographer}
                     className="w-full aspect-[4/3] object-cover"
                   />
-                  <h3 className="text-sm font-body font-light text-end">
+                  <h3 className="text-sm font-body text-end">
                     {project.name}
                   </h3>
                 </NavLink>
