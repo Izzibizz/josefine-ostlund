@@ -132,7 +132,7 @@ export const Header: React.FC = () => {
                 className={`fixed top-0 right-0 h-screen w-screen overflow-hidden bg-black text-xl backdrop-blur-xl flex justify-end px-10 `}
                 ref={dropdownRef}
               >
-                <ul className="flex flex-col laptop:flex-row items-end gap-5 font-header uppercase text-white absolute bottom-26 tablet:bottom-40 animate-fadeIn">
+                <ul className="flex flex-col laptop:flex-row items-end gap-5 font-header uppercase text-white absolute bottom-28 tablet:bottom-40 animate-fadeIn">
                   {navlinks.map((link) => (
                     <NavLink
                       key={link.path}
