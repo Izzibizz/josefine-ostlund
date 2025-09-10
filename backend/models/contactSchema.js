@@ -15,6 +15,8 @@ const contactSchema = new mongoose.Schema({
   cv: {
     type: String,
   },
+  cv_public_id: 
+  { type: String },
 });
 
 const Contact = mongoose.model("Contact", contactSchema);

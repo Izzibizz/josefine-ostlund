@@ -30,6 +30,7 @@ interface Contact {
   mail: string;
   instagram: string;
   cv: string;
+  cv_public_id: string;
 }
 
 interface UserState {
@@ -64,7 +65,7 @@ interface UserState {
   updateAbout: (data: Partial<About>, imageFile?: File) => Promise<void>;
   deleteAboutItem: (type: "exhibitions" | "scholarships", id: string) => Promise<void>;
   fetchContact: () => Promise<void>;
-  patchContact: (data: Partial<Contact>) => Promise<void>;
+  patchContact: (data: Partial<Contact>,  cvFile?: File) => Promise<void>;
 }
 
 export const useUserStore = create<UserState>()(
@@ -93,6 +94,7 @@ export const useUserStore = create<UserState>()(
         mail: "",
         instagram: "",
         cv: "",
+        cv_public_id: ""
       },
       editMode: false,
       loadingEdit: false,
@@ -111,8 +113,8 @@ export const useUserStore = create<UserState>()(
           loginMessage: "",
           showPopupMessage: true,
         }),
-      setLoginError: (input: boolean) => set({ loginError: input }),
-        setFail: (input: boolean) => set({fail: input}),
+  setLoginError: (input: boolean) => set({ loginError: input }),
+  setFail: (input: boolean) => set({fail: input}),
   setSuccess: (input: boolean) =>  set({success: input}),
   setLoadingEdit:(input: boolean) =>  set({loadingEdit: input}),
 
@@ -226,27 +228,58 @@ deleteAboutItem: async (type, id) => {
           console.error("Error fetching about:", error);
         }
       },
-      patchContact: async (data) => {
-        set({ loadingEdit: true, success: false });
-        try {
-          const response = await fetch(
-            `https://josefine-ostlund.onrender.com/contact`,
-            {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(data),
-            }
-          );
-          if (!response.ok) throw new Error("Failed to update about");
-          const updated: Contact = await response.json();
-          set({ contact: updated, success: true, loadingEdit: false, showPopupMessage: true });
-        } catch (error) {
-          console.error(error);
-          set({ loadingEdit: false, fail: true, showPopupMessage: true });
-        } finally {
-          set({ loadingEdit: false, editMode: false });
+
+  patchContact: async (data: Partial<Contact>, cvFile?: File) => {
+  set({ loadingEdit: true, success: false });
+
+  try {
+    let body: FormData | string;
+    let headers: HeadersInit = {};
+
+    if (cvFile) {
+      // Om CV-fil finns, använd FormData
+      const formData = new FormData();
+      
+      // Lägg till textfält
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, value);
         }
-      },
+      });
+
+      // Lägg till fil
+      formData.append("cv", cvFile);
+      body = formData;
+    } else {
+      // Annars: skicka som JSON
+      body = JSON.stringify(data);
+      headers["Content-Type"] = "application/json";
+    }
+
+    const response = await fetch(`https://josefine-ostlund.onrender.com/contact`, {
+      method: "PATCH",
+      headers,
+      body,
+    });
+
+    if (!response.ok) throw new Error("Failed to update contact");
+
+    const updated: Contact = await response.json();
+
+    set({
+      contact: updated,
+      success: true,
+      loadingEdit: false,
+      showPopupMessage: true,
+    });
+  } catch (error) {
+    console.error("patchContact error:", error);
+    set({ loadingEdit: false, fail: true, showPopupMessage: true });
+  } finally {
+    set({ loadingEdit: false, editMode: false });
+  }
+},
+
     }),
     {
       name: "User-storage",

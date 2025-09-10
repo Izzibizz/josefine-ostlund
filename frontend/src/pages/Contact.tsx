@@ -1,9 +1,11 @@
 import { useUserStore } from "../stores/UserStore";
-import { useEffect, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { useEffect, useState, useCallback } from "react";
 import cv from "../assets/cv.svg";
 import mail from "../assets/mail.svg";
 import insta from "../assets/insta.svg";
 import phone from "../assets/phone.svg";
+import cancel from "../assets/cancel.png"
 
 export const Contact: React.FC = () => {
   const {
@@ -11,14 +13,32 @@ export const Contact: React.FC = () => {
     fetchContact,
     editMode,
     patchContact,
-   /*  success,
-    loadingEdit, */
   } = useUserStore();
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     telefon: "",
     mail: "",
     instagram: "",
     cv: "",
+  });
+
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file && file.type === "application/pdf") {
+      setCvFile(file);
+      setFileName(file.name);
+    } else {
+      alert("Endast PDF-filer är tillåtna.");
+    }
+  }, []);
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "application/pdf": [".pdf"],
+    },
+    maxFiles: 1,
   });
 
   useEffect(() => {
@@ -38,9 +58,11 @@ export const Contact: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await patchContact(formData);
+    await patchContact(formData, cvFile || undefined);
+    setCvFile(null); // 
+    setFileName(null);
   };
 
   console.log(contact);
@@ -50,8 +72,9 @@ export const Contact: React.FC = () => {
       <h2 className="font-header uppercase text-lg">Kontakt</h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-8 font-body">
-        <ul className="flex flex-col laptop:flex-row gap-8 laptop:gap-14 justify-between font-body w-full">
-          <li className="flex gap-2 items-center">
+        <ul className={`flex flex-col ${editMode ? "laptop:flex-col" : "laptop:flex-row laptop:gap-14"} gap-8 justify-between font-body w-full`}>
+          <li>
+            <button className="flex gap-2 items-center">
             <img src={phone} className="w-6" />
             {editMode ? (
               <input
@@ -64,9 +87,11 @@ export const Contact: React.FC = () => {
             ) : (
               <a href={`tel:${contact.telefon}`}>{contact.telefon}</a>
             )}
+            </button>
           </li>
 
-          <li className="flex gap-2 items-center">
+          <li>
+            <button className="flex gap-2 items-center">
             <img src={mail} className="w-6" />
             {editMode ? (
               <input
@@ -79,6 +104,7 @@ export const Contact: React.FC = () => {
             ) : (
               <a href={`mailto:${contact.mail}`}>{contact.mail}</a>
             )}
+            </button>
           </li>
 
           <li className="flex gap-2 items-center">
@@ -89,7 +115,7 @@ export const Contact: React.FC = () => {
                 name="instagram"
                 value={formData.instagram}
                 onChange={handleChange}
-                className="border-b border-gray-300 px-1 py-0.5 w-full"
+                className="border-b border-gray-300 px-1 py-0.5 w-full laptop:w-fit"
               />
             ) : (
               <a
@@ -104,14 +130,25 @@ export const Contact: React.FC = () => {
 
           <li className="flex gap-2 items-center">
             <img src={cv} className="w-6" />
-            {editMode ? (
-              <input
-                type="text"
-                name="cv"
-                value={formData.cv}
-                onChange={handleChange}
-                className="border-b border-gray-300 px-1 py-0.5 w-full"
-              />
+           {editMode ? (
+              <div className="w-full flex gap-2 items-center">
+                <div
+                  {...getRootProps()}
+                  className="border border-dashed border-gray-400 p-2 rounded cursor-pointer bg-gray-50 hover:border-black transition w-fit max-w-[400px]"
+                >
+                  <input {...getInputProps()} />
+                  {isDragActive ? (
+                    <p>Släpp CV-filen här...</p>
+                  ) : (
+                    <p>
+                      {fileName
+                        ? `Vald fil: ${fileName}`
+                        : "Dra & släpp eller klicka för att välja CV (PDF)"}
+                    </p>
+                  )}
+                </div>
+               {fileName && <button onClick={() => setCvFile(null)}>  <img src={cancel} className="w-4 cursor-pointer"/></button>
+ } </div>
             ) : (
               <a href={contact.cv} target="_blank" rel="noopener noreferrer">
                 Fullständigt CV
