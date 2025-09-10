@@ -38,7 +38,6 @@ router.patch("/", upload.single("cv"), async (req, res) => {
         cloudinary.uploader.upload_stream(
           { resource_type: "auto", 
             folder: "cv",
-            flags: "attachment:false", 
             format: "pdf", },
           (err, result) => {
             if (err) return reject(err);
