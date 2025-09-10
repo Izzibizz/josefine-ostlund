@@ -123,7 +123,7 @@ const handleAddScholarship = () => {
   console.log("formdata", formData);
 
   return (
-    <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 laptop:pt-48 gap-10 bg-white flex flex-col min-h-screen">
+    <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 gap-10 bg-white flex flex-col min-h-screen">
       {!editMode ? (
         <>
           <h2 className="font-header uppercase text-lg">Biografi</h2>
@@ -156,7 +156,7 @@ const handleAddScholarship = () => {
                   ))}
               </ul>
               <ul className="flex flex-col gap-2">
-                <h3 className="font-body font-bold">Stipendium</h3>
+                <h3 className="font-body font-bold">Stipendier</h3>
                 {about.scholarships.map((st, i) => (
                   <li key={i}>{st.name && `${st.name}, ${st.year}`}</li>
                 ))}

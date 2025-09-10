@@ -22,6 +22,7 @@ export const LandingPage: React.FC = () => {
         loop
         muted
         playsInline
+        style={{pointerEvents: "none", userSelect: "none"}}
         className="fixed top-1/2 left-1/2 w-screen h-screen object-cover transform -translate-x-1/2 -translate-y-1/2 animate-fadeIn"
       >
         <source src={isTablet ? "https://res.cloudinary.com/dctpyfz60/video/upload/v1752573282/grund-2023-josefine-ostlund-mobile_rnd8cj.mp4" : isMobile? "https://res.cloudinary.com/dctpyfz60/video/upload/v1752581841/grund-2023-josefine-ostlund-mobile_lrllyl.mp4" : "https://res.cloudinary.com/dctpyfz60/video/upload/v1752575885/josefine-ostlund-grund-2023-wide_zko61q.mp4"} type="video/mp4" />
