@@ -74,9 +74,9 @@ export const Contact: React.FC = () => {
       <form onSubmit={handleSubmit} className="flex flex-col gap-8 font-body">
         <ul className={`flex flex-col ${editMode ? "laptop:flex-col" : "laptop:flex-row laptop:gap-14"} gap-8 justify-between font-body w-full`}>
           <li>
-            <button className="flex gap-2 items-center cursor-pointer" type="button">
-            <img src={phone} className="w-6" />
             {editMode ? (
+              <>
+              <img src={phone} className="w-6" />
               <input
                 type="text"
                 name="telefon"
@@ -84,16 +84,18 @@ export const Contact: React.FC = () => {
                 onChange={handleChange}
                 className="border-b border-gray-300 px-1 py-0.5 w-full"
               />
+              </>
             ) : (
-              <a href={`tel:${contact.telefon}`}>{contact.telefon}</a>
+              <a href={`tel:${contact.telefon}`} className="flex gap-2 items-center">
+                <img src={phone} className="w-6" />
+                {contact.telefon}</a>
             )}
-            </button>
           </li>
 
           <li>
-            <button className="flex gap-2 items-center cursor-pointer" type="button">
-            <img src={mail} className="w-6" />
             {editMode ? (
+              <>
+              <img src={mail} className="w-6" />
               <input
                 type="email"
                 name="mail"
@@ -101,16 +103,18 @@ export const Contact: React.FC = () => {
                 onChange={handleChange}
                 className="border-b border-gray-300 px-1 py-0.5 w-full"
               />
+              </>
             ) : (
-              <a href={`mailto:${contact.mail}`}>{contact.mail}</a>
+              <a href={`mailto:${contact.mail}`} className="flex gap-2 items-center">
+                            <img src={mail} className="w-6" />
+                            {contact.mail}</a>
             )}
-            </button>
           </li>
 
           <li>
-            <button className="flex gap-2 items-center cursor-pointer" type="button">
-            <img src={insta} className="w-6" />
             {editMode ? (
+              <>
+               <img src={insta} className="w-6" />
               <input
                 type="text"
                 name="instagram"
@@ -118,23 +122,25 @@ export const Contact: React.FC = () => {
                 onChange={handleChange}
                 className="border-b border-gray-300 px-1 py-0.5 w-full laptop:w-fit"
               />
+              </>
             ) : (
               <a
                 href={contact.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-              >
+                className=" flex gap-2 items-center"
+              >           
+               <img src={insta} className="w-6" />
                 Josefine.ostlund
               </a>
             )}
-            </button>
           </li>
 
           <li>
-            <button className="flex gap-2 items-center cursor-pointer" type="button">
-            <img src={cv} className="w-6" />
+          
            {editMode ? (
               <div className="w-full flex gap-2 items-center">
+                  <img src={cv} className="w-6" />
                 <div
                   {...getRootProps()}
                   className="border border-dashed border-gray-400 p-2 rounded cursor-pointer bg-gray-50 hover:border-black transition w-fit max-w-[400px]"
@@ -153,11 +159,11 @@ export const Contact: React.FC = () => {
                {fileName && <button onClick={() => setCvFile(null)}>  <img src={cancel} className="w-4 cursor-pointer"/></button>
  } </div>
             ) : (
-              <a href={contact.cv} target="_blank" rel="noopener noreferrer">
+              <a href={contact.cv} target="_blank" rel="noopener noreferrer" className=" flex gap-2 items-center">
+                  <img src={cv} className="w-6" />
                 Fullständigt CV
               </a>
             )}
-            </button>
           </li>
         </ul>
         
