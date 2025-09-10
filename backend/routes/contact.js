@@ -36,7 +36,10 @@ router.patch("/", upload.single("cv"), async (req, res) => {
       // Ladda upp nytt CV
       const result = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_stream(
-          { resource_type: "auto", folder: "cv" },
+          { resource_type: "auto", 
+            folder: "cv",
+            flags: "attachment:false", 
+            format: "pdf", },
           (err, result) => {
             if (err) return reject(err);
             resolve(result);
