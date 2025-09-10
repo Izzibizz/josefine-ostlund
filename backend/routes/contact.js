@@ -35,9 +35,16 @@ router.patch("/", upload.single("cv"), async (req, res) => {
 
       // Ladda upp nytt CV
       const result = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { resource_type: "raw", 
-            folder: "cv"},
+      const originalName = file.originalname.replace(/\s+/g, "_"); // tar bort mellanslag
+      const fileName = originalName.endsWith(".pdf") ? originalName : `${originalName}.pdf`;
+       
+      cloudinary.uploader.upload_stream(
+          {  resource_type: "raw",
+          folder: "cv",
+          public_id: `Josefine_ostlund_${Date.now()}_${fileName}`, // Ex: cv_1699974312_cv.pdf
+          use_filename: true,
+          unique_filename: false, 
+          overwrite: true,},
           (err, result) => {
             if (err) return reject(err);
             resolve(result);
