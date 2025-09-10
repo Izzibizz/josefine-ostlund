@@ -31,6 +31,7 @@ export const LandingPage: React.FC = () => {
   return (
   <section className="bg-black animate-fadeIn">
       <video
+      ref={videoRef}
         autoPlay
         loop
         muted
