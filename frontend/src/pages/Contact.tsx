@@ -65,7 +65,7 @@ export const Contact: React.FC = () => {
     setFileName(null);
   };
 
-  console.log(contact);
+  console.log(contact.cv);
 
   return (
     <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 laptop:pt-0 gap-16 max-w-[1300px] laptop:mx-auto bg-white flex flex-col laptop:justify-center h-screen">
