@@ -18,14 +18,18 @@ export const LandingPage: React.FC = () => {
 
   useEffect(() => {
     const video = videoRef.current;
-    if (video) {
+    if (!video) return;
+
+   const timeout = setTimeout(() => {
       video.muted = true;
       video.playsInline = true;
 
       video.play().catch((err) => {
         console.warn("autoplay failed", err)
       })
-    }
+   }, 300)
+
+   return () => clearTimeout(timeout)
   }, [])
 
   return (
@@ -33,6 +37,7 @@ export const LandingPage: React.FC = () => {
       <video
       ref={videoRef}
         autoPlay
+        preload="auto"
         loop
         muted
         playsInline
