@@ -74,7 +74,7 @@ export const Contact: React.FC = () => {
       <form onSubmit={handleSubmit} className="flex flex-col gap-8 font-body">
         <ul className={`flex flex-col ${editMode ? "laptop:flex-col" : "laptop:flex-row laptop:gap-14"} gap-8 justify-between font-body w-full`}>
           <li>
-            <button className="flex gap-2 items-center cursor-pointer">
+            <button className="flex gap-2 items-center cursor-pointer" type="button">
             <img src={phone} className="w-6" />
             {editMode ? (
               <input
@@ -91,7 +91,7 @@ export const Contact: React.FC = () => {
           </li>
 
           <li>
-            <button className="flex gap-2 items-center cursor-pointer">
+            <button className="flex gap-2 items-center cursor-pointer" type="button">
             <img src={mail} className="w-6" />
             {editMode ? (
               <input
@@ -108,7 +108,7 @@ export const Contact: React.FC = () => {
           </li>
 
           <li>
-            <button className="flex gap-2 items-center cursor-pointer">
+            <button className="flex gap-2 items-center cursor-pointer" type="button">
             <img src={insta} className="w-6" />
             {editMode ? (
               <input
@@ -131,7 +131,7 @@ export const Contact: React.FC = () => {
           </li>
 
           <li>
-            <button className="flex gap-2 items-center cursor-pointer">
+            <button className="flex gap-2 items-center cursor-pointer" type="button">
             <img src={cv} className="w-6" />
            {editMode ? (
               <div className="w-full flex gap-2 items-center">
