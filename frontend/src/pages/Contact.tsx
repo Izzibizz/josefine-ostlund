@@ -171,7 +171,7 @@ export const Contact: React.FC = () => {
         {editMode && (
           <button
             type="submit"
-            className="mt-4 laptop:mt-0 bg-black text-white px-4 py-2 rounded-4xl self-end cursor-pointer"
+            className="mt-4 laptop:mt-0 bg-black text-white px-4 py-2 rounded-4xl self-end laptop:self-start cursor-pointer"
           >
             Spara
           </button>
