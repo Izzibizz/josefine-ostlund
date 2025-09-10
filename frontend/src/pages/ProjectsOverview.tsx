@@ -21,6 +21,14 @@ const projectsToDisplay = projects
   const currentIndex = categories.indexOf(category);
   const nextCategory = categories[(currentIndex + 1) % categories.length];
 
+  const getCloudinaryUrlWithWidth = (url: string, width: number) => {
+  const parts = url.split("/upload/");
+
+  if (parts.length !== 2) return url; 
+
+  return `${parts[0]}/upload/w_${width}/${parts[1]}`;
+}
+
   useEffect(() => {
     const handleResize = () => {
       setIsLaptop(window.innerWidth > 1024);
@@ -48,7 +56,7 @@ const projectsToDisplay = projects
                   to={`/${slugify(category)}/${slugify(project.name)}`}
                 >
                   <img
-                    src={project.images[0].url}
+                    src={getCloudinaryUrlWithWidth(project.images[0].url, 800)}
                     alt={project.images[0].photographer}
                     className="w-full aspect-[4/3] object-cover"
                   />
