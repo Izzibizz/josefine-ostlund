@@ -243,7 +243,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
 
       <div className="flex flex-col gap-4 laptop:gap-10 laptop:flex-row laptop:justify-between">
         <div className="w-full flex flex-col laptop:w-2/3 gap-4">
-          <div className="w-full flex ">
+          <div className="w-full flex">
             {imageToDisplay ? (
               <img
                 src={imageToDisplay.url}
@@ -273,7 +273,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             )}
           </div>
           {gallery.length >= 1 && (
-            <div className="flex flex-col laptop:flex-row gap-10">
+            <div className="flex flex-col laptop:flex-row gap-6">
               <div className="flex flex-wrap gap-2">
                 {gallery.map((img, index) => (
                   <div

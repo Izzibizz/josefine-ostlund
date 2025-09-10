@@ -159,9 +159,9 @@ export const Contact: React.FC = () => {
                {fileName && <button onClick={() => setCvFile(null)}>  <img src={cancel} className="w-4 cursor-pointer"/></button>
  } </div>
             ) : (
-              <a href={contact.cv} className=" flex gap-2 items-center">
+              <a href={contact.cv} className="w-full min-w-[140px] flex gap-2 items-center">
                   <img src={cv} className="w-6" />
-                Fullständigt CV
+                Ladda ner CV
               </a>
             )}
           </li>
