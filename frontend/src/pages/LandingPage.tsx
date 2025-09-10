@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 export const LandingPage: React.FC = () => {
 
+    const videoRef = useRef<HTMLVideoElement>(null)
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
     const [isTablet, setIsTablet] = useState(window.innerWidth > 767 && window.innerWidth < 1025)
 
@@ -14,6 +15,18 @@ export const LandingPage: React.FC = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobile, isTablet]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.muted = true;
+      video.playsInline = true;
+
+      video.play().catch((err) => {
+        console.warn("autoplay failed", err)
+      })
+    }
+  }, [])
 
   return (
   <section className="bg-black animate-fadeIn">

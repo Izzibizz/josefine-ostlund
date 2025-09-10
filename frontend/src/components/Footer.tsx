@@ -8,9 +8,12 @@ import { LiaCopyright } from "react-icons/lia";
 export const Footer: React.FC = () => {
   const { contact, fetchContact } = useUserStore();
 
+
     useEffect(() => {
       fetchContact();
     }, []);
+
+   
 
   return (
     <footer className="p-1 px-4 flex justify-between">

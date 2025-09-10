@@ -4,7 +4,8 @@ import { Footer } from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import { useProjectStore } from "./stores/ProjectsStore"; 
 import { useUserStore } from "./stores/UserStore";
-import { useEffect } from "react"
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react"
 import { AdminFooter } from "./components/AdminFooter";
 import { EditModeResetter } from "./components/EditModeResetter";
 import { PopupMessage } from "./components/PopupMessage";
@@ -14,10 +15,18 @@ const App = () => {
 
 const fetchProjects = useProjectStore((state) => state.fetchProjects);
 const { loggedIn, showPopupMessage } = useUserStore()
+const [ showFooter, setShowFooter ] = useState(true)
+const location = useLocation()
 
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
+
+   useEffect(() => {
+       if (location.pathname === "/") {
+        setShowFooter(false)
+       }
+    }, [location.pathname])
 
   return (
     <>
@@ -30,7 +39,9 @@ const { loggedIn, showPopupMessage } = useUserStore()
         <MainRoutes />
       </main>
       {loggedIn && <AdminFooter />}
+      {showFooter &&
       <Footer />
+}
     </div>
     </>
   );
