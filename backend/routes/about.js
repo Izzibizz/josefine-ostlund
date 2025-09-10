@@ -22,14 +22,6 @@ router.post("/", upload.single("image"), async (req, res) => {
     const existing = await About.findOne();
     let updateData = { ...req.body };
 
-    // Om arrays skickas som string → parse
-    if (updateData.exhibitions && typeof updateData.exhibitions === "string") {
-      updateData.exhibitions = JSON.parse(updateData.exhibitions);
-    }
-    if (updateData.scholarships && typeof updateData.scholarships === "string") {
-      updateData.scholarships = JSON.parse(updateData.scholarships);
-    }
-
     // Hantera bild
     if (req.file) {
       const buffer = req.file.buffer;
@@ -60,7 +52,7 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-// DELETE → ta bort ett objekt från exhibitions eller scholarships
+/* // DELETE → ta bort ett objekt från exhibitions eller scholarships
 router.delete("/", async (req, res) => {
   try {
     const { type, id } = req.body;
@@ -80,7 +72,7 @@ router.delete("/", async (req, res) => {
     console.error("DELETE /about error:", error);
     res.status(500).json({ message: "Failed to delete item from About." });
   }
-});
+}); */
 
 
 
