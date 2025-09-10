@@ -73,7 +73,7 @@ export const Contact: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-8 font-body">
         <ul className={`flex flex-col ${editMode ? "laptop:flex-col" : "laptop:flex-row laptop:gap-14"} gap-8 justify-between font-body w-full`}>
-          <li>
+          <li className="w-full flex gap-2 items-center w-fit">
             {editMode ? (
               <>
               <img src={phone} className="w-6" />
@@ -82,7 +82,7 @@ export const Contact: React.FC = () => {
                 name="telefon"
                 value={formData.telefon}
                 onChange={handleChange}
-                className="border-b border-gray-300 px-1 py-0.5 w-full"
+                className="border-b border-gray-300 px-1 py-0.5 w-full laptop:w-fit"
               />
               </>
             ) : (
@@ -92,7 +92,7 @@ export const Contact: React.FC = () => {
             )}
           </li>
 
-          <li>
+          <li className="w-full flex gap-2 items-center w-fit">
             {editMode ? (
               <>
               <img src={mail} className="w-6" />
@@ -101,7 +101,7 @@ export const Contact: React.FC = () => {
                 name="mail"
                 value={formData.mail}
                 onChange={handleChange}
-                className="border-b border-gray-300 px-1 py-0.5 w-full"
+                className="border-b border-gray-300 px-1 py-0.5 w-full laptop:w-fit"
               />
               </>
             ) : (
@@ -111,7 +111,7 @@ export const Contact: React.FC = () => {
             )}
           </li>
 
-          <li>
+          <li className="w-full flex gap-2 items-center">
             {editMode ? (
               <>
                <img src={insta} className="w-6" />
@@ -120,7 +120,7 @@ export const Contact: React.FC = () => {
                 name="instagram"
                 value={formData.instagram}
                 onChange={handleChange}
-                className="border-b border-gray-300 px-1 py-0.5 w-full laptop:w-fit"
+                className="border-b border-gray-300 px-1 py-0.5 w-full laptop:w-fit min-w-[400px]"
               />
               </>
             ) : (
@@ -159,7 +159,7 @@ export const Contact: React.FC = () => {
                {fileName && <button onClick={() => setCvFile(null)}>  <img src={cancel} className="w-4 cursor-pointer"/></button>
  } </div>
             ) : (
-              <a href={contact.cv} target="_blank" rel="noopener noreferrer" className=" flex gap-2 items-center">
+              <a href={contact.cv} className=" flex gap-2 items-center">
                   <img src={cv} className="w-6" />
                 Fullständigt CV
               </a>
