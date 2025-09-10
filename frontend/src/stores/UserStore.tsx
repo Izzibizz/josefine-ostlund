@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "axios";
 
-interface Exhibition {
+/* interface Exhibition {
   place: string;
   city?: string | null;
   year?: number | null;
@@ -15,13 +15,13 @@ interface Scholarship {
   name: string;
   year?: number | null;
   _id: string;
-}
+} */
 
 interface About {
   bio_1: string;
   bio_2: string;
-  exhibitions: Exhibition[];
-  scholarships: Scholarship[];
+  exhibitions: string;
+  scholarships: string;
   image: string;
 }
 
@@ -63,7 +63,7 @@ interface UserState {
   loginUser: (userName: string, password: string) => Promise<void>;
   fetchAbout: () => Promise<void>;
   updateAbout: (data: Partial<About>, imageFile?: File) => Promise<void>;
-  deleteAboutItem: (type: "exhibitions" | "scholarships", id: string) => Promise<void>;
+/*   deleteAboutItem: (type: "exhibitions" | "scholarships", id: string) => Promise<void>; */
   fetchContact: () => Promise<void>;
   patchContact: (data: Partial<Contact>,  cvFile?: File) => Promise<void>;
 }
@@ -85,8 +85,8 @@ export const useUserStore = create<UserState>()(
       about: {
         bio_1: "",
         bio_2: "",
-        exhibitions: [],
-        scholarships: [],
+        exhibitions: "",
+        scholarships: "",
         image: "",
       },
       contact: {
@@ -204,7 +204,7 @@ updateAbout: async (data: Partial<About>, imageFile?: File) => {
 },
 
 
-deleteAboutItem: async (type, id) => {
+/* deleteAboutItem: async (type, id) => {
   try {
     const res = await axios.delete("https://josefine-ostlund.onrender.com/about", { 
       data: { type, id },
@@ -214,7 +214,7 @@ deleteAboutItem: async (type, id) => {
     set({fail: true, showPopupMessage: true})
     console.error("deleteAboutItem error:", error);
   }
-},
+}, */
 
       fetchContact: async () => {
         try {

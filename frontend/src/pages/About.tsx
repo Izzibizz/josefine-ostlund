@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useUserStore } from "../stores/UserStore";
 import { useDropzone } from "react-dropzone";
 
-interface Exhibition {
+/* interface Exhibition {
   place: string;
   city?: string | null;
   year?: number | null;
@@ -15,13 +15,13 @@ interface Scholarship {
   name: string;
   year?: number | null;
   _id: string;
-}
+} */
 
 interface About {
   bio_1: string;
   bio_2: string;
-  exhibitions: Exhibition[];
-  scholarships: Scholarship[];
+  exhibitions: string;
+  scholarships: string;
   image: string;
 }
 
@@ -34,27 +34,27 @@ export const About: React.FC = () => {
   const defaultAbout: About = {
   bio_1: "",
   bio_2: "",
-  exhibitions: [],
-  scholarships: [],
+  exhibitions: "",
+  scholarships: "",
   image: "",
 };
 const [formData, setFormData] = useState<About>(defaultAbout);
 
-const handleDeleteExhibition = (idToDelete: string) => {
+/* const handleDeleteExhibition = (idToDelete: string) => {
   setFormData((prev) => ({
     ...prev,
     exhibitions: prev.exhibitions.filter((ex) => ex._id !== idToDelete),
   }));
-};
+}; */
 
-const handleDeleteScholarship = (idToDelete: string) => {
+/* const handleDeleteScholarship = (idToDelete: string) => {
   setFormData((prev) => ({
     ...prev,
     scholarships: prev.scholarships.filter((st) => st._id !== idToDelete),
   }));
-};
+}; */
 
-const handleAddExhibition = () => {
+/* const handleAddExhibition = () => {
   const newEx = {
     _id: Date.now().toString(), // temporärt id
     place: "",
@@ -81,7 +81,7 @@ const handleAddScholarship = () => {
     ...prev,
     scholarships: [...prev.scholarships, newSt],
   }));
-};
+}; */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +120,7 @@ const handleAddScholarship = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobile]);
 
-  console.log("formdata", formData);
+  console.log("formdata", formData, "about", about);
 
   return (
     <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 gap-10 bg-white flex flex-col min-h-screen">
@@ -128,7 +128,7 @@ const handleAddScholarship = () => {
         <>
           <h2 className="font-header uppercase text-lg">Biografi</h2>
           <div className="flex flex-col laptop:flex-row gap-6 laptop:gap-20">
-            {!isMobile && (
+            {!isMobile && about.image && (
               <img
                 src={about.image}
                 className="w-full laptop:w-1/2 laptop:max-w-[800px] object-cover"
@@ -138,29 +138,21 @@ const handleAddScholarship = () => {
             <div className="font-body flex flex-col gap-6 text-justify">
               <p>{about.bio_1}</p>
               <p>{about.bio_2}</p>
-              {isMobile && (
+              {isMobile && about.image && (
                 <img
                   src={about.image}
                   className="w-full laptop:w-1/2 laptop:max-w-[600px] object-cover"
                   alt="josefine Östlund"
                 />
               )}
-              <ul className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2">
                 <h3 className="font-body font-bold">Utställningar</h3>
-                {[...about.exhibitions]
-                  .sort((a, b) => Number(b.year) - Number(a.year))
-                  .map((ex, i) => (
-                    <li key={i}>
-                      {[ex.place, ex.city, ex.year].filter(Boolean).join(", ")}
-                    </li>
-                  ))}
-              </ul>
-              <ul className="flex flex-col gap-2">
+                <p>{about.exhibitions}</p>
+              </div>
+              <div className="flex flex-col gap-2">
                 <h3 className="font-body font-bold">Stipendier</h3>
-                {about.scholarships.map((st, i) => (
-                  <li key={i}>{st.name && `${st.name}, ${st.year}`}</li>
-                ))}
-              </ul>
+                <p>{about.scholarships}</p>
+              </div>
             </div>
           </div>
         </>
@@ -179,7 +171,7 @@ const handleAddScholarship = () => {
                   alt="preview"
                   className="object-cover w-full h-full"
                 />
-              ) : (
+              ) : ( formData.image &&
                 <>
                   <img
                     src={formData.image}
@@ -208,106 +200,27 @@ const handleAddScholarship = () => {
                 className="border p-2 w-full min-h-[250px]"
               />
 
-              <div className="flex flex-col gap-2">
+               <div className="flex flex-col gap-2">
                 <h3 className="font-body font-bold">Utställningar</h3>
-                {formData.exhibitions.map((ex, i) => (
-                  <div key={ex._id} className="flex gap-2 items-center">
-                    <input
-                      value={ex.place || ""}
-                      onChange={(e) => {
-                        const newEx = [...formData.exhibitions];
-                        newEx[i].place = e.target.value;
-                        setFormData({ ...formData, exhibitions: newEx });
-                      }}
-                      placeholder="Place"
-                      className="border p-1"
-                    />
-                    <select
-                      value={ex.year || ""}
-                      onChange={(e) => {
-                        const newEx = [...formData.exhibitions];
-                        newEx[i].year = Number(e.target.value); // 👈 här gör vi conversion
-                        setFormData({ ...formData, exhibitions: newEx });
-                      }}
-                      className="border p-1"
-                    >
-                      <option value="">Select year</option>
-                      {Array.from({ length: 150 }, (_, idx) => {
-                        const year = new Date().getFullYear() - idx;
-                        return (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteExhibition(ex._id)}
-                      className="bg-black text-xs w-fit text-white rounded-4xl p-2 cursor-pointer"
-                    >
-                      Radera
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={handleAddExhibition}
-                  className="bg-gray-200 rounded-4xl px-4 py-2 w-fit mt-2 cursor-pointer"
-                >
-                  + Lägg till utställning
-                </button>
+                <textarea
+                  value={formData.exhibitions}
+                  onChange={(e) =>
+                    setFormData({ ...formData, exhibitions: e.target.value })
+                  }
+                  className="border p-2 w-full min-h-[150px]"
+                  placeholder="Ex: Galleri A, Stockholm, 2023..."
+                />
               </div>
-
-              <div>
-                <h3 className="font-body font-bold">Stipendium</h3>
-                {formData.scholarships.map((st, i) => (
-                  <div key={st._id} className="flex gap-2 items-center">
-                    <input
-                      value={st.name || ""}
-                      onChange={(e) => {
-                        const newSt = [...formData.scholarships];
-                        newSt[i].name = e.target.value;
-                        setFormData({ ...formData, scholarships: newSt });
-                      }}
-                      placeholder="Name"
-                      className="border p-1"
-                    />
-                    <select
-                      value={st.year || ""}
-                      onChange={(e) => {
-                        const newSt = [...formData.scholarships];
-                        newSt[i].year = Number(e.target.value);
-                        setFormData({ ...formData, scholarships: newSt });
-                      }}
-                      className="border p-1"
-                    >
-                      <option value="">Select year</option>
-                      {Array.from({ length: 150 }, (_, idx) => {
-                        const year = new Date().getFullYear() - idx;
-                        return (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteScholarship(st._id)}
-                      className="bg-black text-xs text-white rounded-4xl p-2 cursor-pointer"
-                    >
-                      Radera
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={handleAddScholarship}
-                  className="bg-gray-200 rounded-4xl px-4 py-2 w-fit mt-2 cursor-pointer"
-                >
-                  + Lägg till stipendium
-                </button>
+              <div className="flex flex-col gap-2">
+                <h3 className="font-body font-bold">Stipendier</h3>
+                <textarea
+                  value={formData.scholarships}
+                  onChange={(e) =>
+                    setFormData({ ...formData, scholarships: e.target.value })
+                  }
+                  className="border p-2 w-full min-h-[150px]"
+                  placeholder="Ex: Konstnärsnämnden, 2022..."
+                />
               </div>
 
               <button
