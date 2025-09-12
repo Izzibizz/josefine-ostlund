@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react"
+import { Helmet } from "react-helmet";
 
 export const LandingPage: React.FC = () => {
 
@@ -53,6 +54,11 @@ export const LandingPage: React.FC = () => {
   }, [videoSrc])
 
   return (
+    <>
+         <Helmet>
+        <title>JOSEFINE ÖSTLUND</title>
+        <meta name="description" content="Josefine Östlund (f.1990 Eskilstuna) är baserad i Umeå och arbetar med skulptur, video och performance." />
+      </Helmet>
   <section className="bg-black animate-fadeIn">
      {videoError ? (
         <img
@@ -65,6 +71,7 @@ export const LandingPage: React.FC = () => {
       <video
       ref={videoRef}
       key={videoSrc} 
+      poster="https://res.cloudinary.com/dctpyfz60/image/upload/v1756913926/ug0zdpmj6hnx0ovrtw5s.png"
         autoPlay
         preload="auto"
         loop
@@ -79,5 +86,6 @@ export const LandingPage: React.FC = () => {
      <img src="/Josefine-ostlund-w-50.svg" alt="josefine östlund" className="absolute z-20 bottom-25 tablet:bottom-2 right-1 max-w-[98%] laptop:max-w-[40%] laptop:bottom-5 laptop:right-5"/>
      
        </section>
+       </>
   )
 }
