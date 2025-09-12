@@ -127,6 +127,11 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     }
   };
 
+  const imageData = gallery.map((img) => ({
+  public_id: img.public_id,
+  photographer: img.photographer || "",
+}));
+
   const handleDeleteThumb = (img: Image) => {
     const isTemp = img.public_id.startsWith("temp-");
 
@@ -147,6 +152,17 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
       setImageToDisplay(next);
     }
   };
+
+   const handlePreviewClick = (image: Image) => {
+    console.log("Klickade på bild:", image);
+    setImageToDisplay({
+      url: image.url,
+      public_id: image.public_id,
+      photographer: image.photographer || "",
+    });
+     setIsModalOpen(true);
+  };
+
 
   const handleDropVideo = (accepted: File[]) => {
     if (!accepted.length) return;
@@ -186,7 +202,8 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
           newImages.map((n) => n.file),
           videoFile,
           removeImages,
-          removeVideo
+          removeVideo,
+          imageData,
         );
       } else {
         console.log("Creating project...");
@@ -194,7 +211,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
           textData,
           newImages.map((n) => n.file),
           newImages.map((n) => n.photographer || ""),
-          videoFile || undefined
+          videoFile || undefined,
         );
       }
     } catch (err) {
@@ -202,9 +219,6 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     }
   };
 
-  useEffect(() => {
-    setImageToDisplay(gallery[0] ?? null);
-  }, [gallery.length, gallery]);
 
   const handleDropImages = (accepted: File[]) => {
     const additions: TempImage[] = accepted.map((file) => {
@@ -218,22 +232,13 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     setImagesOrder((prev) => [...prev, ...additions.map((a) => a.tempId)]);
   };
 
-  const handlePreviewClick = (image: Image) => {
-    setIsModalOpen(true);
-    setImageToDisplay({
-      url: image.url,
-      public_id: image.public_id,
-      photographer: image.photographer || "",
-    });
-  };
+ 
 
-
-  useEffect(() => {
-    console.log(
-      "Fotografer:",
-      gallery.map((img) => img.photographer)
-    );
-  }, [gallery]);
+ useEffect(() => {
+  if (!imageToDisplay) {
+    setImageToDisplay(gallery[0] ?? null);
+  }
+}, [gallery.length, gallery, imageToDisplay]);
 
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto mt-40 flex flex-col gap-10">
@@ -425,6 +430,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
 
       {isModalOpen && imageToDisplay && (
         <ImageModal
+          key={imageToDisplay.public_id} 
           image={imageToDisplay}
           onClose={() => setIsModalOpen(false)}
           onUpdatePhotographer={handleUpdatePhotographer}

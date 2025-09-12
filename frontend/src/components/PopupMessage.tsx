@@ -69,6 +69,7 @@ export const PopupMessage = () => {
           <h2 className="text-sm tablet:text-base bg-4 text-center">{getMessage()}</h2>
           <img
             src={getAnimation()}
+            className="w-20 h-20"
           /> 
         </div>
       </div>

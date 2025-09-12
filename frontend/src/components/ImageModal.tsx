@@ -32,19 +32,21 @@ export const ImageModal: React.FC<ImageModalProps> = ({ image, onClose, onUpdate
     };
   }, [onClose]);
 
+
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-80 cursor-pointer">
-      <div ref={modalRef} className="flex flex-col max-w-[90vw] max-h-[80vh]">
+      <div ref={modalRef} className="flex flex-col max-w-[90vw] max-h-[80vh] gap-4">
         <img
+        key={image.public_id} 
           src={image.url}
           alt={image.photographer}
-          className="object-contain cursor-pointer max-w-[90vw] max-h-[80vh]"
+          className={`object-contain cursor-pointer max-w-[90vw] ${editMode ? "max-h-[70vh]" : "max-h-[80vh]"}`}
           onClick={onClose}
         />
         {editMode ? (
-          <>
+          <div className="flex flex-col tablet:flex-row gap-2">
             <input
-              className="border p-2 mb-2 text-white"
+              className="border p-2 h-10 text-white"
               placeholder="Fotograf"
               value={photographer}
               onChange={(e) => setPhotographer(e.target.value)}
@@ -55,18 +57,18 @@ export const ImageModal: React.FC<ImageModalProps> = ({ image, onClose, onUpdate
                   onUpdatePhotographer?.(image.public_id, photographer);
                   onClose();
                 }}
-                className="bg-black text-white rounded px-4 py-2"
+                className="bg-gray-300 rounded h-10 px-4 py-2"
               >
                 Spara
               </button>
               <button
                 onClick={onClose}
-                className="bg-gray-300 rounded px-4 py-2"
+                className="bg-gray-300 rounded h-10 px-4 py-2"
               >
                 Avbryt
               </button>
             </div>
-          </>
+          </div>
         ) : (
         image.photographer && <p className="text-white font-medium">Fotograf: {image.photographer}</p>
         )}
