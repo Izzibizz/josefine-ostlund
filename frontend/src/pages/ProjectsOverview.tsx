@@ -54,12 +54,13 @@ const projectsToDisplay = projects
                 <NavLink
                   key={project._id}
                   to={`/${slugify(category)}/${slugify(project.name)}`}
-                >
+                >{project.images && project.images[0] !== undefined &&(
                   <img
                     src={getCloudinaryUrlWithWidth(project.images[0].url, 800)}
                     alt={project.images[0].photographer}
                     className="w-full aspect-[4/3] object-cover"
                   />
+                )}
                   <h3 className="font-medium laptop:text-sm font-body text-end">
                     {project.name}
                   </h3>
@@ -73,12 +74,12 @@ const projectsToDisplay = projects
                   projectsToDisplay[0]?.name
                 )}`}
                 className="flex flex-col flex-1"
-              >
+              >{projectsToDisplay[0]?.images[0] && projectsToDisplay[0].images[0]!== undefined &&
                 <img
                   src={projectsToDisplay[0]?.images[0]?.url}
                   alt={projectsToDisplay[0]?.name}
                   className="w-full aspect-[4/3] object-cover"
-                />
+                />}
                 <h3 className="text-sm laptop:text-base font-body font-bold text-end">
                   {projectsToDisplay[0].name}
                 </h3>

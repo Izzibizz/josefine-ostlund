@@ -84,12 +84,13 @@ if (editMode && singleProject) {
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-10">
       <div className="flex flex-col gap-4 laptop:flex-row ">
+        {imageToDisplay && imageToDisplay !== undefined &&
         <img
           src={imageToDisplay?.url}
           alt={singleProject?.name}
           className="w-full laptop:w-2/3 max-w-[900px] laptop:max-h-[650px] object-contain object-left cursor-pointer"
           onClick={() => handleOpenModal()}
-        />
+        />}
         <div className="flex flex-col gap-10 font-body laptop:w-1/3 laptop:self-end">
          {!isLaptop && 
             <SwiperComp
