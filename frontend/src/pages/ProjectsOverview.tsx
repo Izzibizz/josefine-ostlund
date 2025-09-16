@@ -54,12 +54,14 @@ const projectsToDisplay = projects
                 <NavLink
                   key={project._id}
                   to={`/${slugify(category)}/${slugify(project.name)}`}
-                >{project.images && project.images[0] !== undefined &&(
+                >{project.images && project.images[0] !== undefined  ? (
                   <img
                     src={getCloudinaryUrlWithWidth(project.images[0].url, 800)}
                     alt={project.images[0].photographer}
                     className="w-full aspect-[4/3] object-cover"
                   />
+                ) : (
+                  <div className="w-full h-[95%] aspect-[4/3]"/>
                 )}
                   <h3 className="font-medium laptop:text-sm font-body text-end">
                     {project.name}
