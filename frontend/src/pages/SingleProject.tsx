@@ -46,6 +46,10 @@ export const SingleProject: React.FC = () => {
     });
   };
 
+  const getThumbnailUrl = (url: string, width: number) => {
+  return url.replace("/upload/", `/upload/w_${width},c_fill/`);
+};
+
   useEffect(() => {
     if (singleProject?.images?.[0]) {
       setImageToDisplay({
@@ -93,16 +97,16 @@ if (editMode && singleProject) {
           <div className="w-full laptop:w-2/3 max-w-[900px] laptop:max-h-[650px] object-contain object-left" />
         )}
         <div className="flex flex-col gap-10 font-body laptop:w-1/3 justify-between">
-             <div className={` ${reorderedImages.length > 3 ? "grid grid-cols-4" : "flex flex-wrap justify-end"} gap-1`}>
-  {reorderedImages.map((image, index) => (
+         <div className={` ${reorderedImages.length > 3 ? "grid grid-cols-4" : "flex flex-wrap justify-end"} gap-1`}>
+      {reorderedImages.map((image, index) => (
     <div
       key={index}
-      className={`relative aspect-[4/3] cursor-pointer ${reorderedImages.length < 4 ? "w-[80px] h-[100px]" : "w-full"}`}
+      className={`relative aspect-[4/3] cursor-pointer ${reorderedImages.length < 4 ? "w-[80px] h-[100px]" : "w-full max-w-[80px]"}`}
       onClick={() => handlePreviewClick(image)}
     >
       <img
-        src={image.url}
-        alt={image.photographer || `Bild ${index + 1}`}
+        src={getThumbnailUrl(image.url, 150)} 
+        alt={image.photographer || singleProject.name}
         className="absolute inset-0 w-full h-full object-cover"
       />
     </div>
