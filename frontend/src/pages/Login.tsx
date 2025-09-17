@@ -82,6 +82,7 @@ export const Login: React.FC = () => {
             <div className="w-full flex justify-center items-center">
            <img
             src={loading}
+            className="w-12 h-12"
           /> 
             </div>
           ) : (

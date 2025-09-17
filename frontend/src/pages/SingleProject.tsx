@@ -2,7 +2,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStore } from "../stores/ProjectsStore";
 import { useUserStore } from "../stores/UserStore";
 import { useState, useEffect, useMemo } from "react";
-import { SwiperComp } from "../components/SwiperComp";
 import { ImageModal } from "../components/ImageModal";
 import { slugify } from "../utils/slugify";
 import { CreateProject } from "./CreateProject";
@@ -82,47 +81,45 @@ if (editMode && singleProject) {
 }
 
   return (
-    <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-10">
+    <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 laptop:pt-32 flex flex-col gap-10">
       <div className="flex flex-col gap-4 laptop:flex-row ">
         {imageToDisplay && imageToDisplay !== undefined ? (
         <img
           src={imageToDisplay?.url}
           alt={singleProject?.name}
-          className="w-full laptop:w-2/3 max-w-[900px] laptop:max-h-[650px] object-contain object-left cursor-pointer"
+          className="w-full self-start laptop:w-2/3 max-w-[900px] laptop:max-h-[450px] object-contain object-left cursor-pointer"
           onClick={() => handleOpenModal()}
         /> ) : (
           <div className="w-full laptop:w-2/3 max-w-[900px] laptop:max-h-[650px] object-contain object-left" />
         )}
-        <div className="flex flex-col gap-10 font-body laptop:w-1/3 laptop:self-end">
-         {!isLaptop && 
-            <SwiperComp
-            handlePreviewClick={handlePreviewClick}
-            project={{ ...singleProject, images: reorderedImages }}
-            slides={3}
-            style=""
-            aspect=" object-contain"
-            thumbnail={true}
-          />
-}
-          <div className="flex flex-col gap-2 text-end">
+        <div className="flex flex-col gap-10 font-body laptop:w-1/3 justify-between">
+             <div className={` ${reorderedImages.length > 3 ? "grid grid-cols-4" : "flex flex-wrap justify-end"} gap-1`}>
+  {reorderedImages.map((image, index) => (
+    <div
+      key={index}
+      className={`relative aspect-[4/3] cursor-pointer ${reorderedImages.length < 4 ? "w-[80px] h-[100px]" : "w-full"}`}
+      onClick={() => handlePreviewClick(image)}
+    >
+      <img
+        src={image.url}
+        alt={image.photographer || `Bild ${index + 1}`}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    </div>
+  ))}
+          </div>
+          <div className="flex flex-col gap-4 text-end">
             <h2 className="font-bold text-lg">{singleProject?.name}</h2>
              {singleProject?.category === "utställningar" && <p><span className="font-semibold"></span>{singleProject?.exhibited_at}</p> }
-            <h3>{singleProject?.year}</h3>
+            <h3 className="font-medium">{singleProject?.year}</h3>
+            <div className="flex flex-col gap-2 text-sm">
             <p>{singleProject?.material}</p>
-            <p>{singleProject?.description}</p>
+           {singleProject?.size && <p>{singleProject?.size}</p>}
+            </div>
           </div>
-          {isLaptop && 
-            <SwiperComp
-            handlePreviewClick={handlePreviewClick}
-            project={{ ...singleProject, images: reorderedImages }}
-            slides={3}
-            style=""
-            aspect=" object-contain"
-            thumbnail={true}
-          />
-}
         </div>
       </div>
+       <p className="text-sm text-justify">{singleProject?.description}</p>
       {singleProject?.video && (
         <video
           src={singleProject?.video?.url}

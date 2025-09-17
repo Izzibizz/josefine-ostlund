@@ -22,7 +22,7 @@ export const PopupMessage = () => {
     setLoadingEdit,
   } = useUserStore();
 
-  const { setDeleteFail, deleteFail, deleteSuccess, setDeleteSuccess } =
+  const { setDeleteFail, deleteFail, deleteSuccess, setDeleteSuccess, orderSuccess, setOrderSuccess } =
     useProjectStore();
 
   const getMessage = () => {
@@ -32,6 +32,7 @@ export const PopupMessage = () => {
     if (success) return "Ditt projekt har sparats";
     if (deleteFail) return "Kunde inte radera projektet";
     if (fail) return "Kunde inte spara, prova igen";
+    if (orderSuccess) return "";
     if (loggedIn) return `Välkommen!`;
     if (loggedOut) return "Du är nu utloggad";
 
@@ -57,6 +58,7 @@ export const PopupMessage = () => {
       setDeleteFail(false);
       setDeleteSuccess(false);
       setSuccess(false);
+      setOrderSuccess(false)
     }, 3000);
   }, [success, loginError, fail, loggedIn, loggedOut, loadingEdit]);
 

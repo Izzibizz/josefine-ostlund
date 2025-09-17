@@ -43,6 +43,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   const [description, setDescription] = useState(
     existingProject?.description ?? ""
   );
+  const [size, setSize] = useState(existingProject?.size ?? "")
   const [existingImages, setExistingImages] = useState<Image[]>(
     existingProject?.images ?? []
   );
@@ -190,6 +191,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
         exhibited_at: exhibitedAt,
         category,
         description,
+        size
       };
 
       if (projectId && existingProject) {
@@ -246,12 +248,12 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
 
       <div className="flex flex-col gap-4 laptop:gap-10 laptop:flex-row laptop:justify-between">
         <div className="w-full flex flex-col laptop:w-2/3 gap-4">
-          <div className="w-full flex">
+          <div className="w-full flex items-start">
             {imageToDisplay ? (
               <img
                 src={imageToDisplay.url}
                 alt="Preview"
-                className="w-full h-full max-w-[900px] laptop:h-[650px] object-contain object-left"
+                className="w-full h-full max-w-[900px] laptop:h-[650px] object-contain"
                 onClick={() => setIsModalOpen(true)}
               />
             ) : (
@@ -357,6 +359,13 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             value={material}
             onChange={(e) => setMaterial(e.target.value)}
           />
+          <input
+          className="border p-2"
+          placeholder="Storlek (t.ex. 40x60 cm)"
+          value={size}
+          onChange={(e) => setSize(e.target.value)}
+          />
+
           <input
             className="border p-2"
             placeholder="Visad på (galleri/plats)"

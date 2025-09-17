@@ -32,6 +32,7 @@ interface ProjectState {
   loading: boolean;
   deleteFail: boolean;
   deleteSuccess: boolean;
+  orderSuccess: boolean;
   fetchProjects: () => Promise<void>;
   createProject: (
     data: Omit<Project, "_id" | "images" | "video">,
@@ -52,6 +53,7 @@ interface ProjectState {
   deleteProject: (id: string) => Promise<void>;
   setDeleteFail: (input: boolean) => void;
   setDeleteSuccess: (input: boolean) => void;
+  setOrderSuccess: (input: boolean) => void;
   updateProjectOrder: (orders: ProjectOrderUpdate[]) => Promise<void>;
 }
 
@@ -60,8 +62,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
   loading: false,
   deleteFail: false,
   deleteSuccess: false,
+  orderSuccess: false,
   setDeleteFail: (input) => set({ deleteFail: input }),
   setDeleteSuccess: (input) => set({ deleteSuccess: input }),
+  setOrderSuccess: (input) => set({orderSuccess: input}),
 
   // --- FETCH ---
   fetchProjects: async () => {
@@ -256,10 +260,11 @@ export const useProjectStore = create<ProjectState>((set) => ({
       await axios.patch("https://josefine-ostlund.onrender.com/projects/reorder", orders);
       const res = await axios.get("https://josefine-ostlund.onrender.com/projects"
       );
-      set({ projects: res.data.projects, loading: false });
+      set({ projects: res.data.projects, loading: false, orderSuccess: true });
       useUserStore.setState({
         loadingEdit: false,
         showPopupMessage: true,
+        editMode: false
       });
     } catch (error) {
       console.error("Failed to update project order:", error);
