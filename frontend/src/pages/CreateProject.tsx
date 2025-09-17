@@ -1,7 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-
 import { useProjectStore } from "../stores/ProjectsStore";
-
 import { ImageModal } from "../components/ImageModal";
 import Dropzone from "react-dropzone";
 import { FiPlus } from "react-icons/fi";

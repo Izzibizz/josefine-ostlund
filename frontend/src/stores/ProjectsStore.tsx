@@ -8,6 +8,11 @@ interface Image {
   photographer?: string;
 }
 
+type ProjectOrderUpdate = {
+  id: string;
+  order: number;
+};
+
 export interface Project {
   _id: string;
   name: string;
@@ -16,8 +21,10 @@ export interface Project {
   exhibited_at: string;
   category: string;
   description: string;
+  size?: string;
   images: Image[];
   video?: Image;
+  order?: number;
 }
 
 interface ProjectState {
@@ -45,6 +52,7 @@ interface ProjectState {
   deleteProject: (id: string) => Promise<void>;
   setDeleteFail: (input: boolean) => void;
   setDeleteSuccess: (input: boolean) => void;
+  updateProjectOrder: (orders: ProjectOrderUpdate[]) => Promise<void>;
 }
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -235,6 +243,32 @@ export const useProjectStore = create<ProjectState>((set) => ({
         loadingEdit: false,
         showPopupMessage: true,
       });
+    }
+  },
+  updateProjectOrder: async (orders) => {
+    try {
+      useUserStore.setState({
+        success: false,
+        fail: false,
+        loadingEdit: true,
+        showPopupMessage: true,
+      });
+      await axios.patch("https://josefine-ostlund.onrender.com/projects/reorder", orders);
+      const res = await axios.get("https://josefine-ostlund.onrender.com/projects"
+      );
+      set({ projects: res.data.projects, loading: false });
+      useUserStore.setState({
+        loadingEdit: false,
+        showPopupMessage: true,
+      });
+    } catch (error) {
+      console.error("Failed to update project order:", error);
+      useUserStore.setState({
+        fail: true,
+        loadingEdit: false,
+        showPopupMessage: true,
+      });
+      throw error;
     }
   },
 }));

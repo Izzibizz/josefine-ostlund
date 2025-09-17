@@ -18,6 +18,7 @@ const projectSchema = new Schema({
   year: { type: Number, required: true },
   material: { type: String, required: true },
   exhibited_at: { type: String, required: true },
+  size: {type: String, required: false},
   category: { type: String, enum: categoryEnum, required: true },
   description: { type: String, required: true },
   images: {
@@ -27,7 +28,8 @@ const projectSchema = new Schema({
   video: {
     type: mediaSchema,
     required: false
-  }
+  },
+  order: {type: Number, required: false}
 });
 
 const Project = model("Project", projectSchema);

@@ -110,7 +110,6 @@ if (editMode && singleProject) {
             <h3>{singleProject?.year}</h3>
             <p>{singleProject?.material}</p>
             <p>{singleProject?.description}</p>
-            {singleProject?.category !== "utställningar" && <p><span className="font-semibold"></span>{singleProject?.exhibited_at}</p> }
           </div>
           {isLaptop && 
             <SwiperComp

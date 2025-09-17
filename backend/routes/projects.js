@@ -73,7 +73,7 @@ router.post(
   upload.fields([{ name: "images" }, { name: "video" }]),
   async (req, res) => {
     try {
-      const { name, year, material, exhibited_at, category, description } = req.body;
+      const { name, year, material, exhibited_at, category, description, size } = req.body;
 
       // Ta emot fotografer som array
       const photographers = req.body.photographers ? JSON.parse(req.body.photographers) : [];
@@ -107,6 +107,8 @@ router.post(
         });
       }
 
+      await Projects.updateMany({}, { $inc: { order: 1 } });
+
       const newProject = new Projects({
         name,
         year: Number(year),
@@ -114,8 +116,10 @@ router.post(
         exhibited_at,
         category,
         description,
+        size,
         images: imageUploads,
         video: videoUpload,
+        order: 0
       });
 
       await newProject.save();
@@ -133,7 +137,7 @@ router.patch(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, year, material, exhibited_at, category, description, removeVideo } = req.body;
+      const { name, year, material, exhibited_at, category, description, removeVideo, size } = req.body;
 
       const project = await Projects.findById(id);
       if (!project) return res.status(404).json({ message: "Project not found" });
@@ -202,6 +206,7 @@ router.patch(
       if (exhibited_at !== undefined) project.exhibited_at = exhibited_at;
       if (category !== undefined) project.category = category;
       if (description !== undefined) project.description = description;
+      if (size !== undefined) project.size = size;
 
       await project.save();
       res.json({ message: "Project updated successfully", project });
@@ -229,8 +234,10 @@ router.delete("/:id", async (req, res) => {
     if (project.video) {
       await cloudinary.uploader.destroy(project.video.public_id, { resource_type: "video" });
     }
-
-    // 🚮 Ta bort projektet från databasen
+    await Projects.updateMany(
+      { order: { $gt: project.order } },
+      { $inc: { order: -1 } }
+    );
     await project.deleteOne();
 
     res.json({ message: "Project deleted successfully", id });
@@ -238,7 +245,42 @@ router.delete("/:id", async (req, res) => {
     console.error("Error deleting project:", error);
     res.status(500).json({ message: "Error deleting project" });
   }
+}),
+router.patch("/reorder", async (req, res) => {
+  try {
+    const updatedList = req.body; // array med { id, order }
+
+    // 🔍 Validera att det är en array
+    if (!Array.isArray(updatedList)) {
+      return res.status(400).json({ message: "Invalid input" });
+    }
+
+    // ✅ Kontrollera att alla 'order' är unika
+    const seen = new Set();
+    for (let item of updatedList) {
+      if (seen.has(item.order)) {
+        return res.status(400).json({ message: "Duplicate order values" });
+      }
+      seen.add(item.order);
+    }
+
+    // 🔁 Kör bulkWrite för att uppdatera alla samtidigt
+    const bulkOps = updatedList.map(({ id, order }) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { order } }
+      }
+    }));
+
+    await Projects.bulkWrite(bulkOps);
+
+    res.json({ message: "Projects reordered successfully" });
+  } catch (error) {
+    console.error("Error reordering projects:", error);
+    res.status(500).json({ message: "Error reordering projects" });
+  }
 })
+
 
 );
 
