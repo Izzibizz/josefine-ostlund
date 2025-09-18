@@ -386,14 +386,14 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             ))}
           </select>
             <textarea
-            className="border p-2 min-h-[200px]"
-            placeholder="Kort beskrivning"
+            className="border p-2 min-h-[150px]"
+            placeholder="Kort beskrivning (syns upptill)"
             value={shortDescription}
             onChange={(e) => setShortDescription(e.target.value)}
           />
           <textarea
             className="border p-2 min-h-[400px]"
-            placeholder="Lång beskrivning"
+            placeholder="Lång beskrivning (hamnar nedanför)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />

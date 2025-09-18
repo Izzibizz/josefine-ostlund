@@ -7,6 +7,12 @@
   font-style: normal;
 }
 
+  .text-justify-right {
+    text-align: justify;
+    text-align-last: right;
+  }
+
+
 /* Swiper core styles */
 .swiper {
   width: 100%;

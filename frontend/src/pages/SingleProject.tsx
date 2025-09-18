@@ -88,8 +88,8 @@ export const SingleProject: React.FC = () => {
   }
 
   return (
-    <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 laptop:pt-32 flex flex-col gap-10">
-      <div className="flex flex-col gap-4 laptop:flex-row ">
+    <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-10">
+      <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-14">
         {imageToDisplay && imageToDisplay !== undefined ? (
           <img
             src={imageToDisplay?.url}
@@ -106,7 +106,7 @@ export const SingleProject: React.FC = () => {
               reorderedImages.length > 3
                 ? "grid grid-cols-4"
                 : "flex flex-wrap justify-end"
-            } gap-1`}
+            } gap-3`}
           >
             {reorderedImages.map((image, index) => (
               <div
@@ -119,7 +119,7 @@ export const SingleProject: React.FC = () => {
                 onClick={() => handlePreviewClick(image)}
               >
                 <img
-                  src={getThumbnailUrl(image.url, 150)}
+                  src={getThumbnailUrl(image.url, 250)}
                   alt={image.photographer || singleProject.name}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
@@ -139,15 +139,19 @@ export const SingleProject: React.FC = () => {
               <p>{singleProject?.material}</p>
               {singleProject?.size && <p>{singleProject?.size}</p>}
             </div>
-            {singleProject?.short_description && singleProject?.short_description.length > 0 && (
-            <p>{singleProject?.short_description}</p>
-            )}
-          </div>
-        </div>
-      </div>
-      <p className="text-sm text-justify laptop:w-1/3 laptop:self-end">
+            {singleProject?.short_description &&
+              singleProject?.short_description.length > 0 && (
+                <p className="whitespace-pre-line">{singleProject?.short_description}</p>
+              )}
+               <p className="text-sm text-justify-right laptop:self-end whitespace-pre-line">
         {singleProject?.description}
       </p>
+          </div>
+         
+        </div>
+        
+      </div>
+      
       {singleProject?.video && (
         <video
           src={singleProject?.video?.url}

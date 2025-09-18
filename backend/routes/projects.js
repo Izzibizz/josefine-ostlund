@@ -111,7 +111,7 @@ router.post(
 
       const newProject = new Projects({
         name,
-        year: Number(year),
+        year,
         material,
         exhibited_at,
         category,
@@ -202,7 +202,7 @@ router.patch(
 
       // --- Textfält ---
       if (name !== undefined) project.name = name;
-      if (year !== undefined) project.year = Number(year);
+      if (year !== undefined) project.year = year;
       if (material !== undefined) project.material = material;
       if (exhibited_at !== undefined) project.exhibited_at = exhibited_at;
       if (category !== undefined) project.category = category;
