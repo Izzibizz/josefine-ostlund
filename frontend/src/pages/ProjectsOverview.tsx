@@ -214,6 +214,7 @@ export const ProjectsOverview: React.FC<Props> = ({ category }) => {
           )}
         </div>
       )}
+      {editMode && (
       <button
         type="button"
         onClick={handleSaveOrder}
@@ -221,6 +222,7 @@ export const ProjectsOverview: React.FC<Props> = ({ category }) => {
       >
         Spara
       </button>
+      )}
       {!isLaptop && (
         <NavLink
           to={`/${slugify(nextCategory)}`}

@@ -107,7 +107,7 @@ export const SingleProject: React.FC = () => {
             </p>
           )}
         </div>
-        <div className="flex flex-col gap-10 font-body laptop:w-1/3">
+        <div className={`flex flex-col gap-10 font-body laptop:w-1/3 ${singleProject?.description.length === 0 && "self-end"}`}>
           <div
             className={` ${
               reorderedImages.length > 3
@@ -148,7 +148,7 @@ export const SingleProject: React.FC = () => {
             </div>
             {singleProject?.short_description &&
               singleProject?.short_description.length > 0 && (
-                <p className="whitespace-pre-line">
+                <p className="text-sm whitespace-pre-line text-justify-right">
                   {singleProject?.short_description}
                 </p>
               )}
@@ -156,10 +156,10 @@ export const SingleProject: React.FC = () => {
         </div>
       </div>
       {singleProject?.description && !isLaptop && (
-            <p className="text-sm text-justify whitespace-pre-line">
-              {singleProject?.description}
-            </p>
-          )}
+        <p className="text-sm text-justify whitespace-pre-line">
+          {singleProject?.description}
+        </p>
+      )}
       {singleProject?.video && (
         <video
           src={singleProject?.video?.url}
