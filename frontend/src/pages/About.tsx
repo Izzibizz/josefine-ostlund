@@ -28,7 +28,7 @@ interface About {
 
 export const About: React.FC = () => {
   const { about, fetchAbout, updateAbout, editMode } = useUserStore();
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1025);
   const [newImage, setNewImage] = useState<File | null>(null);
 
   const defaultAbout: About = {
@@ -114,7 +114,7 @@ const handleAddScholarship = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1025);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -131,7 +131,7 @@ const handleAddScholarship = () => {
             {!isMobile && about.image && (
               <img
                 src={about.image}
-                className="w-full laptop:w-1/2 laptop:max-w-[800px] object-cover"
+                className="w-full laptop:w-1/3 laptop:max-w-[500px] self-start object-contain"
                 alt="josefine Östlund"
               />
             )}
@@ -141,11 +141,11 @@ const handleAddScholarship = () => {
               {isMobile && about.image && (
                 <img
                   src={about.image}
-                  className="w-full laptop:w-1/2 laptop:max-w-[600px] object-cover"
+                  className="w-full object-cover"
                   alt="josefine Östlund"
                 />
               )}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col laptop:w-1/2gap-2">
                 <h3 className="font-body font-bold">Utställningar</h3>
                 <p>{about.exhibitions}</p>
               </div>

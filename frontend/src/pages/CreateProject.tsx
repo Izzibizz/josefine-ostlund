@@ -350,7 +350,6 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
           />
           <input
             className="border p-2"
-            type="number"
             placeholder="År"
             value={year}
             onChange={(e) => setYear(e.target.value)}

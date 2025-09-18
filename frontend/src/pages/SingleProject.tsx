@@ -90,17 +90,24 @@ export const SingleProject: React.FC = () => {
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-10">
       <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-14">
-        {imageToDisplay && imageToDisplay !== undefined ? (
-          <img
-            src={imageToDisplay?.url}
-            alt={singleProject?.name}
-            className="w-full self-start laptop:w-2/3 max-w-[900px] laptop:max-h-[700px] object-contain object-left cursor-pointer"
-            onClick={() => handleOpenModal()}
-          />
-        ) : (
-          <div className="w-full laptop:w-2/3 max-w-[900px] laptop:max-h-[650px] object-contain object-left" />
-        )}
-        <div className="flex flex-col gap-10 font-body laptop:w-1/3 justify-between">
+        <div className="flex flex-col laptop:w-2/3 laptop:gap-20">
+          {imageToDisplay && imageToDisplay !== undefined ? (
+            <img
+              src={imageToDisplay?.url}
+              alt={singleProject?.name}
+              className="w-full self-start max-w-[900px] laptop:max-h-[700px] object-contain object-left cursor-pointer"
+              onClick={() => handleOpenModal()}
+            />
+          ) : (
+            <div className="w-full laptop:w-2/3 max-w-[900px] laptop:max-h-[650px] object-contain object-left" />
+          )}
+          {singleProject?.description && isLaptop && (
+            <p className="text-sm text-justify whitespace-pre-line">
+              {singleProject?.description}
+            </p>
+          )}
+        </div>
+        <div className="flex flex-col gap-10 font-body laptop:w-1/3">
           <div
             className={` ${
               reorderedImages.length > 3
@@ -141,17 +148,18 @@ export const SingleProject: React.FC = () => {
             </div>
             {singleProject?.short_description &&
               singleProject?.short_description.length > 0 && (
-                <p className="whitespace-pre-line">{singleProject?.short_description}</p>
+                <p className="whitespace-pre-line">
+                  {singleProject?.short_description}
+                </p>
               )}
-               <p className="text-sm text-justify-right laptop:self-end whitespace-pre-line">
-        {singleProject?.description}
-      </p>
           </div>
-         
         </div>
-        
       </div>
-      
+      {singleProject?.description && !isLaptop && (
+            <p className="text-sm text-justify whitespace-pre-line">
+              {singleProject?.description}
+            </p>
+          )}
       {singleProject?.video && (
         <video
           src={singleProject?.video?.url}
