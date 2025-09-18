@@ -73,7 +73,7 @@ router.post(
   upload.fields([{ name: "images" }, { name: "video" }]),
   async (req, res) => {
     try {
-      const { name, year, material, exhibited_at, category, description, size } = req.body;
+      const { name, year, material, exhibited_at, category, description, short_description, size } = req.body;
 
       // Ta emot fotografer som array
       const photographers = req.body.photographers ? JSON.parse(req.body.photographers) : [];
@@ -116,6 +116,7 @@ router.post(
         exhibited_at,
         category,
         description,
+        short_description,
         size,
         images: imageUploads,
         video: videoUpload,
@@ -137,7 +138,7 @@ router.patch(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, year, material, exhibited_at, category, description, removeVideo, size } = req.body;
+      const { name, year, material, exhibited_at, category, description, short_description, removeVideo, size } = req.body;
 
       const project = await Projects.findById(id);
       if (!project) return res.status(404).json({ message: "Project not found" });
@@ -206,6 +207,7 @@ router.patch(
       if (exhibited_at !== undefined) project.exhibited_at = exhibited_at;
       if (category !== undefined) project.category = category;
       if (description !== undefined) project.description = description;
+      if (short_description !== undefined) project.short_description = short_description;
       if (size !== undefined) project.size = size;
 
       await project.save();

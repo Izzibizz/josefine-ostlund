@@ -16,11 +16,12 @@ type ProjectOrderUpdate = {
 export interface Project {
   _id: string;
   name: string;
-  year: number;
+  year: string;
   material: string;
   exhibited_at: string;
   category: string;
   description: string;
+  short_description: string;
   size?: string;
   images: Image[];
   video?: Image;

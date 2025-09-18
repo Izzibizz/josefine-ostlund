@@ -47,7 +47,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({ image, onClose, onUpdate
           <div className="flex flex-col tablet:flex-row gap-2">
             <input
               className="border p-2 h-10 text-white"
-              placeholder="Fotograf"
+              placeholder="Bildtext"
               value={photographer}
               onChange={(e) => setPhotographer(e.target.value)}
             />
@@ -70,7 +70,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({ image, onClose, onUpdate
             </div>
           </div>
         ) : (
-        image.photographer && <p className="text-white font-medium">Fotograf: {image.photographer}</p>
+        image.photographer && <p className="text-white font-medium">{image.photographer}</p>
         )}
       </div>
     </div>

@@ -30,8 +30,8 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     [projects, projectId]
   );
   const [name, setName] = useState(existingProject?.name ?? "");
-  const [year, setYear] = useState<number>(
-    existingProject?.year ?? new Date().getFullYear()
+  const [year, setYear] = useState(
+    existingProject?.year ?? ""
   );
   const [material, setMaterial] = useState(existingProject?.material ?? "");
   const [exhibitedAt, setExhibitedAt] = useState(
@@ -43,6 +43,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   const [description, setDescription] = useState(
     existingProject?.description ?? ""
   );
+  const [shortDescription, setShortDescription] = useState( existingProject?.short_description ?? "")
   const [size, setSize] = useState(existingProject?.size ?? "")
   const [existingImages, setExistingImages] = useState<Image[]>(
     existingProject?.images ?? []
@@ -191,6 +192,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
         exhibited_at: exhibitedAt,
         category,
         description,
+        short_description: shortDescription,
         size
       };
 
@@ -351,7 +353,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             type="number"
             placeholder="År"
             value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
+            onChange={(e) => setYear(e.target.value)}
           />
           <input
             className="border p-2"
@@ -383,9 +385,15 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
               </option>
             ))}
           </select>
+            <textarea
+            className="border p-2 min-h-[200px]"
+            placeholder="Kort beskrivning"
+            value={shortDescription}
+            onChange={(e) => setShortDescription(e.target.value)}
+          />
           <textarea
-            className="border p-2"
-            placeholder="Beskrivning"
+            className="border p-2 min-h-[400px]"
+            placeholder="Lång beskrivning"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />

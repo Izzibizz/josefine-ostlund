@@ -15,20 +15,20 @@ interface Image {
 export const SingleProject: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { id } = useParams();
-  const navigate = useNavigate()
-  const {projects, loading} = useProjectStore();
+  const navigate = useNavigate();
+  const { projects, loading } = useProjectStore();
   const singleProject = useMemo(() => {
-  return projects.find((project) => slugify(project.name) === id);
-}, [projects, id]);
-  const [isLaptop, setIsLaptop ] = useState(window.innerWidth > 1024)
+    return projects.find((project) => slugify(project.name) === id);
+  }, [projects, id]);
+  const [isLaptop, setIsLaptop] = useState(window.innerWidth > 1024);
   const [imageToDisplay, setImageToDisplay] = useState<Image | null>(null);
-  const { editMode } = useUserStore()
+  const { editMode } = useUserStore();
 
   const reorderedImages = useMemo(() => {
-  if (!singleProject?.images) return [];
-  if (singleProject.images.length <= 1) return singleProject.images;
-  return [...singleProject.images.slice(1), singleProject.images[0]];
-}, [singleProject]);
+    if (!singleProject?.images) return [];
+    if (singleProject.images.length <= 1) return singleProject.images;
+    return [...singleProject.images.slice(1), singleProject.images[0]];
+  }, [singleProject]);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -47,8 +47,8 @@ export const SingleProject: React.FC = () => {
   };
 
   const getThumbnailUrl = (url: string, width: number) => {
-  return url.replace("/upload/", `/upload/w_${width},c_fill/`);
-};
+    return url.replace("/upload/", `/upload/w_${width},c_fill/`);
+  };
 
   useEffect(() => {
     if (singleProject?.images?.[0]) {
@@ -60,12 +60,11 @@ export const SingleProject: React.FC = () => {
     }
   }, [singleProject]);
 
-  
-useEffect(() => {
-  if (!singleProject && !loading) {
-    navigate(-1);
-  }
-}, [singleProject, navigate]);
+  useEffect(() => {
+    if (!singleProject && !loading) {
+      navigate(-1);
+    }
+  }, [singleProject, navigate]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -77,53 +76,78 @@ useEffect(() => {
   }, [isLaptop]);
   console.log(id);
 
-  if (!singleProject ) {
-  return <div className="w-fit mx-auto mt-40"><p className="font-body">Laddar projekt...</p> </div>;
-}
-if (editMode && singleProject) {
-  return <CreateProject projectId={singleProject._id} />;
-}
+  if (!singleProject) {
+    return (
+      <div className="w-fit mx-auto mt-40">
+        <p className="font-body">Laddar projekt...</p>{" "}
+      </div>
+    );
+  }
+  if (editMode && singleProject) {
+    return <CreateProject projectId={singleProject._id} />;
+  }
 
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 laptop:pt-32 flex flex-col gap-10">
       <div className="flex flex-col gap-4 laptop:flex-row ">
         {imageToDisplay && imageToDisplay !== undefined ? (
-        <img
-          src={imageToDisplay?.url}
-          alt={singleProject?.name}
-          className="w-full self-start laptop:w-2/3 max-w-[900px] laptop:max-h-[450px] object-contain object-left cursor-pointer"
-          onClick={() => handleOpenModal()}
-        /> ) : (
+          <img
+            src={imageToDisplay?.url}
+            alt={singleProject?.name}
+            className="w-full self-start laptop:w-2/3 max-w-[900px] laptop:max-h-[700px] object-contain object-left cursor-pointer"
+            onClick={() => handleOpenModal()}
+          />
+        ) : (
           <div className="w-full laptop:w-2/3 max-w-[900px] laptop:max-h-[650px] object-contain object-left" />
         )}
         <div className="flex flex-col gap-10 font-body laptop:w-1/3 justify-between">
-         <div className={` ${reorderedImages.length > 3 ? "grid grid-cols-4" : "flex flex-wrap justify-end"} gap-1`}>
-      {reorderedImages.map((image, index) => (
-    <div
-      key={index}
-      className={`relative aspect-[4/3] cursor-pointer ${reorderedImages.length < 4 ? "w-[80px] h-[100px]" : "w-full max-w-[80px]"}`}
-      onClick={() => handlePreviewClick(image)}
-    >
-      <img
-        src={getThumbnailUrl(image.url, 150)} 
-        alt={image.photographer || singleProject.name}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-    </div>
-  ))}
+          <div
+            className={` ${
+              reorderedImages.length > 3
+                ? "grid grid-cols-4"
+                : "flex flex-wrap justify-end"
+            } gap-1`}
+          >
+            {reorderedImages.map((image, index) => (
+              <div
+                key={index}
+                className={`relative aspect-[4/3] cursor-pointer ${
+                  reorderedImages.length < 4
+                    ? "w-[80px] h-[100px]"
+                    : "w-full max-w-[100px]"
+                }`}
+                onClick={() => handlePreviewClick(image)}
+              >
+                <img
+                  src={getThumbnailUrl(image.url, 150)}
+                  alt={image.photographer || singleProject.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
+            ))}
           </div>
           <div className="flex flex-col gap-4 text-end">
             <h2 className="font-bold text-lg">{singleProject?.name}</h2>
-             {singleProject?.category === "utställningar" && <p><span className="font-semibold"></span>{singleProject?.exhibited_at}</p> }
+            {singleProject?.category === "utställningar" && (
+              <p>
+                <span className="font-semibold"></span>
+                {singleProject?.exhibited_at}
+              </p>
+            )}
             <h3 className="font-medium">{singleProject?.year}</h3>
             <div className="flex flex-col gap-2 text-sm">
-            <p>{singleProject?.material}</p>
-           {singleProject?.size && <p>{singleProject?.size}</p>}
+              <p>{singleProject?.material}</p>
+              {singleProject?.size && <p>{singleProject?.size}</p>}
             </div>
+            {singleProject?.short_description && singleProject?.short_description.length > 0 && (
+            <p>{singleProject?.short_description}</p>
+            )}
           </div>
         </div>
       </div>
-       <p className="text-sm text-justify">{singleProject?.description}</p>
+      <p className="text-sm text-justify laptop:w-1/3 laptop:self-end">
+        {singleProject?.description}
+      </p>
       {singleProject?.video && (
         <video
           src={singleProject?.video?.url}

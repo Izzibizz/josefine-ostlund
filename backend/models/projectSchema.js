@@ -15,12 +15,13 @@ const mediaSchema = new Schema(
 
 const projectSchema = new Schema({
   name: { type: String, required: true },
-  year: { type: Number, required: true },
-  material: { type: String, required: true },
-  exhibited_at: { type: String, required: true },
+  year: { type: String, required: true },
+  material: { type: String, required: false },
+  exhibited_at: { type: String, required: false },
   size: {type: String, required: false},
   category: { type: String, enum: categoryEnum, required: true },
-  description: { type: String, required: true },
+  description: { type: String, required: false },
+  short_description: { type: String, required: false},
   images: {
     type: [mediaSchema],
     required: true
@@ -29,7 +30,7 @@ const projectSchema = new Schema({
     type: mediaSchema,
     required: false
   },
-  order: {type: Number, required: false}
+  order: {type: Number, required: true}
 });
 
 const Project = model("Project", projectSchema);
