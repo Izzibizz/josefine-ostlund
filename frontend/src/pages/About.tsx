@@ -136,8 +136,8 @@ const handleAddScholarship = () => {
               />
             )}
             <div className="font-body flex flex-col gap-6 text-justify">
-              <p>{about.bio_1}</p>
-              <p>{about.bio_2}</p>
+              <p className="whitespace-pre-line ">{about.bio_1}</p>
+              <p className="whitespace-pre-line ">{about.bio_2}</p>
               {isMobile && about.image && (
                 <img
                   src={about.image}
@@ -147,11 +147,11 @@ const handleAddScholarship = () => {
               )}
               <div className="flex flex-col laptop:w-1/2gap-2">
                 <h3 className="font-body font-bold">Utställningar</h3>
-                <p>{about.exhibitions}</p>
+                <p className="whitespace-pre-line ">{about.exhibitions}</p>
               </div>
               <div className="flex flex-col gap-2">
                 <h3 className="font-body font-bold">Stipendier</h3>
-                <p>{about.scholarships}</p>
+                <p className="whitespace-pre-line ">{about.scholarships}</p>
               </div>
             </div>
           </div>
