@@ -145,14 +145,8 @@ const handleAddScholarship = () => {
                   alt="josefine Östlund"
                 />
               )}
-              <div className="flex flex-col laptop:w-1/2gap-2">
-                <h3 className="font-body font-bold">Utställningar</h3>
                 <p className="whitespace-pre-line ">{about.exhibitions}</p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <h3 className="font-body font-bold">Stipendier</h3>
                 <p className="whitespace-pre-line ">{about.scholarships}</p>
-              </div>
             </div>
           </div>
         </>
