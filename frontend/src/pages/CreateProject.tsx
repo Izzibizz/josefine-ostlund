@@ -1,5 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useProjectStore } from "../stores/ProjectsStore";
+import { useUserStore } from "../stores/UserStore";
 import { ImageModal } from "../components/ImageModal";
 import Dropzone from "react-dropzone";
 import { FiPlus } from "react-icons/fi";
@@ -25,14 +27,16 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   projectId,
 }) => {
   const { projects, updateProject, createProject } = useProjectStore();
+  const { success } = useUserStore()
   const existingProject = useMemo(
     () => projects.find((p) => p._id === projectId),
     [projects, projectId]
   );
+  const location = useLocation();
+  const isNewProject = location.pathname === "/nytt";
+  const navigate = useNavigate()
   const [name, setName] = useState(existingProject?.name ?? "");
-  const [year, setYear] = useState(
-    existingProject?.year ?? ""
-  );
+  const [year, setYear] = useState(existingProject?.year ?? "");
   const [material, setMaterial] = useState(existingProject?.material ?? "");
   const [exhibitedAt, setExhibitedAt] = useState(
     existingProject?.exhibited_at ?? ""
@@ -43,8 +47,10 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   const [description, setDescription] = useState(
     existingProject?.description ?? ""
   );
-  const [shortDescription, setShortDescription] = useState( existingProject?.short_description ?? "")
-  const [size, setSize] = useState(existingProject?.size ?? "")
+  const [shortDescription, setShortDescription] = useState(
+    existingProject?.short_description ?? ""
+  );
+  const [size, setSize] = useState(existingProject?.size ?? "");
   const [existingImages, setExistingImages] = useState<Image[]>(
     existingProject?.images ?? []
   );
@@ -128,9 +134,9 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   };
 
   const imageData = gallery.map((img) => ({
-  public_id: img.public_id,
-  photographer: img.photographer || "",
-}));
+    public_id: img.public_id,
+    photographer: img.photographer || "",
+  }));
 
   const handleDeleteThumb = (img: Image) => {
     const isTemp = img.public_id.startsWith("temp-");
@@ -153,16 +159,15 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     }
   };
 
-   const handlePreviewClick = (image: Image) => {
+  const handlePreviewClick = (image: Image) => {
     console.log("Klickade på bild:", image);
     setImageToDisplay({
       url: image.url,
       public_id: image.public_id,
       photographer: image.photographer || "",
     });
-     setIsModalOpen(true);
+    setIsModalOpen(true);
   };
-
 
   const handleDropVideo = (accepted: File[]) => {
     if (!accepted.length) return;
@@ -193,10 +198,10 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
         category,
         description,
         short_description: shortDescription,
-        size
+        size,
       };
 
-      if (projectId && existingProject) {
+      if (!isNewProject && projectId && existingProject) {
         console.log("Updating project...");
         await updateProject(
           projectId,
@@ -205,22 +210,21 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
           videoFile,
           removeImages,
           removeVideo,
-          imageData,
+          imageData
         );
       } else {
         console.log("Creating project...");
-         await createProject(
+        await createProject(
           textData,
           newImages.map((n) => n.file),
           newImages.map((n) => n.photographer || ""),
-          videoFile || undefined,
+          videoFile || undefined
         );
       }
     } catch (err) {
       console.error("Error saving project:", err);
     }
   };
-
 
   const handleDropImages = (accepted: File[]) => {
     const additions: TempImage[] = accepted.map((file) => {
@@ -234,13 +238,18 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     setImagesOrder((prev) => [...prev, ...additions.map((a) => a.tempId)]);
   };
 
- 
+  useEffect(() => {
+    if (!imageToDisplay) {
+      setImageToDisplay(gallery[0] ?? null);
+    }
+  }, [gallery.length, gallery, imageToDisplay]);
 
- useEffect(() => {
-  if (!imageToDisplay) {
-    setImageToDisplay(gallery[0] ?? null);
-  }
-}, [gallery.length, gallery, imageToDisplay]);
+
+  useEffect(() => {
+    if (success) {
+      navigate("/")
+    }
+  }, [success])
 
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto mt-40 flex flex-col gap-10">
@@ -361,10 +370,10 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             onChange={(e) => setMaterial(e.target.value)}
           />
           <input
-          className="border p-2"
-          placeholder="Storlek (t.ex. 40x60 cm)"
-          value={size}
-          onChange={(e) => setSize(e.target.value)}
+            className="border p-2"
+            placeholder="Storlek (t.ex. 40x60 cm)"
+            value={size}
+            onChange={(e) => setSize(e.target.value)}
           />
 
           <input
@@ -384,7 +393,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
               </option>
             ))}
           </select>
-            <textarea
+          <textarea
             className="border p-2 min-h-[150px]"
             placeholder="Kort beskrivning (syns upptill)"
             value={shortDescription}
@@ -444,7 +453,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
 
       {isModalOpen && imageToDisplay && (
         <ImageModal
-          key={imageToDisplay.public_id} 
+          key={imageToDisplay.public_id}
           image={imageToDisplay}
           onClose={() => setIsModalOpen(false)}
           onUpdatePhotographer={handleUpdatePhotographer}

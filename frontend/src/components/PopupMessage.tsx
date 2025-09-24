@@ -62,7 +62,6 @@ export const PopupMessage = () => {
     }, 3000);
   }, [success, loginError, fail, loggedIn, loggedOut, loadingEdit]);
 
-  console.log(loginError);
 
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-overlay backdrop-blur-sm  flex items-center justify-center z-50 animate-fadeIn">

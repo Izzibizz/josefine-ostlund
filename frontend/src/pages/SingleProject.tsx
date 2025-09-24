@@ -14,12 +14,17 @@ interface Image {
 
 export const SingleProject: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { id } = useParams();
+  const { category, id } = useParams();
   const navigate = useNavigate();
   const { projects, loading } = useProjectStore();
   const singleProject = useMemo(() => {
-    return projects.find((project) => slugify(project.name) === id);
-  }, [projects, id]);
+  return projects.find(
+    (project) =>
+      slugify(project.category) === category &&
+      slugify(project.name) === id
+  );
+}, [projects, category, id]);
+
   const [isLaptop, setIsLaptop] = useState(window.innerWidth > 1024);
   const [imageToDisplay, setImageToDisplay] = useState<Image | null>(null);
   const { editMode } = useUserStore();
@@ -107,7 +112,11 @@ export const SingleProject: React.FC = () => {
             </p>
           )}
         </div>
-        <div className={`flex flex-col gap-10 font-body laptop:w-1/3 ${singleProject?.description.length === 0 && "self-end"}`}>
+        <div
+          className={`flex flex-col gap-10 font-body laptop:w-1/3 ${
+            singleProject?.description.length === 0 && "self-end"
+          }`}
+        >
           <div
             className={` ${
               reorderedImages.length > 3

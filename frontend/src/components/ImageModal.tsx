@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { useUserStore } from "../stores/UserStore";
+import { useLocation } from "react-router-dom";
 
 interface Image {
   url: string;
@@ -17,6 +18,12 @@ export const ImageModal: React.FC<ImageModalProps> = ({ image, onClose, onUpdate
  const modalRef = useRef<HTMLDivElement | null>(null);
  const [photographer, setPhotographer] = useState(image.photographer ?? "");
  const { editMode } = useUserStore()
+const location = useLocation();
+
+
+ useEffect(() => {
+  setPhotographer(image.photographer ?? "");
+}, [image]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -43,7 +50,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({ image, onClose, onUpdate
           className={`object-contain cursor-pointer max-w-[90vw] ${editMode ? "max-h-[70vh]" : "max-h-[80vh]"}`}
           onClick={onClose}
         />
-        {editMode ? (
+        {editMode || location.pathname === "/nytt" ? (
           <div className="flex flex-col tablet:flex-row gap-2">
             <input
               className="border p-2 h-10 text-white"

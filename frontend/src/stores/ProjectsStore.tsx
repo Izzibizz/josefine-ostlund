@@ -83,6 +83,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
   },
 
   createProject: async (data, images, photographers, video) => {
+    console.log("Store: createProject called");
     useUserStore.setState({
       success: false,
       fail: false,
@@ -115,7 +116,6 @@ export const useProjectStore = create<ProjectState>((set) => ({
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      // 🔧 Klona projektet för att undvika "object is not extensible"
       const newProject: Project = JSON.parse(JSON.stringify(res.data.project));
 
       set((state) => ({
