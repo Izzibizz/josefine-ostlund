@@ -184,7 +184,7 @@ export const ProjectsOverview: React.FC<Props> = ({ category }) => {
                       </div>
                     )}
                     <h3 className="font-medium laptop:text-sm font-body text-end">
-                      {project.name}, {project.year}
+                      {project.name}, {category === "utställningar" && project.exhibited_at} {project.year}
                     </h3>
                   </NavLink>
                 )

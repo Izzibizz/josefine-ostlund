@@ -79,7 +79,6 @@ export const SingleProject: React.FC = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [isLaptop]);
-  console.log(id);
 
   if (!singleProject) {
     return (
@@ -92,6 +91,8 @@ export const SingleProject: React.FC = () => {
     return <CreateProject projectId={singleProject._id} />;
   }
 
+
+  console.log(singleProject.images)
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-10">
       <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-14">
@@ -179,7 +180,7 @@ export const SingleProject: React.FC = () => {
         />
       )}
       {isModalOpen && imageToDisplay && (
-        <ImageModal image={imageToDisplay} onClose={handleCloseModal} />
+        <ImageModal image={imageToDisplay} images={singleProject.images} onClose={handleCloseModal} />
       )}
     </section>
   );

@@ -1,5 +1,5 @@
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
 
 interface Image {
   url: string;
@@ -7,84 +7,50 @@ interface Image {
   photographer?: string;
 }
 
-interface Project  {
- _id?: string;
-  name?: string;
-  year?: number;
-  material?: string;
-  exhibited_at?: string;
-  category?: string;
-  description?: string;
-  images?: Image[];
-  video?: Image;
-}
-
 interface ProjectProps {
-  project: Project;
-  handlePreviewClick: (image: Image) => void;
-  slides: number;
-  style: string;
-  aspect: string;
-thumbnail: boolean;
+  images: Image[];
 }
 
-export const SwiperComp:React.FC<ProjectProps> = ({project, handlePreviewClick, slides, style, thumbnail, aspect}) => {
-
-  const getThumbnailUrl = (url: string, width: number, height:number) => {
-  return url.replace("/upload/", `/upload/w_${width},h_${height},c_fill/`);
-};
+export const SwiperComp: React.FC<ProjectProps> = ({ images }) => {
   return (
-     <Swiper
-                  key={project?.name}
-                  slidesPerView={slides}
-                  spaceBetween={20}
-                  speed={1200}
-                  loop
-                  zoom
-                  updateOnWindowResize
-                  scrollbar={{ draggable: true }}
-                  autoplay={{
-                    pauseOnMouseEnter: true,
-                    disableOnInteraction: false,
-                  }}
-                  breakpoints={{
-                    320: {
-                      spaceBetween: 10,
-                    },
-                    768: {
-                      spaceBetween: 15,
-                    },
-                    1024: {
-                      spaceBetween: 20,
-                    },
-                    1280: {
-                      spaceBetween: 25,
-                    },
-                  }}
-                  effect="fade"
-                  modules={[Autoplay]}
-                  className="w-full h-auto"
-                >
-                  {project?.images?.map((file, index) => (
-                    <SwiperSlide key={index}>
-                      <div className="relative group">
-                        <img
-                          src={thumbnail === true ? getThumbnailUrl(file.url, 400, 300) : file.url}
-                          alt={file.photographer}
-                          className={`w-full h-full ${aspect} `}
-                        />
-                        <div
-                          className={`${style} absolute max-w-full max-h-full inset-0 bg-black opacity-40 group-hover:opacity-0 transition-opacity duration-500 ease-in-out hover:cursor-pointer`}
-                          onClick={() => handlePreviewClick(file)}
-                          onTouchStart={() =>
-                            handlePreviewClick(file)
-                          }
-                        ></div>
-                      </div>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-                
-  )
-}
+    <div className="relative">
+      <Swiper
+        slidesPerView={1}
+        loop
+        effect="fade"
+        modules={[Navigation]}
+        navigation={{ nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }}
+        observer={true}
+        observeParents={true}
+        className="w-full"
+      >
+        {images.map((file, index) => (
+          <SwiperSlide key={index}>
+            <div className="w-fit h-full flex flex-col gap-2 mx-auto">
+              <img
+                src={file.url}
+                alt={file.photographer}
+                className="w-full h-auto max-h-[85vh] object-contain"
+              />
+              {file.photographer && (
+                <p className="text-white text-sm py-1">{file.photographer}</p>
+              )}
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
 
+      <button type="button" className="swiper-button-prev" aria-label="Prev">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path d="M15 6 L9 12 L15 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      <button type="button" className="swiper-button-next" aria-label="Next">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path d="M9 6 L15 12 L9 18" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  );
+};

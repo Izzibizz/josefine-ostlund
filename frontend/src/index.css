@@ -47,29 +47,45 @@
 }
 
 /* Navigation arrows */
-.swiper-button-prev,
-.swiper-button-next {
-  position: absolute;
-  top: 50%;
-  z-index: 10;
-  cursor: pointer;
+.swiper-button-next,
+.swiper-button-prev {
   color: white;
+  --swiper-navigation-size: 30px;  /* ikonstorlek */
+  z-index: 30;
+  cursor: pointer;
+  background: rgba(0,0,0,0.4);
+  border-radius: 9999px;
   width: 44px;
   height: 44px;
-  margin-top: -22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Pagination dots */
-.swiper-pagination-bullet {
-  background: white;
-  opacity: 0.5;
-  transition: opacity 0.3s;
+/* Mobil/platta – UNDER swiper */
+@media (max-width: 1024px) {
+  .swiper-button-next,
+  .swiper-button-prev {
+    position: absolute;
+    bottom: -60px;           /* under sliden */
+    top: auto;
+    transform: none;
+  }
+  .swiper-button-prev { left: 30%; }
+  .swiper-button-next { right: 30%; }
 }
 
-.swiper-pagination-bullet-active {
-  opacity: 1;
+/* Desktop – PÅ SIDORNA */
+@media (min-width: 1025px) {
+  .swiper-button-next,
+  .swiper-button-prev {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .swiper-button-prev { left: 12px; }
+  .swiper-button-next { right: 12px; }
 }
-
 
 @import "tailwindcss";
 
