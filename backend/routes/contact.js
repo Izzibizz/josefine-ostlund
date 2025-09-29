@@ -22,7 +22,8 @@ router.patch("/", upload.single("cv"), async (req, res) => {
 
     // Hämta kontakt
     const contact = await Contact.findOne();
-    if (!contact) return res.status(404).json({ message: "Ingen kontakt hittad" });
+    if (!contact)
+      return res.status(404).json({ message: "Ingen kontakt hittad" });
 
     // === Hantera CV ===
     if (req.file) {
@@ -35,20 +36,23 @@ router.patch("/", upload.single("cv"), async (req, res) => {
 
       // Ladda upp nytt CV
       const result = await new Promise((resolve, reject) => {
-      
-       
-      cloudinary.uploader.upload_stream(
-          {  resource_type: "auto",
-          folder: "cv",
-          public_id: `Josefine_ostlund_${Date.now()}`, 
-          use_filename: true,
-          unique_filename: false, 
-          overwrite: true,},
-          (err, result) => {
-            if (err) return reject(err);
-            resolve(result);
-          }
-        ).end(req.file.buffer);
+        cloudinary.uploader
+          .upload_stream(
+            {
+              resource_type: "auto",
+              folder: "cv",
+              public_id: `Josefine_ostlund_CV_2025_${Date.now()}`,
+              access_mode: "public",
+              use_filename: true,
+              unique_filename: false,
+              overwrite: true,
+            },
+            (err, result) => {
+              if (err) return reject(err);
+              resolve(result);
+            }
+          )
+          .end(req.file.buffer);
       });
 
       // Lägg in ny URL + public_id
@@ -57,12 +61,18 @@ router.patch("/", upload.single("cv"), async (req, res) => {
     }
 
     // Uppdatera kontakt
-    const updated = await Contact.findOneAndUpdate({}, { $set: updateFields }, { new: true });
+    const updated = await Contact.findOneAndUpdate(
+      {},
+      { $set: updateFields },
+      { new: true }
+    );
 
     res.json(updated);
   } catch (err) {
     console.error("Error in PATCH /contact:", err);
-    res.status(500).json({ message: "Något gick fel vid uppdatering av kontakt." });
+    res
+      .status(500)
+      .json({ message: "Något gick fel vid uppdatering av kontakt." });
   }
 });
 

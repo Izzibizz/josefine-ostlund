@@ -29,7 +29,7 @@ export const PopupMessage = () => {
     if (loginError) return "Fel inloggningsuppgifter";
     if (loadingEdit) return "";
     if (deleteSuccess) return "Projektet har raderats";
-    if (success) return "Ditt projekt har sparats";
+    if (success) return "Dina ändringar har sparats";
     if (deleteFail) return "Kunde inte radera projektet";
     if (fail) return "Kunde inte spara, prova igen";
     if (orderSuccess) return "";
