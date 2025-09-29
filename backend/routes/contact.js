@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import cloudinary from "../config/cloudinaryConfig.js";
+import getSignedPdfUrl from "../config/signedUrl.js";
 import Contact from "../models/contactSchema.js";
 
 const router = express.Router();
@@ -57,7 +58,7 @@ router.patch("/", upload.single("cv"), async (req, res) => {
 
       // Lägg in ny URL + public_id
       updateFields.cv = result.secure_url;
-      updateFields.cv_public_id = result.public_id;
+      updateFields.cv_public_id = getSignedPdfUrl(result.public_id);
     }
 
     // Uppdatera kontakt
