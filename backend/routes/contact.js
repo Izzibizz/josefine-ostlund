@@ -30,7 +30,7 @@ router.patch("/", upload.single("cv"), async (req, res) => {
       // Om tidigare CV finns: ta bort från Cloudinary
       if (contact.cv && contact.cv_public_id) {
         await cloudinary.uploader.destroy(contact.cv_public_id, {
-          resource_type: "raw", // eftersom det är PDF
+          resource_type: "raw",
         });
       }
 
@@ -39,7 +39,7 @@ router.patch("/", upload.single("cv"), async (req, res) => {
         cloudinary.uploader
           .upload_stream(
             {
-              resource_type: "auto",
+              resource_type: "raw",
               folder: "cv",
               public_id: `Josefine_ostlund_CV_2025_${Date.now()}`,
               access_mode: "public",
