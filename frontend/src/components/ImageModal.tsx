@@ -43,7 +43,6 @@ const showSwiper = !editMode || location.pathname !== "/nytt" && images;
     };
   }, [onClose]);
 
-console.log(images)
   return (
     <div className="fixed inset-0 bg-black/95 flex  justify-center z-80 cursor-pointer">
       {showSwiper ? (

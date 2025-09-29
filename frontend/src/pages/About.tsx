@@ -119,8 +119,6 @@ const handleAddScholarship = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobile]);
 
-  console.log("formdata", formData, "about", about);
-
   return (
     <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 gap-10 bg-white flex flex-col min-h-screen">
       {!editMode ? (

@@ -246,7 +246,7 @@ export const useUserStore = create<UserState>()(
 
         try {
           let body: FormData | string;
-          const headers: HeadersInit = {};
+          let headers: HeadersInit = {};
 
           if (cvFile) {
             // Om CV-fil finns, använd FormData

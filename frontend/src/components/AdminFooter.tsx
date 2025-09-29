@@ -46,7 +46,6 @@ export const AdminFooter: React.FC = () => {
     }
   }, [location.pathname, setShowPen]);
 
-
   return (
     <section className="z-40 fixed bottom-4 right-4 laptop:bottom-10 laptop:right-10 flex gap-2 font-body">
       

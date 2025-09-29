@@ -10,8 +10,6 @@ interface MenuToggleProps {
   export const MenuToggle = forwardRef<HTMLButtonElement, MenuToggleProps>(
     ({ isOpen, toggleMenu, color }, ref) => {
       
-
-
       return (
         <button
           ref={ref}

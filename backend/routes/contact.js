@@ -18,11 +18,6 @@ router.get("/", async (req, res) => {
 
 router.patch("/", upload.single("cv"), async (req, res) => {
   try {
-
-     console.log("Multer file info:", req.file); // logga hela filen
-    if (req.file) {
-      console.log("MIME type:", req.file.mimetype); // detta ska vara "application/pdf"
-    }
     const updateFields = req.body; // telefon, mail etc.
 
     // Hämta kontakt
@@ -44,7 +39,7 @@ router.patch("/", upload.single("cv"), async (req, res) => {
         cloudinary.uploader
           .upload_stream(
             {
-              resource_type: "raw",
+              resource_type: "auto",
               folder: "cv",
               public_id: `Josefine_ostlund_CV_2025_${Date.now()}`,
               access_mode: "public",
