@@ -18,6 +18,11 @@ router.get("/", async (req, res) => {
 
 router.patch("/", upload.single("cv"), async (req, res) => {
   try {
+
+     console.log("Multer file info:", req.file); // logga hela filen
+    if (req.file) {
+      console.log("MIME type:", req.file.mimetype); // detta ska vara "application/pdf"
+    }
     const updateFields = req.body; // telefon, mail etc.
 
     // Hämta kontakt
@@ -46,8 +51,6 @@ router.patch("/", upload.single("cv"), async (req, res) => {
               use_filename: true,
               unique_filename: false,
               overwrite: true,
-              raw_convert: "none",
-              format: "pdf",
             },
             (err, result) => {
               if (err) return reject(err);
