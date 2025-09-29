@@ -46,6 +46,8 @@ router.patch("/", upload.single("cv"), async (req, res) => {
               use_filename: true,
               unique_filename: false,
               overwrite: true,
+              raw_convert: "none",
+              format: "pdf",
             },
             (err, result) => {
               if (err) return reject(err);
