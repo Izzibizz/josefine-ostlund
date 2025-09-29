@@ -6,6 +6,7 @@ import { ImageModal } from "../components/ImageModal";
 import Dropzone from "react-dropzone";
 import { FiPlus } from "react-icons/fi";
 import { DeleteButton } from "../components/DeleteButton";
+import { TextEditor } from "../components/Texteditor";
 
 interface Image {
   url: string;
@@ -27,14 +28,14 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   projectId,
 }) => {
   const { projects, updateProject, createProject } = useProjectStore();
-  const { success } = useUserStore()
+  const { success } = useUserStore();
   const existingProject = useMemo(
     () => projects.find((p) => p._id === projectId),
     [projects, projectId]
   );
   const location = useLocation();
   const isNewProject = location.pathname === "/nytt";
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [name, setName] = useState(existingProject?.name ?? "");
   const [year, setYear] = useState(existingProject?.year ?? "");
   const [material, setMaterial] = useState(existingProject?.material ?? "");
@@ -244,12 +245,11 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     }
   }, [gallery.length, gallery, imageToDisplay]);
 
-
   useEffect(() => {
     if (success) {
-      navigate("/")
+      navigate("/");
     }
-  }, [success])
+  }, [success]);
 
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto mt-40 flex flex-col gap-10">
@@ -393,17 +393,14 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
               </option>
             ))}
           </select>
-          <textarea
-            className="border p-2 min-h-[150px]"
-            placeholder="Kort beskrivning (syns upptill)"
+          <TextEditor
             value={shortDescription}
-            onChange={(e) => setShortDescription(e.target.value)}
+            onChange={(html) => setShortDescription(html)}
           />
-          <textarea
-            className="border p-2 min-h-[400px]"
-            placeholder="Lång beskrivning (hamnar nedanför)"
+
+          <TextEditor
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(html) => setDescription(html)}
           />
 
           <div>

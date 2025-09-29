@@ -38,7 +38,7 @@ router.patch("/", upload.single("cv"), async (req, res) => {
       
        
       cloudinary.uploader.upload_stream(
-          {  resource_type: "raw",
+          {  resource_type: "auto",
           folder: "cv",
           public_id: `Josefine_ostlund_${Date.now()}`, 
           use_filename: true,

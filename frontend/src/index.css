@@ -87,6 +87,17 @@
   .swiper-button-next { right: 12px; }
 }
 
+.desctext a {
+  font-weight: 700;
+  font-style: italic;
+  text-decoration: none;
+}
+
+.desctext a:hover {
+  text-decoration: underline;
+}
+
+
 @import "tailwindcss";
 
 @theme {

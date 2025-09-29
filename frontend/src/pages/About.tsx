@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useUserStore } from "../stores/UserStore";
 import { useDropzone } from "react-dropzone";
+import { TextEditor } from "../components/Texteditor";
 
 /* interface Exhibition {
   place: string;
@@ -25,36 +26,35 @@ interface About {
   image: string;
 }
 
-
 export const About: React.FC = () => {
   const { about, fetchAbout, updateAbout, editMode } = useUserStore();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1025);
   const [newImage, setNewImage] = useState<File | null>(null);
 
   const defaultAbout: About = {
-  bio_1: "",
-  bio_2: "",
-  exhibitions: "",
-  scholarships: "",
-  image: "",
-};
-const [formData, setFormData] = useState<About>(defaultAbout);
+    bio_1: "",
+    bio_2: "",
+    exhibitions: "",
+    scholarships: "",
+    image: "",
+  };
+  const [formData, setFormData] = useState<About>(defaultAbout);
 
-/* const handleDeleteExhibition = (idToDelete: string) => {
+  /* const handleDeleteExhibition = (idToDelete: string) => {
   setFormData((prev) => ({
     ...prev,
     exhibitions: prev.exhibitions.filter((ex) => ex._id !== idToDelete),
   }));
 }; */
 
-/* const handleDeleteScholarship = (idToDelete: string) => {
+  /* const handleDeleteScholarship = (idToDelete: string) => {
   setFormData((prev) => ({
     ...prev,
     scholarships: prev.scholarships.filter((st) => st._id !== idToDelete),
   }));
 }; */
 
-/* const handleAddExhibition = () => {
+  /* const handleAddExhibition = () => {
   const newEx = {
     _id: Date.now().toString(), // temporärt id
     place: "",
@@ -94,7 +94,6 @@ const handleAddScholarship = () => {
     setNewImage(null);
   };
 
-
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => setNewImage(acceptedFiles[0]),
   });
@@ -108,7 +107,7 @@ const handleAddScholarship = () => {
 
   useEffect(() => {
     if (about) {
-    setFormData(about);
+      setFormData(about);
     }
   }, [about]);
 
@@ -136,8 +135,14 @@ const handleAddScholarship = () => {
               />
             )}
             <div className="font-body flex flex-col gap-6 text-justify">
-              <p className="whitespace-pre-line ">{about.bio_1}</p>
-              <p className="whitespace-pre-line ">{about.bio_2}</p>
+              <div
+                className="desctext"
+                dangerouslySetInnerHTML={{ __html: about.bio_1 }}
+              />
+              <div
+                className="desctext"
+                dangerouslySetInnerHTML={{ __html: about.bio_2 }}
+              />
               {isMobile && about.image && (
                 <img
                   src={about.image}
@@ -145,8 +150,14 @@ const handleAddScholarship = () => {
                   alt="josefine Östlund"
                 />
               )}
-                <p className="whitespace-pre-line ">{about.exhibitions}</p>
-                <p className="whitespace-pre-line ">{about.scholarships}</p>
+              <div
+                className="desctext"
+                dangerouslySetInnerHTML={{ __html: about.exhibitions }}
+              />
+              <div
+                className="desctext"
+                dangerouslySetInnerHTML={{ __html: about.scholarships }}
+              />
             </div>
           </div>
         </>
@@ -165,55 +176,49 @@ const handleAddScholarship = () => {
                   alt="preview"
                   className="object-cover w-full h-full"
                 />
-              ) : ( formData.image &&
-                <>
-                  <img
-                    src={formData.image}
-                    alt="preview"
-                    className="object-cover w-full h-full"
-                  />
-                  <p className="bg-white rounded-4xl px-4 py-2 absolute">
-                    Tryck eller släpp bild här för att ladda upp ny
-                  </p>
-                </>
+              ) : (
+                formData.image && (
+                  <>
+                    <img
+                      src={formData.image}
+                      alt="preview"
+                      className="object-cover w-full h-full"
+                    />
+                    <p className="bg-white rounded-4xl px-4 py-2 absolute">
+                      Tryck eller släpp bild här för att ladda upp ny
+                    </p>
+                  </>
+                )
               )}
             </div>
             <div className="font-body flex flex-col gap-6 text-justify w-full laptop:w-1/2">
-              <textarea
+              <h3 className="font-body font-bold">Intro</h3>
+              <TextEditor
                 value={formData.bio_1}
-                onChange={(e) =>
-                  setFormData({ ...formData, bio_1: e.target.value })
-                }
-                className="border p-2 w-full min-h-[150px]"
+                onChange={(html) => setFormData({ ...formData, bio_1: html })}
               />
-              <textarea
+              <h3 className="font-body font-bold">Beskrivning</h3>
+              <TextEditor
                 value={formData.bio_2}
-                onChange={(e) =>
-                  setFormData({ ...formData, bio_2: e.target.value })
-                }
-                className="border p-2 w-full min-h-[250px]"
+                onChange={(html) => setFormData({ ...formData, bio_2: html })}
               />
 
-               <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2">
                 <h3 className="font-body font-bold">Utställningar</h3>
-                <textarea
+                <TextEditor
                   value={formData.exhibitions}
-                  onChange={(e) =>
-                    setFormData({ ...formData, exhibitions: e.target.value })
+                  onChange={(html) =>
+                    setFormData({ ...formData, exhibitions: html })
                   }
-                  className="border p-2 w-full min-h-[150px]"
-                  placeholder="Ex: Galleri A, Stockholm, 2023..."
                 />
               </div>
               <div className="flex flex-col gap-2">
                 <h3 className="font-body font-bold">Stipendier</h3>
-                <textarea
+                <TextEditor
                   value={formData.scholarships}
-                  onChange={(e) =>
-                    setFormData({ ...formData, scholarships: e.target.value })
+                  onChange={(html) =>
+                    setFormData({ ...formData, scholarships: html })
                   }
-                  className="border p-2 w-full min-h-[150px]"
-                  placeholder="Ex: Konstnärsnämnden, 2022..."
                 />
               </div>
 
