@@ -19,7 +19,6 @@ export const PopupMessage = () => {
     loadingEdit,
     setSuccess,
     setFail,
-    setLoadingEdit,
   } = useUserStore();
 
   const { setDeleteFail, deleteFail, deleteSuccess, setDeleteSuccess, orderSuccess, setOrderSuccess } =
@@ -50,8 +49,8 @@ export const PopupMessage = () => {
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      setLoadingEdit(false);
+ if (!loadingEdit || loadingUser ) {
+    const timer = setTimeout(() => {
       setFail(false);
       setShowPopupMessage(false);
       setLoginError(false);
@@ -60,7 +59,9 @@ export const PopupMessage = () => {
       setSuccess(false);
       setOrderSuccess(false)
     }, 3000);
-  }, [success, loginError, fail, loggedIn, loggedOut, loadingEdit]);
+     return () => clearTimeout(timer);
+ }
+  }, [loadingEdit, loadingUser, success, loginError, fail, loggedIn, loggedOut, loadingEdit]);
 
 
   return (

@@ -58,6 +58,29 @@ interface ProjectState {
   updateProjectOrder: (orders: ProjectOrderUpdate[]) => Promise<void>;
 }
 
+async function uploadVideoToBunny(file: File) {
+  // 1. be backend om upload-url
+  const res = await fetch(
+    `https://api.onrender.com/projects/get-upload-url?fileName=${encodeURIComponent(file.name)}`
+  );
+  if (!res.ok) throw new Error("Kunde inte hämta upload-url från backend");
+  const { uploadUrl, cdnUrl, pathOnBunny, headers } = await res.json();
+
+  // 2. ladda upp till Bunny
+  const uploadRes = await fetch(uploadUrl, {
+    method: "PUT",
+    headers,
+    body: file,
+  });
+  if (!uploadRes.ok) throw new Error("Kunde inte ladda upp video till Bunny");
+
+  // 3. returnera metadata till backend
+  return {
+    url: cdnUrl,
+    public_id: pathOnBunny, 
+  };
+}
+
 export const useProjectStore = create<ProjectState>((set) => ({
   projects: [],
   loading: false,
@@ -82,8 +105,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     }
   },
 
-  createProject: async (data, images, photographers, video) => {
-    console.log("Store: createProject called");
+  createProject: async (data, images, photographers, videoFile) => {
     useUserStore.setState({
       success: false,
       fail: false,
@@ -103,20 +125,24 @@ export const useProjectStore = create<ProjectState>((set) => ({
       images.forEach((file) => formData.append("images", file));
 
       // Fotografer
-      if (photographers.length > 0) {
+      if (photographers?.length) {
         formData.append("photographers", JSON.stringify(photographers));
       }
 
-      // Video
-      if (video) formData.append("video", video);
+      // Video (ladda upp till Bunny först → sen bifoga som JSON)
+      if (videoFile) {
+        const videoMeta = await uploadVideoToBunny(videoFile);
+        formData.append("video", JSON.stringify(videoMeta));
+      }
 
-      const res = await axios.post(
-        "https://josefine-ostlund.onrender.com/projects/newProject",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      const res = await fetch("https://api.onrender.com/projects/newProject", {
+        method: "POST",
+        body: formData,
+      });
 
-      const newProject: Project = JSON.parse(JSON.stringify(res.data.project));
+      if (!res.ok) throw new Error("Kunde inte skapa projekt");
+      const dataRes = await res.json();
+      const newProject: Project = JSON.parse(JSON.stringify(dataRes.project));
 
       set((state) => ({
         projects: [...state.projects, newProject],
@@ -145,52 +171,61 @@ export const useProjectStore = create<ProjectState>((set) => ({
     id,
     updates,
     newImages,
-    newVideo,
+    newVideoFile,
     removeImages,
     removeVideo,
     imageData
   ) => {
-    try {
-      useUserStore.setState({
-        success: false,
-        fail: false,
-        loadingEdit: true,
-        showPopupMessage: true,
-      });
+    useUserStore.setState({
+      success: false,
+      fail: false,
+      loadingEdit: true,
+      showPopupMessage: true,
+    });
 
+    try {
       const formData = new FormData();
 
       // Textfält
       Object.entries(updates).forEach(([key, value]) => {
-        if (value !== undefined && value !== null)
+        if (value !== undefined && value !== null) {
           formData.append(key, String(value));
+        }
       });
 
       // Nya bilder
-      if (newImages?.length)
+      if (newImages?.length) {
         newImages.forEach((file) => formData.append("images", file));
+      }
 
       // Fotografer (både gamla och nya)
-      if (imageData?.length)
+      if (imageData?.length) {
         formData.append("imageData", JSON.stringify(imageData));
+      }
 
-      // Video
-      if (newVideo) formData.append("video", newVideo);
+      // Video (ladda upp ny först → bifoga JSON)
+      if (newVideoFile) {
+        const videoMeta = await uploadVideoToBunny(newVideoFile);
+        formData.append("video", JSON.stringify(videoMeta));
+      }
 
       // Remove
-      if (removeImages?.length)
+      if (removeImages?.length) {
         removeImages.forEach((id) => formData.append("removeImages", id));
-      if (removeVideo) formData.append("removeVideo", "true");
+      }
+      if (removeVideo) {
+        formData.append("removeVideo", "true");
+      }
 
-      const res = await axios.patch(
-        `https://josefine-ostlund.onrender.com/projects/${id}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      const res = await fetch(`https://api.onrender.com/projects/${id}`, {
+        method: "PATCH",
+        body: formData,
+      });
 
-      // 🔧 Klona objektet innan det sätts i state
+      if (!res.ok) throw new Error("Kunde inte uppdatera projekt");
+      const dataRes = await res.json();
       const updatedProject: Project = JSON.parse(
-        JSON.stringify(res.data.project)
+        JSON.stringify(dataRes.project)
       );
 
       set((state) => ({
