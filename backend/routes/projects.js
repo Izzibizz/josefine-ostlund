@@ -3,11 +3,34 @@ import cloudinary from "../config/cloudinaryConfig.js";
 import { uploadToBunny, deleteFromBunny } from "../middlewares/storageBunny.js";
 import Projects from "../models/projectSchema.js";
 import multer from "multer";
+import fs from "fs";
+import fsPromises from "fs/promises";
+import path from "path";
 
 const router = express.Router();
 
-const storage = multer.memoryStorage();
+const UPLOAD_DIR = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, UPLOAD_DIR);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
 const upload = multer({ storage });
+
+const uploadImageFileToCloudinary = (filePath) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream({ resource_type: "image" }, (err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
+    fs.createReadStream(filePath).pipe(stream);
+  });
+}
 
 // GET all projects, optionally filter by title
 router.get("/", async (req, res) => {
@@ -85,34 +108,36 @@ router.post(
         size,
       } = req.body;
 
-      // Ta emot fotografer som array
-      const photographers = req.body.photographers
-        ? JSON.parse(req.body.photographers)
-        : [];
+      const photographers = req.body.photographers ? JSON.parse(req.body.photographers) : [];
 
+      // --- Bilder (Cloudinary) ---
       const imageFiles = req.files?.images || [];
-      const imageUploads = await Promise.all(
-        imageFiles.map(
-          (file, i) =>
-            new Promise((resolve, reject) => {
-              cloudinary.uploader
-                .upload_stream({ resource_type: "image" }, (err, result) => {
-                  if (err) return reject(err);
-                  resolve({
-                    url: result.secure_url,
-                    public_id: result.public_id,
-                    photographer: photographers[i] || "",
-                  });
-                })
-                .end(file.buffer);
-            })
-        )
-      );
+      const imageUploads = [];
 
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        try {
+          const result = await uploadImageFileToCloudinary(file.path);
+          imageUploads.push({
+            url: result.secure_url,
+            public_id: result.public_id,
+            photographer: photographers[i] || "",
+          });
+        } finally {
+          // radera tempfil oavsett om upload lyckades eller ej
+          await fsPromises.unlink(file.path).catch(() => {});
+        }
+      }
+
+      // --- Video (Bunny) ---
       let videoUpload = null;
       if (req.files?.video?.length) {
         const file = req.files.video[0];
-        videoUpload = await uploadToBunny(file.buffer, file.originalname);
+        try {
+          videoUpload = await uploadToBunny(file.path, file.originalname);
+        } finally {
+          await fsPromises.unlink(file.path).catch(() => {});
+        }
       }
 
       await Projects.updateMany({}, { $inc: { order: 1 } });
@@ -132,16 +157,15 @@ router.post(
       });
 
       await newProject.save();
-      res
-        .status(201)
-        .json({ message: "Project created successfully", project: newProject });
+      res.status(201).json({ message: "Project created successfully", project: newProject });
     } catch (error) {
       console.error("Error creating project:", error);
-      res.status(500).json({ message: "Error creating project" });
+      res.status(500).json({ message: "Error creating project", error: error.message });
     }
   }
 );
 
+// --- UPDATE ---
 router.patch(
   "/:id",
   upload.fields([{ name: "images" }, { name: "video" }]),
@@ -161,75 +185,80 @@ router.patch(
       } = req.body;
 
       const project = await Projects.findById(id);
-      if (!project)
-        return res.status(404).json({ message: "Project not found" });
+      if (!project) return res.status(404).json({ message: "Project not found" });
 
-      // --- Ta bort bilder ---
+      // --- Ta bort bilder (Cloudinary) ---
       let removeList = [];
       if (req.body.removeImages) {
-        removeList = Array.isArray(req.body.removeImages)
-          ? req.body.removeImages
-          : [req.body.removeImages];
+        removeList = Array.isArray(req.body.removeImages) ? req.body.removeImages : [req.body.removeImages];
       }
       for (const public_id of removeList) {
-        await cloudinary.uploader.destroy(public_id);
-        project.images = project.images.filter(
-          (img) => img.public_id !== public_id
-        );
+        try {
+          await cloudinary.uploader.destroy(public_id);
+        } catch (e) {
+          console.warn("Cloudinary destroy failed for", public_id, e.message);
+        }
+        project.images = project.images.filter((img) => img.public_id !== public_id);
       }
 
       // --- Uppdatera fotografer ---
       if (req.body.imageData) {
         const imageData = JSON.parse(req.body.imageData);
-        imageData
-          .filter((d) => d.public_id)
-          .forEach((d) => {
-            const img = project.images.find((i) => i.public_id === d.public_id);
-            if (img) img.photographer = d.photographer;
-          });
+        imageData.filter((d) => d.public_id).forEach((d) => {
+          const img = project.images.find((i) => i.public_id === d.public_id);
+          if (img) img.photographer = d.photographer;
+        });
       }
 
-      // --- Nya bilder ---
+      // --- Nya bilder (Cloudinary) ---
       if (req.files?.images?.length) {
-        const newImageData = req.body.imageData
-          ? JSON.parse(req.body.imageData).filter((d) => d.index !== undefined)
-          : [];
-        for (let i = 0; i < req.files.images.length; i++) {
-          const file = req.files.images[i];
-          const uploaded = await new Promise((resolve, reject) => {
-            cloudinary.uploader
-              .upload_stream({ resource_type: "image" }, (err, result) => {
-                if (err) return reject(err);
-                resolve({
-                  url: result.secure_url,
-                  public_id: result.public_id,
-                  photographer: newImageData[i]?.photographer || "",
-                });
-              })
-              .end(file.buffer);
-          });
-          project.images.push(uploaded);
+        const newImageFiles = req.files.images;
+        const newImageData = req.body.imageData ? JSON.parse(req.body.imageData).filter(d => d.index !== undefined) : [];
+
+        for (let i = 0; i < newImageFiles.length; i++) {
+          const file = newImageFiles[i];
+          try {
+            const result = await uploadImageFileToCloudinary(file.path);
+            project.images.push({
+              url: result.secure_url,
+              public_id: result.public_id,
+              photographer: newImageData[i]?.photographer || "",
+            });
+          } finally {
+            await fsPromises.unlink(file.path).catch(() => {});
+          }
         }
       }
 
-      // --- Video ---
+      // --- Video (Bunny) ---
+      // Ta bort video om frågat
       if (removeVideo === "true" && project.video) {
-        await deleteFromBunny(project.video.public_id); // 🗑 ta bort från Bunny
+        try {
+          await deleteFromBunny(project.video.public_id);
+        } catch (e) {
+          console.warn("Could not delete video from Bunny:", e.message);
+        }
         project.video = undefined;
       }
 
+      // Ny video uppladdad
       if (req.files?.video?.[0]) {
-        // Om det redan finns en video → ta bort den först
+        const file = req.files.video[0];
+        // Om det redan finns en video: radera den från Bunny först
         if (project.video) {
-          await deleteFromBunny(project.video.public_id);
+          try {
+            await deleteFromBunny(project.video.public_id);
+          } catch (e) {
+            console.warn("Could not delete old video from Bunny:", e.message);
+          }
         }
 
-        const file = req.files.video[0];
-        const uploadedVideo = await uploadToBunny(
-          file.buffer,
-          file.originalname
-        );
-        project.video = uploadedVideo;
+        try {
+          const uploadedVideo = await uploadToBunny(file.path, file.originalname);
+          project.video = uploadedVideo;
+        } finally {
+          await fsPromises.unlink(file.path).catch(() => {});
+        }
       }
 
       // --- Textfält ---
@@ -239,17 +268,17 @@ router.patch(
       if (exhibited_at !== undefined) project.exhibited_at = exhibited_at;
       if (category !== undefined) project.category = category;
       if (description !== undefined) project.description = description;
-      if (short_description !== undefined)
-        project.short_description = short_description;
+      if (short_description !== undefined) project.short_description = short_description;
       if (size !== undefined) project.size = size;
 
       await project.save();
       res.json({ message: "Project updated successfully", project });
     } catch (error) {
       console.error("Error updating project:", error);
-      res.status(500).json({ message: "Error updating project" });
+      res.status(500).json({ message: "Error updating project", error: error.message });
     }
   },
+  
   // DELETE a project by ID
   router.delete("/:id", async (req, res) => {
     try {
