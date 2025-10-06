@@ -9,7 +9,7 @@ async function getFetch() {
 }
 
 export async function uploadToBunny(filePath, fileName) {
-  const pathOnBunny = `videos/${Date.now()}-${fileName}`; // unikt namn
+  const pathOnBunny = `videos/${Date.now()}-${fileName}`;
   const url = `https://storage.bunnycdn.com/${storageZone}/${pathOnBunny}`;
 
   const fetch = await getFetch();
@@ -25,15 +25,17 @@ export async function uploadToBunny(filePath, fileName) {
   });
 
   if (res.status === 201 || res.status === 200) {
+    // 🚨 Radera här EFTER upload är klar
+    await fsPromises.unlink(filePath).catch(() => {});
     return {
       url: `https://${storageZone}.b-cdn.net/${pathOnBunny}`,
       public_id: pathOnBunny,
     };
   } else {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Bunny upload failed: ${res.status} ${res.statusText} ${text}`);
+    throw new Error(`Bunny upload failed: ${res.status} ${res.statusText}`);
   }
 }
+
 
 export async function deleteFromBunny(public_id) {
   // public_id = e.g. "videos/163423423-myvideo.mp4"
