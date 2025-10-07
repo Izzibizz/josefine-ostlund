@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import { ImageModal } from "../components/ImageModal";
 import { slugify } from "../utils/slugify";
 import { CreateProject } from "./CreateProject";
+import { VideoPlayer } from "../components/HlsPlayer";
 
 interface Image {
   url: string;
@@ -91,9 +92,9 @@ export const SingleProject: React.FC = () => {
   }
 
   return (
-    <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-10">
+    <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-6">
       <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-14">
-        <div className="flex flex-col laptop:w-2/3 laptop:gap-20">
+        <div className="flex flex-col laptop:w-2/3 laptop:gap-10">
           {imageToDisplay && imageToDisplay !== undefined ? (
             <img
               src={imageToDisplay?.url}
@@ -173,13 +174,14 @@ export const SingleProject: React.FC = () => {
         />
       )}
       {singleProject?.video && (
-        <video
+        <div className="flex flex-col gap-1">
+        <VideoPlayer
           src={singleProject?.video?.url}
-          poster={singleProject?.images[0].url}
-          controls
-          playsInline
-          className="w-full h-auto aspect-[16/9] object-cover"
+          posterImg={singleProject?.video?.public_id}
         />
+        { singleProject?.video?.photographer &&
+        <p className="text-sm text-end">{singleProject?.video?.photographer}</p>}
+        </div>
       )}
       {isModalOpen && imageToDisplay && (
         <ImageModal

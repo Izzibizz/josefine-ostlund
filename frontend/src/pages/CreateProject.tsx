@@ -82,6 +82,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
 
 
   const [videoUrl, setVideoUrl] = useState(existingProject?.video?.url ?? "");
+  const [ videoThumbnail, setVideoThumbnail ] = useState(existingProject?.video?.public_id ?? "")
   const [removeVideo, setRemoveVideo] = useState<boolean>(false);
   const [videoPhotographer, setVideoPhotographer] = useState(
     existingProject?.video?.photographer ?? ""
@@ -194,9 +195,11 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
       setShowVideo(false);
       setRemoveVideo(true);
       setVideoUrl("");
+      setVideoThumbnail("")
     } else if (videoUrl) {
       setShowVideo(false);
       setVideoUrl("");
+      setVideoThumbnail("")
     }
   };
 
@@ -219,7 +222,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
         ? {
             url: videoUrl,
             photographer: videoPhotographer || "",
-            public_id: videoUrl, // du kan också använda ett genererat ID här
+            public_id: videoThumbnail,
           }
         : null;
 
@@ -448,9 +451,16 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             />
             <input
               type="text"
-              placeholder="Fotograf"
+              placeholder="Videotext + Fotograf"
               value={videoPhotographer}
               onChange={(e) => setVideoPhotographer(e.target.value)}
+              className="border p-1 w-full"
+            />
+              <input
+              type="text"
+              placeholder="Thumbnail (visas innan uppspelning)"
+              value={videoThumbnail}
+              onChange={(e) => setVideoThumbnail(e.target.value)}
               className="border p-1 w-full"
             />
             <button

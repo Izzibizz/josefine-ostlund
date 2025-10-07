@@ -3,9 +3,10 @@ import Hls from "hls.js";
 
 interface BunnyPlayerProps {
   src: string; // din playlist.m3u8
+  posterImg?: string;
 }
 
-export const VideoPlayer = ({ src }: BunnyPlayerProps) => {
+export const VideoPlayer = ({ src, posterImg }: BunnyPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -27,7 +28,8 @@ export const VideoPlayer = ({ src }: BunnyPlayerProps) => {
       ref={videoRef}
       controls
       className="w-full h-auto"
-      style={{ maxHeight: "70vh" }}
+      poster={posterImg}
+      
     />
   );
 };
