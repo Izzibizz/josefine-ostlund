@@ -39,14 +39,14 @@ interface ProjectState {
     data: Omit<Project, "_id" | "images" | "video">,
     images: File[],
     photographers: string[],
-    video?: File
-  ) => Promise<Project | undefined>;
+   video?: Image | null
+) => Promise<Project | undefined>;
 
   updateProject: (
     id: string,
     updates: Partial<Project>,
     newImages?: File[],
-    newVideo?: File | null,
+    newVideo?: Image | null,
     removeImages?: string[],
     removeVideo?: boolean,
     imageData?: { public_id?: string; index?: number; photographer: string }[]
@@ -58,29 +58,6 @@ interface ProjectState {
   updateProjectOrder: (orders: ProjectOrderUpdate[]) => Promise<void>;
 }
 
-async function uploadVideoToBunny(file: File) {
-  // 1. be backend om upload-url
-  const res = await fetch(
-    `https://api.onrender.com/projects/get-upload-url?fileName=${encodeURIComponent(file.name)}`
-  );
-  if (!res.ok) throw new Error("Kunde inte hämta upload-url från backend");
-  const { uploadUrl, cdnUrl, pathOnBunny, headers } = await res.json();
-
-  // 2. ladda upp till Bunny
-  const uploadRes = await fetch(uploadUrl, {
-    method: "PUT",
-    headers,
-    body: file,
-  });
-  if (!uploadRes.ok) throw new Error("Kunde inte ladda upp video till Bunny");
-
-  // 3. returnera metadata till backend
-  return {
-    url: cdnUrl,
-    public_id: pathOnBunny, 
-  };
-}
-
 export const useProjectStore = create<ProjectState>((set) => ({
   projects: [],
   loading: false,
@@ -89,7 +66,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
   orderSuccess: false,
   setDeleteFail: (input) => set({ deleteFail: input }),
   setDeleteSuccess: (input) => set({ deleteSuccess: input }),
-  setOrderSuccess: (input) => set({orderSuccess: input}),
+  setOrderSuccess: (input) => set({ orderSuccess: input }),
 
   // --- FETCH ---
   fetchProjects: async () => {
@@ -129,16 +106,19 @@ export const useProjectStore = create<ProjectState>((set) => ({
         formData.append("photographers", JSON.stringify(photographers));
       }
 
-      // Video (ladda upp till Bunny först → sen bifoga som JSON)
+      // Video (laddas upp manuellt i bunny)
       if (videoFile) {
-        const videoMeta = await uploadVideoToBunny(videoFile);
-        formData.append("video", JSON.stringify(videoMeta));
+        // videoFile är nu ett objekt med t.ex. { url, public_id }
+        formData.append("video", JSON.stringify(videoFile));
       }
 
-      const res = await fetch("https://api.onrender.com/projects/newProject", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        "https://josefine-ostlund.onrender.com/projects/newProject",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!res.ok) throw new Error("Kunde inte skapa projekt");
       const dataRes = await res.json();
@@ -205,8 +185,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
       // Video (ladda upp ny först → bifoga JSON)
       if (newVideoFile) {
-        const videoMeta = await uploadVideoToBunny(newVideoFile);
-        formData.append("video", JSON.stringify(videoMeta));
+        // videoFile är nu ett objekt med t.ex. { url, public_id }
+        formData.append("video", JSON.stringify(newVideoFile));
       }
 
       // Remove
@@ -217,10 +197,13 @@ export const useProjectStore = create<ProjectState>((set) => ({
         formData.append("removeVideo", "true");
       }
 
-      const res = await fetch(`https://api.onrender.com/projects/${id}`, {
-        method: "PATCH",
-        body: formData,
-      });
+      const res = await fetch(
+        `https://josefine-ostlund.onrender.com/projects/${id}`,
+        {
+          method: "PATCH",
+          body: formData,
+        }
+      );
 
       if (!res.ok) throw new Error("Kunde inte uppdatera projekt");
       const dataRes = await res.json();
@@ -293,14 +276,18 @@ export const useProjectStore = create<ProjectState>((set) => ({
         loadingEdit: true,
         showPopupMessage: true,
       });
-      await axios.patch("https://josefine-ostlund.onrender.com/projects/reorder", orders);
-      const res = await axios.get("https://josefine-ostlund.onrender.com/projects"
+      await axios.patch(
+        "https://josefine-ostlund.onrender.com/projects/reorder",
+        orders
+      );
+      const res = await axios.get(
+        "https://josefine-ostlund.onrender.com/projects"
       );
       set({ projects: res.data.projects, loading: false, orderSuccess: true });
       useUserStore.setState({
         loadingEdit: false,
         showPopupMessage: true,
-        editMode: false
+        editMode: false,
       });
     } catch (error) {
       console.error("Failed to update project order:", error);

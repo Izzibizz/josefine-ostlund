@@ -21,8 +21,8 @@ export const TextEditor: React.FC<{
       value={value}
       onChange={onChange}
       modules={modules}
-      placeholder="Skriv text här… markera ord och klicka på t.ex. länk-ikonen för att lägga till länk."
-      className="bg-white text-black rounded mb-10"
+      placeholder="Markera ord och klicka på t.ex. länk-ikonen för att lägga till länk."
+      className="bg-white text-black rounded laptop:mb-10"
     />
   );
 };

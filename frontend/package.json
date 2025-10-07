@@ -16,6 +16,8 @@
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.10.0",
     "framer-motion": "^12.23.5",
+    "hls": "^0.0.1",
+    "hls.js": "^1.6.13",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",

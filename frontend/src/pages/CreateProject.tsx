@@ -7,6 +7,7 @@ import Dropzone from "react-dropzone";
 import { FiPlus } from "react-icons/fi";
 import { DeleteButton } from "../components/DeleteButton";
 import { TextEditor } from "../components/Texteditor";
+import { VideoPlayer } from "../components/HlsPlayer";
 
 interface Image {
   url: string;
@@ -79,11 +80,14 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
 
   const [removeImages, setRemoveImages] = useState<string[]>([]);
 
-  const [videoPreview, setVideoPreview] = useState<string | null>(
-    existingProject?.video?.url ?? null
-  );
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+
+  const [videoUrl, setVideoUrl] = useState(existingProject?.video?.url ?? "");
   const [removeVideo, setRemoveVideo] = useState<boolean>(false);
+  const [videoPhotographer, setVideoPhotographer] = useState(
+    existingProject?.video?.photographer ?? ""
+  );
+  const [showVideo, setShowVideo] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [imageToDisplay, setImageToDisplay] = useState<Image | null>(
@@ -170,21 +174,29 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     setIsModalOpen(true);
   };
 
-  const handleDropVideo = (accepted: File[]) => {
-    if (!accepted.length) return;
-    const file = accepted[0];
-    setVideoFile(file);
-    setVideoPreview(URL.createObjectURL(file));
-    setRemoveVideo(false);
+  const handleLoadVideo = () => {
+    // Enkel validering – tillåt bara tecken och bindestreck
+    if (
+      !videoUrl.includes("b-cdn.net") ||
+      !videoUrl.endsWith(".m3u8")
+    ) {
+      setVideoError("Länken måste vara en giltig Bunny Stream-länk (.m3u8)");
+      setShowVideo(false);
+      return;
+    }
+
+    setShowVideo(true)
+    setVideoError(null);
   };
 
   const handleDeleteVideo = () => {
-    if (videoFile) {
-      setVideoFile(null);
-      setVideoPreview(null);
-    } else if (existingProject?.video) {
+    if (existingProject?.video) {
+      setShowVideo(false);
       setRemoveVideo(true);
-      setVideoPreview(null);
+      setVideoUrl("");
+    } else if (videoUrl) {
+      setShowVideo(false);
+      setVideoUrl("");
     }
   };
 
@@ -202,13 +214,22 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
         size,
       };
 
+      const videoData =
+      videoUrl && !removeVideo
+        ? {
+            url: videoUrl,
+            photographer: videoPhotographer || "",
+            public_id: videoUrl, // du kan också använda ett genererat ID här
+          }
+        : null;
+
       if (!isNewProject && projectId && existingProject) {
         console.log("Updating project...");
         await updateProject(
           projectId,
           textData,
           newImages.map((n) => n.file),
-          videoFile,
+          videoData,
           removeImages,
           removeVideo,
           imageData
@@ -219,7 +240,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
           textData,
           newImages.map((n) => n.file),
           newImages.map((n) => n.photographer || ""),
-          videoFile || undefined
+          videoData || undefined
         );
       }
     } catch (err) {
@@ -250,6 +271,8 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
       navigate("/");
     }
   }, [success]);
+
+  console.log(videoUrl)
 
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto mt-40 flex flex-col gap-10">
@@ -403,38 +426,41 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             onChange={(html) => setDescription(html)}
           />
 
-          <div>
-            {videoPreview ? (
-              <div className="relative">
-                <video
-                  src={videoPreview}
-                  controls
-                  className="w-full h-auto aspect-[16/9] bg-gray-300"
-                />
+          <div className="flex flex-col gap-2">
+            {showVideo && (
+              <div className="relative w-full aspect-[16/9]">
+                <VideoPlayer src={videoUrl}/>
                 <button
                   onClick={handleDeleteVideo}
-                  className="absolute top-2 right-2 bg-black text-white rounded-full px-2"
+                  className="absolute z-20 top-2 right-2 bg-black text-white rounded-full px-2"
                   aria-label="Ta bort video"
                 >
                   ×
                 </button>
               </div>
-            ) : (
-              <Dropzone onDrop={handleDropVideo} accept={{ "video/*": [] }}>
-                {({ getRootProps, getInputProps }) => (
-                  <div
-                    {...getRootProps()}
-                    className="border-2 border-dashed border-gray-400 p-6 text-center cursor-pointer"
-                  >
-                    <input {...getInputProps()} />
-                    <p className="text-sm">
-                      Släpp eller klicka för att ladda upp en video{" "}
-                      <span className="text-xs">(max 100 MB)</span>
-                    </p>
-                  </div>
-                )}
-              </Dropzone>
             )}
+            <input
+              type="text"
+              placeholder="Video-id från Bunny Stream"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              className="border p-2 w-full"
+            />
+            <input
+              type="text"
+              placeholder="Fotograf"
+              value={videoPhotographer}
+              onChange={(e) => setVideoPhotographer(e.target.value)}
+              className="border p-1 w-full"
+            />
+            <button
+              type="button"
+              onClick={handleLoadVideo}
+              className="bg-black text-white px-4 py-2 rounded mt-2"
+            >
+              Ladda video
+            </button>
+            {videoError && <p className="text-red-500">{videoError}</p>}
           </div>
 
           <button
