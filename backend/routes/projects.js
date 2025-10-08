@@ -3,7 +3,6 @@ import cloudinary from "../config/cloudinaryConfig.js";
 import Projects from "../models/projectSchema.js";
 import multer from "multer";
 
-
 const router = express.Router();
 
 const storage = multer.memoryStorage();
@@ -69,7 +68,6 @@ router.get("/:projectId", async (req, res) => {
   }
 });
 
-
 router.post(
   "/newProject",
   upload.fields([{ name: "images" }]),
@@ -98,14 +96,22 @@ router.post(
           (file, i) =>
             new Promise((resolve, reject) => {
               cloudinary.uploader
-                .upload_stream({ resource_type: "image" }, (err, result) => {
-                  if (err) return reject(err);
-                  resolve({
-                    url: result.secure_url,
-                    public_id: result.public_id,
-                    photographer: photographers[i] || "",
-                  });
-                })
+                .upload_stream(
+                  {
+                    folder: "projekt",
+                    resource_type: "image",
+                    use_filename: true, 
+                    unique_filename: false,
+                  },
+                  (err, result) => {
+                    if (err) return reject(err);
+                    resolve({
+                      url: result.secure_url,
+                      public_id: result.public_id,
+                      photographer: photographers[i] || "",
+                    });
+                  }
+                )
                 .end(file.buffer);
             })
         )
@@ -157,7 +163,7 @@ router.patch("/:id", upload.fields([{ name: "images" }]), async (req, res) => {
       short_description,
       removeVideo,
       size,
-      video
+      video,
     } = req.body;
 
     const project = await Projects.findById(id);
