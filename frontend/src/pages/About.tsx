@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useUserStore } from "../stores/UserStore";
 import { useDropzone } from "react-dropzone";
 import { TextEditor } from "../components/Texteditor";
+import { ExpandableTextDiv } from "../components/ExpandableTextDiv";
 
 /* interface Exhibition {
   place: string;
@@ -23,6 +24,7 @@ interface About {
   bio_2: string;
   exhibitions: string;
   scholarships: string;
+  external_bio: string;
   image: string;
 }
 
@@ -36,6 +38,7 @@ export const About: React.FC = () => {
     bio_2: "",
     exhibitions: "",
     scholarships: "",
+    external_bio: "",
     image: "",
   };
   const [formData, setFormData] = useState<About>(defaultAbout);
@@ -124,15 +127,18 @@ const handleAddScholarship = () => {
       {!editMode ? (
         <>
           <h2 className="font-header uppercase text-lg">Biografi</h2>
-          <div className="flex flex-col laptop:flex-row gap-6 laptop:gap-20">
+          <div className="flex flex-col laptop:flex-row gap-6 laptop:gap-20 ">
             {!isMobile && about.image && (
-              <img
-                src={about.image}
-                className="w-full laptop:w-1/3 laptop:max-w-[600px] self-start object-contain"
-                alt="josefine Östlund"
-              />
+              <div className="flex flex-col gap-16 laptop:w-1/3 laptop:max-w-[600px]">
+                <img
+                  src={about.image}
+                  className="w-full  self-start object-contain"
+                  alt="josefine Östlund"
+                />
+                <ExpandableTextDiv html={about.external_bio} />
+              </div>
             )}
-            <div className="font-body flex flex-col gap-6 text-justify">
+            <div className="font-body flex flex-col gap-6 text-justify laptop:w-2/3">
               <div
                 className="desctext"
                 dangerouslySetInnerHTML={{ __html: about.bio_1 }}
@@ -158,21 +164,22 @@ const handleAddScholarship = () => {
               />
             </div>
           </div>
+          {isMobile && <ExpandableTextDiv html={about.external_bio} />}
         </>
       ) : (
-        <form onSubmit={handleSubmit} className="">
-          <h2 className="font-header uppercase text-lg">Biografi</h2>
+        <form onSubmit={handleSubmit}>
+          <h2 className="font-header uppercase text-lg mb-10">Biografi</h2>
           <div className="flex flex-col laptop:flex-row gap-6 laptop:gap-20">
             <div
               {...getRootProps()}
-              className="border-2 w-full laptop:w-1/2 flex flex-col gap-4 items-center justify-center cursor-pointer relative"
+              className="border-2 w-full h-full laptop:w-1/3 laptop:max-w-[600px] laptop:max-h-[400px] flex flex-col gap-4 items-center justify-center cursor-pointer relative"
             >
               <input {...getInputProps()} />
               {newImage ? (
                 <img
                   src={URL.createObjectURL(newImage)}
                   alt="preview"
-                  className="object-cover w-full h-full"
+                  className="object-cover w-full"
                 />
               ) : (
                 formData.image && (
@@ -219,7 +226,12 @@ const handleAddScholarship = () => {
                   }
                 />
               </div>
-
+              <TextEditor
+                value={formData.external_bio}
+                onChange={(html) =>
+                  setFormData({ ...formData, external_bio: html })
+                }
+              />
               <button
                 type="submit"
                 className="bg-black text-white rounded-4xl px-4 py-2 cursor-pointer w-fit"
