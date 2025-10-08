@@ -43,6 +43,17 @@ const showSwiper = !editMode || location.pathname !== "/nytt" && images;
     };
   }, [onClose]);
 
+  useEffect(() => {
+  const handleEsc = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      onClose();
+    }
+  };
+
+  window.addEventListener("keydown", handleEsc);
+  return () => window.removeEventListener("keydown", handleEsc);
+}, [onClose]);
+
   return (
     <div className="fixed inset-0 bg-black/95 flex  justify-center z-80 cursor-pointer">
       {showSwiper ? (
