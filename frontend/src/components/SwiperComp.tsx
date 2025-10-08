@@ -1,5 +1,5 @@
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Keyboard  } from "swiper/modules";
 
 interface Image {
   url: string;
@@ -18,8 +18,12 @@ export const SwiperComp: React.FC<ProjectProps> = ({ images }) => {
         slidesPerView={1}
         loop
         effect="fade"
-        modules={[Navigation]}
+        modules={[Navigation, Keyboard]}
         navigation={{ nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }}
+         keyboard={{
+          enabled: true,
+          onlyInViewport: true,
+        }}
         observer={true}
         observeParents={true}
         className="w-full"
