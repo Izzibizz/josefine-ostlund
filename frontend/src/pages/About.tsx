@@ -128,7 +128,7 @@ const handleAddScholarship = () => {
             {!isMobile && about.image && (
               <img
                 src={about.image}
-                className="w-full laptop:w-1/3 laptop:max-w-[500px] self-start object-contain"
+                className="w-full laptop:w-1/3 laptop:max-w-[600px] self-start object-contain"
                 alt="josefine Östlund"
               />
             )}

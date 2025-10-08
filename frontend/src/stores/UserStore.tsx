@@ -22,6 +22,7 @@ interface About {
   bio_2: string;
   exhibitions: string;
   scholarships: string;
+  external_bio: string;
   image: string;
 }
 
@@ -87,6 +88,7 @@ export const useUserStore = create<UserState>()(
         bio_2: "",
         exhibitions: "",
         scholarships: "",
+        external_bio: "",
         image: "",
       },
       contact: {
@@ -246,7 +248,7 @@ export const useUserStore = create<UserState>()(
 
         try {
           let body: FormData | string;
-          let headers: HeadersInit = {};
+          const headers: HeadersInit = {};
 
           if (cvFile) {
             // Om CV-fil finns, använd FormData

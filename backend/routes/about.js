@@ -27,7 +27,12 @@ router.post("/", upload.single("image"), async (req, res) => {
       const buffer = req.file.buffer;
       const uploadResult = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "portratt" },
+          {
+            folder: "portratt",
+            resource_type: "image",
+            use_filename: true,
+            unique_filename: false,
+          },
           (error, result) => {
             if (error) reject(error);
             else resolve(result);
@@ -35,11 +40,13 @@ router.post("/", upload.single("image"), async (req, res) => {
         );
         stream.end(buffer);
       });
-      updateData.image = (uploadResult).secure_url;
+      updateData.image = uploadResult.secure_url;
     }
 
     if (existing) {
-      const updated = await About.findByIdAndUpdate(existing._id, updateData, { new: true });
+      const updated = await About.findByIdAndUpdate(existing._id, updateData, {
+        new: true,
+      });
       return res.json(updated);
     } else {
       const created = new About(updateData);
@@ -73,7 +80,5 @@ router.delete("/", async (req, res) => {
     res.status(500).json({ message: "Failed to delete item from About." });
   }
 }); */
-
-
 
 export default router;

@@ -21,8 +21,9 @@ const aboutSchema = new Schema(
 {
   bio_1: { type: String, required: true },
   bio_2: { type: String, required: true },
-  exhibitions: { type: String, required: true },
-  scholarships: { type: String, required: true },
+  exhibitions: { type: String, required: false },
+  scholarships: { type: String, required: false },
+  external_bio: { type: String, required: false},
   image: String
 }
 )
