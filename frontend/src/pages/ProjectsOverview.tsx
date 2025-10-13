@@ -67,11 +67,12 @@ export const ProjectsOverview: React.FC<Props> = ({ category }) => {
 
   const handleSaveOrder = async () => {
     const reordered = tempProjects.map((project, index) => ({
-      id: project._id,
+      id: project._id ,
       order: index,
     }));
 
     try {
+      console.log("reordered", reordered)
       await updateProjectOrder(reordered);
       console.log("Sparad ordning!");
     } catch (err) {
@@ -108,6 +109,8 @@ export const ProjectsOverview: React.FC<Props> = ({ category }) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  console.log(projectsToDisplay)
 
   return (
     <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 gap-10 bg-white flex flex-col min-h-screen">

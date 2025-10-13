@@ -9,8 +9,7 @@ const mediaSchema = new Schema(
     url: { type: String, required: true },
     photographer: { type: String, required: false },
     public_id:  { type: String, required: true }
-  },
-  { _id: false }
+  }
 );
 
 const projectSchema = new Schema({
