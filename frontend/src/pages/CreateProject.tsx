@@ -225,6 +225,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             public_id: videoThumbnail,
           }
         : null;
+        
 
       if (!isNewProject && projectId && existingProject) {
         console.log("Updating project...");

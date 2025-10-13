@@ -235,52 +235,22 @@ router.patch("/reorder", async (req, res) => {
         }
 
         // --- Nya bilder ---
-        // --- Uppdatera bilder (ordning, fotografer, nya, borttagna) ---
         if (req.body.imageData) {
           const imageData = JSON.parse(req.body.imageData);
 
-          // 1️⃣ Ladda upp eventuella nya bilder först
-          if (req.files?.images?.length) {
-            for (let i = 0; i < req.files.images.length; i++) {
-              const file = req.files.images[i];
-              const uploaded = await new Promise((resolve, reject) => {
-                cloudinary.uploader
-                  .upload_stream(
-                    {
-                      folder: "projekt",
-                      resource_type: "image",
-                      use_filename: true,
-                      unique_filename: false,
-                    },
-                    (err, result) => {
-                      if (err) return reject(err);
-                      resolve({
-                        url: result.secure_url,
-                        public_id: result.public_id,
-                        photographer: "",
-                      });
-                    }
-                  )
-                  .end(file.buffer);
-              });
-              // Ersätt rätt plats i imageData (om index är markerad), annars lägg till sist
-              if (imageData[i] && !imageData[i].public_id) {
-                imageData[i] = uploaded;
-              } else {
-                imageData.push(uploaded);
-              }
-            }
-          }
+          // --- Uppdatera fotografer ---
+          imageData.forEach((d) => {
+            const img = project.images.find((i) => i.public_id === d.public_id);
+            if (img) img.photographer = d.photographer;
+          });
 
-          // 2️⃣ Uppdatera project.images med nya ordningen direkt
-          project.images = imageData.map((img) => ({
-            url: img.url,
-            public_id: img.public_id,
-            photographer: img.photographer || "",
-          }));
-
-          // 3️⃣ Säkerställ att Mongoose fattar att arrayen ändrats
-          project.markModified("images");
+          // --- Uppdatera ordning ---
+          const newOrder = [];
+          imageData.forEach((d) => {
+            const img = project.images.find((i) => i.public_id === d.public_id);
+            if (img) newOrder.push(img);
+          });
+          project.images = newOrder;
         }
 
         // --- Video ---

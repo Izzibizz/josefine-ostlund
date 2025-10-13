@@ -9,7 +9,7 @@ interface ExpandableHTMLProps {
 
 export const ExpandableTextDiv: React.FC<ExpandableHTMLProps> = ({
   html,
-  collapsedHeight = 150,
+  collapsedHeight = 290,
 }) => {
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
