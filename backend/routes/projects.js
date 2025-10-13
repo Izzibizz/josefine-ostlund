@@ -150,145 +150,169 @@ router.post(
   }
 );
 
-  router.patch("/reorder", async (req, res) => {
-    try {
-      const updatedList = req.body; // array med { id, order }
-
-      // 🔍 Validera att det är en array
-      if (!Array.isArray(updatedList)) {
-        return res.status(400).json({ message: "Invalid input" });
-      }
-
-      // ✅ Kontrollera att alla 'order' är unika
-      const seen = new Set();
-      for (let item of updatedList) {
-        if (seen.has(item.order)) {
-          return res.status(400).json({ message: "Duplicate order values" });
-        }
-        seen.add(item.order);
-      }
-
-      // 🔁 Kör bulkWrite för att uppdatera alla samtidigt
-      const bulkOps = updatedList.map(({ id, order }) => ({
-        updateOne: {
-          filter: { _id: id },
-          update: { $set: { order } },
-        },
-      }));
-
-      await Projects.bulkWrite(bulkOps);
-
-      res.json({ message: "Projects reordered successfully" });
-    } catch (error) {
-      console.error("Error reordering projects:", error);
-      res.status(500).json({ message: "Error reordering projects" });
-    }
-  }),
-
-router.patch("/:id", upload.fields([{ name: "images" }]), async (req, res) => {
+router.patch("/reorder", async (req, res) => {
   try {
-    const { id } = req.params;
-    const {
-      name,
-      year,
-      material,
-      exhibited_at,
-      category,
-      description,
-      short_description,
-      removeVideo,
-      size,
-      video,
-    } = req.body;
+    const updatedList = req.body; // array med { id, order }
 
-    const project = await Projects.findById(id);
-    if (!project) return res.status(404).json({ message: "Project not found" });
-
-    // --- Ta bort bilder ---
-    let removeList = [];
-    if (req.body.removeImages) {
-      removeList = Array.isArray(req.body.removeImages)
-        ? req.body.removeImages
-        : [req.body.removeImages];
-    }
-    for (const public_id of removeList) {
-      await cloudinary.uploader.destroy(public_id);
-      project.images = project.images.filter(
-        (img) => img.public_id !== public_id
-      );
+    // 🔍 Validera att det är en array
+    if (!Array.isArray(updatedList)) {
+      return res.status(400).json({ message: "Invalid input" });
     }
 
-    // --- Uppdatera fotografer ---
-    if (req.body.imageData) {
-      const imageData = JSON.parse(req.body.imageData);
-      imageData
-        .filter((d) => d.public_id)
-        .forEach((d) => {
-          const img = project.images.find((i) => i.public_id === d.public_id);
-          if (img) img.photographer = d.photographer;
-        });
-    }
-
-    // --- Nya bilder ---
-    if (req.files?.images?.length) {
-      const newImageData = req.body.imageData
-        ? JSON.parse(req.body.imageData).filter((d) => d.index !== undefined)
-        : [];
-      for (let i = 0; i < req.files.images.length; i++) {
-        const file = req.files.images[i];
-        const uploaded = await new Promise((resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream(
-              {
-                folder: "projekt",
-                resource_type: "image",
-                use_filename: true,
-                unique_filename: false,
-              },
-              (err, result) => {
-                if (err) return reject(err);
-                resolve({
-                  url: result.secure_url,
-                  public_id: result.public_id,
-                  photographer: newImageData[i]?.photographer || "",
-                });
-              }
-            )
-            .end(file.buffer);
-        });
-        project.images.push(uploaded);
+    // ✅ Kontrollera att alla 'order' är unika
+    const seen = new Set();
+    for (let item of updatedList) {
+      if (seen.has(item.order)) {
+        return res.status(400).json({ message: "Duplicate order values" });
       }
+      seen.add(item.order);
     }
 
-    // --- Video ---
-    if (removeVideo === "true" && project.video) {
-      project.video = undefined;
-    }
+    // 🔁 Kör bulkWrite för att uppdatera alla samtidigt
+    const bulkOps = updatedList.map(({ id, order }) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { order } },
+      },
+    }));
 
-    if (video) {
-      // frontend skickar { url, public_id } som string
-      const parsedVideo = JSON.parse(video);
-      project.video = parsedVideo;
-    }
+    await Projects.bulkWrite(bulkOps);
 
-    // --- Textfält ---
-    if (name !== undefined) project.name = name;
-    if (year !== undefined) project.year = year;
-    if (material !== undefined) project.material = material;
-    if (exhibited_at !== undefined) project.exhibited_at = exhibited_at;
-    if (category !== undefined) project.category = category;
-    if (description !== undefined) project.description = description;
-    if (short_description !== undefined)
-      project.short_description = short_description;
-    if (size !== undefined) project.size = size;
-
-    await project.save();
-    res.json({ message: "Project updated successfully", project });
+    res.json({ message: "Projects reordered successfully" });
   } catch (error) {
-    console.error("Error updating project:", error);
-    res.status(500).json({ message: "Error updating project" });
+    console.error("Error reordering projects:", error);
+    res.status(500).json({ message: "Error reordering projects" });
   }
 }),
+  router.patch(
+    "/:id",
+    upload.fields([{ name: "images" }]),
+    async (req, res) => {
+      try {
+        const { id } = req.params;
+        const {
+          name,
+          year,
+          material,
+          exhibited_at,
+          category,
+          description,
+          short_description,
+          removeVideo,
+          size,
+          video,
+        } = req.body;
+
+        const project = await Projects.findById(id);
+        if (!project)
+          return res.status(404).json({ message: "Project not found" });
+
+        // --- Ta bort bilder ---
+        let removeList = [];
+        if (req.body.removeImages) {
+          removeList = Array.isArray(req.body.removeImages)
+            ? req.body.removeImages
+            : [req.body.removeImages];
+        }
+        for (const public_id of removeList) {
+          await cloudinary.uploader.destroy(public_id);
+          project.images = project.images.filter(
+            (img) => img.public_id !== public_id
+          );
+        }
+
+        // --- Uppdatera fotografer ---
+        if (req.body.imageData) {
+          const imageData = JSON.parse(req.body.imageData);
+          imageData
+            .filter((d) => d.public_id)
+            .forEach((d) => {
+              const img = project.images.find(
+                (i) => i.public_id === d.public_id
+              );
+              if (img) img.photographer = d.photographer;
+            });
+        }
+
+        // --- Nya bilder ---
+        // --- Uppdatera bilder (ordning, fotografer, nya, borttagna) ---
+        if (req.body.imageData) {
+          const imageData = JSON.parse(req.body.imageData);
+
+          // 1️⃣ Ladda upp eventuella nya bilder först
+          if (req.files?.images?.length) {
+            for (let i = 0; i < req.files.images.length; i++) {
+              const file = req.files.images[i];
+              const uploaded = await new Promise((resolve, reject) => {
+                cloudinary.uploader
+                  .upload_stream(
+                    {
+                      folder: "projekt",
+                      resource_type: "image",
+                      use_filename: true,
+                      unique_filename: false,
+                    },
+                    (err, result) => {
+                      if (err) return reject(err);
+                      resolve({
+                        url: result.secure_url,
+                        public_id: result.public_id,
+                        photographer: "",
+                      });
+                    }
+                  )
+                  .end(file.buffer);
+              });
+              // Ersätt rätt plats i imageData (om index är markerad), annars lägg till sist
+              if (imageData[i] && !imageData[i].public_id) {
+                imageData[i] = uploaded;
+              } else {
+                imageData.push(uploaded);
+              }
+            }
+          }
+
+          // 2️⃣ Uppdatera project.images med nya ordningen direkt
+          project.images = imageData.map((img) => ({
+            url: img.url,
+            public_id: img.public_id,
+            photographer: img.photographer || "",
+          }));
+
+          // 3️⃣ Säkerställ att Mongoose fattar att arrayen ändrats
+          project.markModified("images");
+        }
+
+        // --- Video ---
+        if (removeVideo === "true" && project.video) {
+          project.video = undefined;
+        }
+
+        if (video) {
+          // frontend skickar { url, public_id } som string
+          const parsedVideo = JSON.parse(video);
+          project.video = parsedVideo;
+        }
+
+        // --- Textfält ---
+        if (name !== undefined) project.name = name;
+        if (year !== undefined) project.year = year;
+        if (material !== undefined) project.material = material;
+        if (exhibited_at !== undefined) project.exhibited_at = exhibited_at;
+        if (category !== undefined) project.category = category;
+        if (description !== undefined) project.description = description;
+        if (short_description !== undefined)
+          project.short_description = short_description;
+        if (size !== undefined) project.size = size;
+
+        await project.save();
+        res.json({ message: "Project updated successfully", project });
+      } catch (error) {
+        console.error("Error updating project:", error);
+        res.status(500).json({ message: "Error updating project" });
+      }
+    }
+  ),
   // DELETE a project by ID
   router.delete("/:id", async (req, res) => {
     try {
@@ -315,6 +339,6 @@ router.patch("/:id", upload.fields([{ name: "images" }]), async (req, res) => {
       console.error("Error deleting project:", error);
       res.status(500).json({ message: "Error deleting project" });
     }
-  })
+  });
 
 export default router;
