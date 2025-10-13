@@ -88,13 +88,13 @@
 }
 
 .desctext a {
-  font-weight: 700;
-  font-style: italic;
-  text-decoration: none;
+  text-decoration: underline;
+
 }
 
 .desctext a:hover {
-  text-decoration: underline;
+  font-style: italic;
+
 }
 .ql-container {
   min-height: 100px !important; 
