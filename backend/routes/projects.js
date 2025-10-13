@@ -100,7 +100,7 @@ router.post(
                   {
                     folder: "projekt",
                     resource_type: "image",
-                    use_filename: true, 
+                    use_filename: true,
                     unique_filename: false,
                   },
                   (err, result) => {
@@ -149,6 +149,41 @@ router.post(
     }
   }
 );
+
+  router.patch("/reorder", async (req, res) => {
+    try {
+      const updatedList = req.body; // array med { id, order }
+
+      // 🔍 Validera att det är en array
+      if (!Array.isArray(updatedList)) {
+        return res.status(400).json({ message: "Invalid input" });
+      }
+
+      // ✅ Kontrollera att alla 'order' är unika
+      const seen = new Set();
+      for (let item of updatedList) {
+        if (seen.has(item.order)) {
+          return res.status(400).json({ message: "Duplicate order values" });
+        }
+        seen.add(item.order);
+      }
+
+      // 🔁 Kör bulkWrite för att uppdatera alla samtidigt
+      const bulkOps = updatedList.map(({ id, order }) => ({
+        updateOne: {
+          filter: { _id: id },
+          update: { $set: { order } },
+        },
+      }));
+
+      await Projects.bulkWrite(bulkOps);
+
+      res.json({ message: "Projects reordered successfully" });
+    } catch (error) {
+      console.error("Error reordering projects:", error);
+      res.status(500).json({ message: "Error reordering projects" });
+    }
+  }),
 
 router.patch("/:id", upload.fields([{ name: "images" }]), async (req, res) => {
   try {
@@ -203,14 +238,22 @@ router.patch("/:id", upload.fields([{ name: "images" }]), async (req, res) => {
         const file = req.files.images[i];
         const uploaded = await new Promise((resolve, reject) => {
           cloudinary.uploader
-            .upload_stream({ resource_type: "image" }, (err, result) => {
-              if (err) return reject(err);
-              resolve({
-                url: result.secure_url,
-                public_id: result.public_id,
-                photographer: newImageData[i]?.photographer || "",
-              });
-            })
+            .upload_stream(
+              {
+                folder: "projekt",
+                resource_type: "image",
+                use_filename: true,
+                unique_filename: false,
+              },
+              (err, result) => {
+                if (err) return reject(err);
+                resolve({
+                  url: result.secure_url,
+                  public_id: result.public_id,
+                  photographer: newImageData[i]?.photographer || "",
+                });
+              }
+            )
             .end(file.buffer);
         });
         project.images.push(uploaded);
@@ -272,39 +315,6 @@ router.patch("/:id", upload.fields([{ name: "images" }]), async (req, res) => {
       console.error("Error deleting project:", error);
       res.status(500).json({ message: "Error deleting project" });
     }
-  }),
-  router.patch("/reorder", async (req, res) => {
-    try {
-      const updatedList = req.body; // array med { id, order }
+  })
 
-      // 🔍 Validera att det är en array
-      if (!Array.isArray(updatedList)) {
-        return res.status(400).json({ message: "Invalid input" });
-      }
-
-      // ✅ Kontrollera att alla 'order' är unika
-      const seen = new Set();
-      for (let item of updatedList) {
-        if (seen.has(item.order)) {
-          return res.status(400).json({ message: "Duplicate order values" });
-        }
-        seen.add(item.order);
-      }
-
-      // 🔁 Kör bulkWrite för att uppdatera alla samtidigt
-      const bulkOps = updatedList.map(({ id, order }) => ({
-        updateOne: {
-          filter: { _id: id },
-          update: { $set: { order } },
-        },
-      }));
-
-      await Projects.bulkWrite(bulkOps);
-
-      res.json({ message: "Projects reordered successfully" });
-    } catch (error) {
-      console.error("Error reordering projects:", error);
-      res.status(500).json({ message: "Error reordering projects" });
-    }
-  });
 export default router;
