@@ -80,9 +80,10 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
 
   const [removeImages, setRemoveImages] = useState<string[]>([]);
 
-
   const [videoUrl, setVideoUrl] = useState(existingProject?.video?.url ?? "");
-  const [ videoThumbnail, setVideoThumbnail ] = useState(existingProject?.video?.public_id ?? "")
+  const [videoThumbnail, setVideoThumbnail] = useState(
+    existingProject?.video?.public_id ?? ""
+  );
   const [removeVideo, setRemoveVideo] = useState<boolean>(false);
   const [videoPhotographer, setVideoPhotographer] = useState(
     existingProject?.video?.photographer ?? ""
@@ -176,17 +177,13 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   };
 
   const handleLoadVideo = () => {
-    // Enkel validering – tillåt bara tecken och bindestreck
-    if (
-      !videoUrl.includes("b-cdn.net") ||
-      !videoUrl.endsWith(".m3u8")
-    ) {
+    if (!videoUrl.includes("b-cdn.net") || !videoUrl.endsWith(".m3u8")) {
       setVideoError("Länken måste vara en giltig Bunny Stream-länk (.m3u8)");
       setShowVideo(false);
       return;
     }
 
-    setShowVideo(true)
+    setShowVideo(true);
     setVideoError(null);
   };
 
@@ -195,11 +192,11 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
       setShowVideo(false);
       setRemoveVideo(true);
       setVideoUrl("");
-      setVideoThumbnail("")
+      setVideoThumbnail("");
     } else if (videoUrl) {
       setShowVideo(false);
       setVideoUrl("");
-      setVideoThumbnail("")
+      setVideoThumbnail("");
     }
   };
 
@@ -218,14 +215,13 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
       };
 
       const videoData =
-      videoUrl && !removeVideo
-        ? {
-            url: videoUrl,
-            photographer: videoPhotographer || "",
-            public_id: videoThumbnail,
-          }
-        : null;
-        
+        videoUrl && !removeVideo
+          ? {
+              url: videoUrl,
+              photographer: videoPhotographer || "",
+              public_id: videoThumbnail,
+            }
+          : null;
 
       if (!isNewProject && projectId && existingProject) {
         console.log("Updating project...");
@@ -271,12 +267,19 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   }, [gallery.length, gallery, imageToDisplay]);
 
   useEffect(() => {
+  if (existingProject?.video?.url) {
+    setVideoUrl(existingProject?.video?.url)
+    setShowVideo(true)
+  }
+  }, [])
+
+  useEffect(() => {
     if (success) {
       navigate("/");
     }
   }, [success]);
 
-  console.log(videoUrl)
+  console.log(videoUrl);
 
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto mt-40 flex flex-col gap-10">
@@ -431,9 +434,10 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
           />
 
           <div className="flex flex-col gap-2">
+            <h3>Video</h3>
             {showVideo && (
               <div className="relative w-full aspect-[16/9]">
-                <VideoPlayer src={videoUrl}/>
+                <VideoPlayer src={videoUrl} />
                 <button
                   onClick={handleDeleteVideo}
                   className="absolute z-20 top-2 right-2 bg-black text-white rounded-full px-2"
@@ -445,23 +449,23 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             )}
             <input
               type="text"
-              placeholder="Video-id från Bunny Stream"
+              placeholder="HLS Playlist URL (Bunny.net)"
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               className="border p-2 w-full"
             />
             <input
               type="text"
+              placeholder="Thumbnail URL (Bunny.net)"
+              value={videoThumbnail}
+              onChange={(e) => setVideoThumbnail(e.target.value)}
+              className="border p-1 w-full"
+            />
+            <input
+              type="text"
               placeholder="Videotext + Fotograf"
               value={videoPhotographer}
               onChange={(e) => setVideoPhotographer(e.target.value)}
-              className="border p-1 w-full"
-            />
-              <input
-              type="text"
-              placeholder="Thumbnail (visas innan uppspelning)"
-              value={videoThumbnail}
-              onChange={(e) => setVideoThumbnail(e.target.value)}
               className="border p-1 w-full"
             />
             <button
