@@ -221,24 +221,44 @@ router.patch("/reorder", async (req, res) => {
           );
         }
 
-        // --- Uppdatera fotografer ---
-        if (req.body.imageData) {
-          const imageData = JSON.parse(req.body.imageData);
-          imageData
-            .filter((d) => d.public_id)
-            .forEach((d) => {
-              const img = project.images.find(
-                (i) => i.public_id === d.public_id
-              );
-              if (img) img.photographer = d.photographer;
+        // --- Nya bilder ---
+        if (req.files?.images?.length) {
+          const newImageData = req.body.imageData
+            ? JSON.parse(req.body.imageData).filter(
+                (d) => d.index !== undefined
+              )
+            : [];
+
+          for (let i = 0; i < req.files.images.length; i++) {
+            const file = req.files.images[i];
+            const uploaded = await new Promise((resolve, reject) => {
+              cloudinary.uploader
+                .upload_stream(
+                  {
+                    folder: "projekt",
+                    resource_type: "image",
+                    use_filename: true,
+                    unique_filename: false,
+                  },
+                  (err, result) => {
+                    if (err) return reject(err);
+                    resolve({
+                      url: result.secure_url,
+                      public_id: result.public_id,
+                      photographer: newImageData[i]?.photographer || "",
+                    });
+                  }
+                )
+                .end(file.buffer);
             });
+            project.images.push(uploaded);
+          }
         }
 
-        // --- Nya bilder ---
+        // --- Uppdatera fotografer och ordning ---
         if (req.body.imageData) {
           const imageData = JSON.parse(req.body.imageData);
 
-          // --- Uppdatera fotografer ---
           imageData.forEach((d) => {
             const img = project.images.find((i) => i.public_id === d.public_id);
             if (img) img.photographer = d.photographer;
@@ -250,7 +270,12 @@ router.patch("/reorder", async (req, res) => {
             const img = project.images.find((i) => i.public_id === d.public_id);
             if (img) newOrder.push(img);
           });
-          project.images = newOrder;
+
+          // Behåll även nya bilder som ännu inte fanns i imageData
+          const remaining = project.images.filter(
+            (img) => !newOrder.find((i) => i.public_id === img.public_id)
+          );
+          project.images = [...newOrder, ...remaining];
         }
 
         // --- Video ---
