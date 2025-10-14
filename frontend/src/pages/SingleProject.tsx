@@ -159,7 +159,7 @@ export const SingleProject: React.FC = () => {
             {singleProject?.short_description &&
               singleProject?.short_description.length > 0 && (
                 <div
-                  className="desctext text-sm text-justify-right max-w-none"
+                  className="desctext text-sm max-w-none"
                   dangerouslySetInnerHTML={{
                     __html: singleProject.short_description,
                   }}
@@ -170,7 +170,7 @@ export const SingleProject: React.FC = () => {
       </div>
       {singleProject?.description && !isLaptop && (
         <div
-          className="desctext text-sm text-justify max-w-none"
+          className="desctext text-sm max-w-none"
           dangerouslySetInnerHTML={{ __html: singleProject.description }}
         />
       )}
