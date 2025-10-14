@@ -80,7 +80,7 @@ const showSwiper = !editMode || location.pathname !== "/nytt" && images;
           {(editMode || location.pathname === "/nytt") && (
             <div className="flex flex-col tablet:flex-row gap-2">
               <input
-                className="border p-2 h-10 text-white"
+                className="border p-2 h-10 text-white w-[500px]"
                 placeholder="Bildtext"
                 value={photographer}
                 onChange={(e) => setPhotographer(e.target.value)}
@@ -93,7 +93,7 @@ const showSwiper = !editMode || location.pathname !== "/nytt" && images;
                   }}
                   className="bg-gray-300 rounded h-10 px-4 py-2"
                 >
-                  Spara
+                  Lägg till
                 </button>
                 <button
                   onClick={onClose}

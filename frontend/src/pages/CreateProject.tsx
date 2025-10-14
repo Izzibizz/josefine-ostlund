@@ -479,7 +479,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             <button
               type="button"
               onClick={handleLoadVideo}
-              className="bg-black text-white px-4 py-2 rounded mt-2"
+              className="bg-black text-white px-4 py-2 rounded mt-2 w-fit rounded-4xl"
             >
               Ladda video
             </button>
@@ -491,7 +491,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             onClick={handleSave}
             className="z-20 bg-black text-white rounded-4xl px-4 py-2 self-end cursor-pointer"
           >
-            Spara projekt
+            {projectId ? "Spara ändringar" : "Spara projekt"}
           </button>
           {projectId && <DeleteButton projectId={projectId} />}
         </div>
