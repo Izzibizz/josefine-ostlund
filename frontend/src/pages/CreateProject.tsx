@@ -60,23 +60,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   const [imagesOrder, setImagesOrder] = useState<string[]>([
     ...(existingProject?.images?.map((img) => img.public_id) ?? []),
   ]);
-  const gallery: Image[] = imagesOrder
-    .map((id) => {
-      const existing = existingImages.find((img) => img.public_id === id);
-      if (existing) return existing;
-
-      const temp = newImages.find((img) => img.tempId === id);
-      if (temp) {
-        return {
-          url: temp.url,
-          public_id: temp.tempId,
-          photographer: temp.photographer,
-        };
-      }
-
-      return null;
-    })
-    .filter((img): img is Image => img !== null);
+  const [gallery, setGallery] = useState<Image[]>([]);
 
   const [removeImages, setRemoveImages] = useState<string[]>([]);
 
@@ -106,39 +90,44 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     );
   };
 
-  const moveImage = (index: number, direction: "left" | "right") => {
-    const newOrder = [...imagesOrder];
+ const moveImage = (index: number, direction: "left" | "right") => {
+  setImagesOrder((prev) => {
+    const newOrder = [...prev];
     const targetIndex = direction === "left" ? index - 1 : index + 1;
 
-    if (targetIndex < 0 || targetIndex >= newOrder.length) return;
+    if (targetIndex < 0 || targetIndex >= newOrder.length) return prev;
 
+    // Flytta bilden i listan
     const [moved] = newOrder.splice(index, 1);
     newOrder.splice(targetIndex, 0, moved);
 
-    setImagesOrder(newOrder);
-
-    // sätt imageToDisplay till den första bilden i nya ordningen
+    // Hitta första bilden i nya ordningen
     const firstId = newOrder[0];
 
-    let newFirst: Image | TempImage | null = null;
+    let firstImage: Image | null = null;
 
     const existing = existingImages.find((img) => img.public_id === firstId);
     if (existing) {
-      newFirst = existing;
+      firstImage = existing;
     } else {
       const temp = newImages.find((img) => img.tempId === firstId);
-      if (temp) newFirst = temp;
+      if (temp) {
+        firstImage = {
+          url: temp.url,
+          public_id: temp.tempId,
+          photographer: temp.photographer || "",
+        };
+      }
     }
 
-    if (newFirst) {
-      setImageToDisplay({
-        url: newFirst.url,
-        public_id:
-          "public_id" in newFirst ? newFirst.public_id : newFirst.tempId,
-        photographer: newFirst.photographer || "",
-      });
+    if (firstImage) {
+      setImageToDisplay(firstImage);
     }
-  };
+
+    return newOrder;
+  });
+};
+
 
   const imageData = gallery.map((img) => ({
     public_id: img.public_id,
@@ -267,11 +256,30 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   }, [gallery.length, gallery, imageToDisplay]);
 
   useEffect(() => {
-  if (existingProject?.video?.url) {
-    setVideoUrl(existingProject?.video?.url)
-    setShowVideo(true)
-  }
-  }, [])
+    if (existingProject?.video?.url) {
+      setVideoUrl(existingProject?.video?.url);
+      setShowVideo(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const combined = imagesOrder
+      .map((id) => {
+        const existing = existingImages.find((img) => img.public_id === id);
+        if (existing) return existing;
+        const temp = newImages.find((img) => img.tempId === id);
+        if (temp) {
+          return {
+            url: temp.url,
+            public_id: temp.tempId,
+            photographer: temp.photographer,
+          };
+        }
+        return null;
+      })
+      .filter((img): img is Image => img !== null);
+    setGallery(combined);
+  }, [imagesOrder, existingImages, newImages]);
 
   useEffect(() => {
     if (success) {
