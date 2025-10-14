@@ -117,7 +117,7 @@ router.post(
                     folder: "projekt",
                     public_id: publicId,
                     resource_type: "image",
-                    use_filename: true,
+                    use_filename: false,
                     unique_filename: false, 
                   },
                   (err, result) => {
@@ -271,7 +271,7 @@ router.patch("/reorder", async (req, res) => {
                     folder: "projekt",
                     public_id: publicId,
                     resource_type: "image",
-                    use_filename: true,
+                    use_filename: false,
                     unique_filename: false,
                   },
                   (err, result) => {
