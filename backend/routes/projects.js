@@ -89,19 +89,36 @@ router.post(
         ? JSON.parse(req.body.photographers)
         : [];
 
-      // --- Bilder ---
-      const imageFiles = req.files?.images || [];
-      const imageUploads = await Promise.all(
+     const imageFiles = req.files?.images || [];
+
+     const imageUploads = await Promise.all(
         imageFiles.map(
           (file, i) =>
             new Promise((resolve, reject) => {
+              // 🧩 Ta originalnamnet utan filändelse
+              const baseName = file.originalname
+                .split(".")
+                .slice(0, -1)
+                .join(".")
+                .trim();
+
+              // 🕒 Skapa enkel timestamp (årmånaddag_timeminutsekk)
+              const timestamp = new Date()
+                .toISOString()
+                .replace(/[-:T.Z]/g, "")
+                .slice(0, 14);
+
+              // 🔠 Sätt nytt public_id
+              const publicId = `${baseName}_${timestamp}`;
+
               cloudinary.uploader
                 .upload_stream(
                   {
                     folder: "projekt",
+                    public_id: publicId,
                     resource_type: "image",
                     use_filename: true,
-                    unique_filename: false,
+                    unique_filename: false, 
                   },
                   (err, result) => {
                     if (err) return reject(err);
@@ -231,11 +248,28 @@ router.patch("/reorder", async (req, res) => {
 
           for (let i = 0; i < req.files.images.length; i++) {
             const file = req.files.images[i];
+
+            const baseName = file.originalname
+              .split(".")
+              .slice(0, -1)
+              .join(".")
+              .trim();
+
+            // 🕒 Skapa enkel timestamp (årmånaddag_timeminutsekk)
+            const timestamp = new Date()
+              .toISOString()
+              .replace(/[-:T.Z]/g, "")
+              .slice(0, 14);
+
+            // 🔠 Sätt nytt public_id
+            const publicId = `${baseName}_${timestamp}`;
+
             const uploaded = await new Promise((resolve, reject) => {
               cloudinary.uploader
                 .upload_stream(
                   {
                     folder: "projekt",
+                    public_id: publicId,
                     resource_type: "image",
                     use_filename: true,
                     unique_filename: false,
