@@ -117,7 +117,7 @@ export const SingleProject: React.FC = () => {
           className={`flex flex-col gap-10 font-body laptop:w-1/3 ${
             singleProject?.description.length === 0 && "self-end"
           }`}
-        >
+        >{reorderedImages.length > 1 && (
           <div
             className={` ${
               reorderedImages.length > 3
@@ -142,7 +142,9 @@ export const SingleProject: React.FC = () => {
                 />
               </div>
             ))}
+        
           </div>
+        )}
           <div className="flex flex-col gap-4 text-end">
             <h2 className="font-bold text-lg">{singleProject?.name}</h2>
             {singleProject?.category === "utställningar" && (
