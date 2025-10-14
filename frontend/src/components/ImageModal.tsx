@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { useUserStore } from "../stores/UserStore";
 import { useLocation } from "react-router-dom";
 import { SwiperComp } from "./SwiperComp";
@@ -24,6 +24,10 @@ export const ImageModal: React.FC<ImageModalProps> = ({ image, images, onClose, 
 const location = useLocation();
 const showSwiper = !editMode || location.pathname !== "/nytt" && images;
 
+  const initialSlideIndex = useMemo(() => {
+    if (!images) return 0;
+    return images.findIndex((img) => img.public_id === image.public_id);
+  }, [images, image]);
 
  useEffect(() => {
   setPhotographer(image.photographer ?? "");
@@ -59,7 +63,7 @@ const showSwiper = !editMode || location.pathname !== "/nytt" && images;
       {showSwiper ? (
         <div ref={modalRef} className="w-[90vw] max-w-[1200px] flex flex-col pt-10 laptop:pt-6">
            <img src={cancel} className="w-8 cursor-pointer self-end" onClick={() => onClose()}/>
-          <SwiperComp images={images!} />
+          <SwiperComp images={images!} initialSlide={initialSlideIndex} />
         </div>
       ) : (
         <div

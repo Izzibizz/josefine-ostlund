@@ -1,5 +1,7 @@
 import { Swiper, SwiperSlide } from "swiper/react";
+import type { Swiper as SwiperClass } from "swiper";
 import { Navigation, Keyboard  } from "swiper/modules";
+import { useEffect, useRef } from "react";
 
 interface Image {
   url: string;
@@ -9,14 +11,25 @@ interface Image {
 
 interface ProjectProps {
   images: Image[];
+  initialSlide?: number;
 }
 
-export const SwiperComp: React.FC<ProjectProps> = ({ images }) => {
+export const SwiperComp: React.FC<ProjectProps> = ({ images, initialSlide = 0  }) => {
+  const swiperRef = useRef<SwiperClass | null>(null);
+  
+    useEffect(() => {
+    if (swiperRef.current && initialSlide >= 0) {
+      // hoppa till rätt slide även med loop på
+      swiperRef.current.slideToLoop(initialSlide, 0);
+    }
+  }, [initialSlide]);
+
   return (
     <div className="relative">
       <Swiper
         slidesPerView={1}
         loop
+        initialSlide={initialSlide}
         effect="fade"
         modules={[Navigation, Keyboard]}
         navigation={{ nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }}
