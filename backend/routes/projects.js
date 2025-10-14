@@ -89,12 +89,25 @@ router.post(
         ? JSON.parse(req.body.photographers)
         : [];
 
-     const imageFiles = req.files?.images || [];
+      const imageFiles = req.files?.images || [];
 
-     const imageUploads = await Promise.all(
+      const imageUploads = await Promise.all(
         imageFiles.map(
           (file, i) =>
             new Promise((resolve, reject) => {
+            
+              const sanitizeFilename = (name) => {
+                return name
+                  .replace(/\s+/g, "_") // ersätt mellanslag med _
+                  .replace(/å/g, "a")
+                  .replace(/Å/g, "A")
+                  .replace(/ä/g, "a")
+                  .replace(/Ä/g, "A")
+                  .replace(/ö/g, "o")
+                  .replace(/Ö/g, "O")
+                  .replace(/[^a-zA-Z0-9_\-]/g, ""); // ta bort övriga konstiga tecken
+              };
+
               // 🧩 Ta originalnamnet utan filändelse
               const baseName = file.originalname
                 .split(".")
@@ -102,14 +115,16 @@ router.post(
                 .join(".")
                 .trim();
 
-              // 🕒 Skapa enkel timestamp (årmånaddag_timeminutsekk)
+              const safeName = sanitizeFilename(baseName);
+
+              // 🕒 Timestamp
               const timestamp = new Date()
                 .toISOString()
                 .replace(/[-:T.Z]/g, "")
                 .slice(0, 14);
 
-              // 🔠 Sätt nytt public_id
-              const publicId = `${baseName}_${timestamp}`;
+              // 🔠 Bygg public_id
+              const publicId = `${safeName}_${timestamp}`;
 
               cloudinary.uploader
                 .upload_stream(
@@ -118,7 +133,7 @@ router.post(
                     public_id: publicId,
                     resource_type: "image",
                     use_filename: false,
-                    unique_filename: false, 
+                    unique_filename: false,
                   },
                   (err, result) => {
                     if (err) return reject(err);
@@ -249,20 +264,35 @@ router.patch("/reorder", async (req, res) => {
           for (let i = 0; i < req.files.images.length; i++) {
             const file = req.files.images[i];
 
+            const sanitizeFilename = (name) => {
+              return name
+                .replace(/\s+/g, "_") // ersätt mellanslag med _
+                .replace(/å/g, "a")
+                .replace(/Å/g, "A")
+                .replace(/ä/g, "a")
+                .replace(/Ä/g, "A")
+                .replace(/ö/g, "o")
+                .replace(/Ö/g, "O")
+                .replace(/[^a-zA-Z0-9_\-]/g, ""); // ta bort övriga konstiga tecken
+            };
+
+            // 🧩 Ta originalnamnet utan filändelse
             const baseName = file.originalname
               .split(".")
               .slice(0, -1)
               .join(".")
               .trim();
 
-            // 🕒 Skapa enkel timestamp (årmånaddag_timeminutsekk)
+            const safeName = sanitizeFilename(baseName);
+
+            // 🕒 Timestamp
             const timestamp = new Date()
               .toISOString()
               .replace(/[-:T.Z]/g, "")
               .slice(0, 14);
 
-            // 🔠 Sätt nytt public_id
-            const publicId = `${baseName}_${timestamp}`;
+            // 🔠 Bygg public_id
+            const publicId = `${safeName}_${timestamp}`;
 
             const uploaded = await new Promise((resolve, reject) => {
               cloudinary.uploader
