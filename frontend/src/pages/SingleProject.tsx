@@ -181,7 +181,7 @@ export const SingleProject: React.FC = () => {
           posterImg={singleProject?.video?.public_id}
         />
         { singleProject?.video?.photographer &&
-        <p className="text-sm text-end">{singleProject?.video?.photographer}</p>}
+        <p className="text-sm">{singleProject?.video?.photographer}</p>}
         </div>
       )}
       {isModalOpen && imageToDisplay && (
