@@ -93,19 +93,19 @@ export const SingleProject: React.FC = () => {
 
   console.log(singleProject.images)
   return (
-    <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-6">
+    <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-6 tablet:gap-20 laptop:gap-8">
       <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-14">
         <div className="flex flex-col laptop:w-2/3 laptop:gap-10">
-        <div className="max-w-[900px] laptop:max-h-[650px] laptop:min-h-[650px]">
+        <div className="laptop:max-w-[900px] laptop:max-h-[650px] laptop:min-h-[650px]">
           {imageToDisplay && imageToDisplay !== undefined ? (
             <img
               src={imageToDisplay?.url}
               alt={singleProject?.name}
-              className="w-full h-full self-start  object-contain object-top-left cursor-pointer"
+              className="w-full h-full self-start object-contain object-top-left cursor-pointer"
               onClick={() => handleOpenModal()}
             />
           ) : (
-            <div className="w-full h-full laptop:w-2/3 max-w-[900px] laptop:max-h-[650px] object-contain object-left" />
+            <div className="w-full h-full laptop:w-2/3 laptop:max-w-[900px] laptop:max-h-[650px] object-contain object-left" />
           )}
           </div>
           {singleProject?.description && isLaptop && (
@@ -121,7 +121,7 @@ export const SingleProject: React.FC = () => {
           <div
             className={` ${
               reorderedImages.length > 3
-                ? "grid grid-cols-4"
+                ? "grid grid-cols-4 tablet:flex flex-wrap justify-end gap-2 laptop:grid laptop:grid-cols-4"
                 : "flex flex-wrap justify-end"
             } gap-3`}
           >

@@ -66,7 +66,7 @@ export const Header: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 1025);
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);

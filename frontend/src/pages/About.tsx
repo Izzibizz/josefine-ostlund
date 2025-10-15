@@ -128,17 +128,24 @@ const handleAddScholarship = () => {
         <>
           <h2 className="font-header uppercase text-lg">Biografi</h2>
           <div className="flex flex-col laptop:flex-row gap-6 laptop:gap-20 ">
+                {isMobile && about.image && (
+                <img
+                  src={about.image}
+                  className="w-full object-cover"
+                  alt="josefine Östlund"
+                />
+              )}
             {!isMobile && about.image && (
               <div className="flex flex-col gap-16 laptop:w-1/3 laptop:max-w-[600px]">
                 <img
                   src={about.image}
-                  className="w-full  self-start object-contain"
+                  className="w-full self-start object-contain"
                   alt="josefine Östlund"
                 />
                 <ExpandableTextDiv html={about.external_bio} />
               </div>
             )}
-            <div className="font-body flex flex-col gap-6 text-justify laptop:w-2/3">
+            <div className="font-body flex flex-col gap-6 laptop:text-justify laptop:w-2/3">
               <div
                 className="desctext"
                 dangerouslySetInnerHTML={{ __html: about.bio_1 }}
@@ -147,13 +154,7 @@ const handleAddScholarship = () => {
                 className="desctext"
                 dangerouslySetInnerHTML={{ __html: about.bio_2 }}
               />
-              {isMobile && about.image && (
-                <img
-                  src={about.image}
-                  className="w-full object-cover"
-                  alt="josefine Östlund"
-                />
-              )}
+          
               <div
                 className="desctext"
                 dangerouslySetInnerHTML={{ __html: about.exhibitions }}
