@@ -100,7 +100,7 @@ export const SingleProject: React.FC = () => {
             <img
               src={imageToDisplay?.url}
               alt={singleProject?.name}
-              className="w-full self-start max-w-[900px] laptop:max-h-[700px] object-contain object-left cursor-pointer"
+              className="w-full self-start max-w-[900px] laptop:max-h-[650px] laptop:min-h-[650px] object-contain object-top-left cursor-pointer"
               onClick={() => handleOpenModal()}
             />
           ) : (
@@ -114,9 +114,7 @@ export const SingleProject: React.FC = () => {
           )}
         </div>
         <div
-          className={`flex flex-col gap-10 font-body laptop:w-1/3 ${
-            singleProject?.description.length === 0 && "self-end"
-          }`}
+          className={`flex flex-col gap-10 font-body laptop:w-1/3 `}
         >{reorderedImages.length > 1 && (
           <div
             className={` ${

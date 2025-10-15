@@ -90,44 +90,43 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     );
   };
 
- const moveImage = (index: number, direction: "left" | "right") => {
-  setImagesOrder((prev) => {
-    const newOrder = [...prev];
-    const targetIndex = direction === "left" ? index - 1 : index + 1;
+  const moveImage = (index: number, direction: "left" | "right") => {
+    setImagesOrder((prev) => {
+      const newOrder = [...prev];
+      const targetIndex = direction === "left" ? index - 1 : index + 1;
 
-    if (targetIndex < 0 || targetIndex >= newOrder.length) return prev;
+      if (targetIndex < 0 || targetIndex >= newOrder.length) return prev;
 
-    // Flytta bilden i listan
-    const [moved] = newOrder.splice(index, 1);
-    newOrder.splice(targetIndex, 0, moved);
+      // Flytta bilden i listan
+      const [moved] = newOrder.splice(index, 1);
+      newOrder.splice(targetIndex, 0, moved);
 
-    // Hitta första bilden i nya ordningen
-    const firstId = newOrder[0];
+      // Hitta första bilden i nya ordningen
+      const firstId = newOrder[0];
 
-    let firstImage: Image | null = null;
+      let firstImage: Image | null = null;
 
-    const existing = existingImages.find((img) => img.public_id === firstId);
-    if (existing) {
-      firstImage = existing;
-    } else {
-      const temp = newImages.find((img) => img.tempId === firstId);
-      if (temp) {
-        firstImage = {
-          url: temp.url,
-          public_id: temp.tempId,
-          photographer: temp.photographer || "",
-        };
+      const existing = existingImages.find((img) => img.public_id === firstId);
+      if (existing) {
+        firstImage = existing;
+      } else {
+        const temp = newImages.find((img) => img.tempId === firstId);
+        if (temp) {
+          firstImage = {
+            url: temp.url,
+            public_id: temp.tempId,
+            photographer: temp.photographer || "",
+          };
+        }
       }
-    }
 
-    if (firstImage) {
-      setImageToDisplay(firstImage);
-    }
+      if (firstImage) {
+        setImageToDisplay(firstImage);
+      }
 
-    return newOrder;
-  });
-};
-
+      return newOrder;
+    });
+  };
 
   const imageData = gallery.map((img) => ({
     public_id: img.public_id,
@@ -155,11 +154,11 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     }
   };
 
-  const handlePreviewClick = (image: Image) => {
-    console.log("Klickade på bild:", image);
+  const handlePreviewClick = (image: Image | TempImage) => {
+     const id = "public_id" in image ? image.public_id : image.tempId;
     setImageToDisplay({
       url: image.url,
-      public_id: image.public_id,
+      public_id: id,
       photographer: image.photographer || "",
     });
     setIsModalOpen(true);
@@ -280,6 +279,17 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
       .filter((img): img is Image => img !== null);
     setGallery(combined);
   }, [imagesOrder, existingImages, newImages]);
+
+  useEffect(() => {
+  if (imageToDisplay) {
+    const updated = gallery.find(
+      (img) => img.public_id === imageToDisplay.public_id
+    );
+    if (updated && updated.photographer !== imageToDisplay.photographer) {
+      setImageToDisplay(updated);
+    }
+  }
+}, [gallery]);
 
   useEffect(() => {
     if (success) {
@@ -500,7 +510,10 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
       {isModalOpen && imageToDisplay && (
         <ImageModal
           key={imageToDisplay.public_id}
-          image={imageToDisplay}
+          image={{
+            ...imageToDisplay,
+            public_id: imageToDisplay.public_id,
+          }}
           onClose={() => setIsModalOpen(false)}
           onUpdatePhotographer={handleUpdatePhotographer}
         />

@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import { useUserStore } from "../stores/UserStore";
 import { useLocation } from "react-router-dom";
 import { SwiperComp } from "./SwiperComp";
-import cancel from "../assets/cancel.svg"
+import cancel from "../assets/cancel.svg";
 
 interface Image {
   url: string;
@@ -17,26 +17,34 @@ interface ImageModalProps {
   onUpdatePhotographer?: (id: string, photographer: string) => void;
 }
 
-export const ImageModal: React.FC<ImageModalProps> = ({ image, images, onClose, onUpdatePhotographer }) => {
- const modalRef = useRef<HTMLDivElement | null>(null);
- const [photographer, setPhotographer] = useState(image.photographer ?? "");
- const { editMode } = useUserStore()
-const location = useLocation();
-const showSwiper = !editMode || location.pathname !== "/nytt" && images;
+export const ImageModal: React.FC<ImageModalProps> = ({
+  image,
+  images,
+  onClose,
+  onUpdatePhotographer,
+}) => {
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const [photographer, setPhotographer] = useState(image.photographer ?? "");
+  const { editMode } = useUserStore();
+  const location = useLocation();
+  const showSwiper = !editMode && location.pathname !== "/nytt" && !!images;
 
   const initialSlideIndex = useMemo(() => {
     if (!images) return 0;
     return images.findIndex((img) => img.public_id === image.public_id);
   }, [images, image]);
 
- useEffect(() => {
-  setPhotographer(image.photographer ?? "");
-}, [image]);
+  useEffect(() => {
+    setPhotographer(image.photographer ?? "");
+  }, [image]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose(); 
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onClose();
       }
     };
 
@@ -48,27 +56,34 @@ const showSwiper = !editMode || location.pathname !== "/nytt" && images;
   }, [onClose]);
 
   useEffect(() => {
-  const handleEsc = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      onClose();
-    }
-  };
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
 
-  window.addEventListener("keydown", handleEsc);
-  return () => window.removeEventListener("keydown", handleEsc);
-}, [onClose]);
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
 
   return (
     <div className="fixed inset-0 bg-black/95 flex  justify-center z-80 cursor-pointer">
       {showSwiper ? (
-        <div ref={modalRef} className="w-[90vw] max-w-[1200px] flex flex-col pt-10 laptop:pt-6">
-           <img src={cancel} className="w-8 cursor-pointer self-end" onClick={() => onClose()}/>
+        <div
+          ref={modalRef}
+          className="w-[90vw] max-w-[1200px] flex flex-col pt-10 laptop:pt-6"
+        >
+          <img
+            src={cancel}
+            className="w-8 cursor-pointer self-end"
+            onClick={() => onClose()}
+          />
           <SwiperComp images={images!} initialSlide={initialSlideIndex} />
         </div>
       ) : (
         <div
           ref={modalRef}
-          className="flex flex-col max-w-[90vw] max-h-[80vh] gap-4"
+          className="flex flex-col max-w-[90vw] max-h-[80vh] gap-4 mt-10"
         >
           <img
             key={image.public_id}
@@ -84,6 +99,13 @@ const showSwiper = !editMode || location.pathname !== "/nytt" && images;
                 placeholder="Bildtext"
                 value={photographer}
                 onChange={(e) => setPhotographer(e.target.value)}
+                  onKeyUp={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      onUpdatePhotographer?.(image.public_id, photographer);
+                      onClose();
+                    }
+                  }}
               />
               <div className="flex gap-2">
                 <button
