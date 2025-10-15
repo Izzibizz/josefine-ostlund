@@ -47,7 +47,7 @@ export const ExpandableTextDiv: React.FC<ExpandableHTMLProps> = ({
         style={{ maxHeight }}
       >
         <div
-          className="desctext text-justify"
+          className="desctext laptop:text-justify"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
