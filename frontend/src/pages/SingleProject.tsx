@@ -96,16 +96,18 @@ export const SingleProject: React.FC = () => {
     <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-6">
       <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-14">
         <div className="flex flex-col laptop:w-2/3 laptop:gap-10">
+        <div className="max-w-[900px] laptop:max-h-[650px] laptop:min-h-[650px]">
           {imageToDisplay && imageToDisplay !== undefined ? (
             <img
               src={imageToDisplay?.url}
               alt={singleProject?.name}
-              className="w-full self-start max-w-[900px] laptop:max-h-[650px] laptop:min-h-[650px] object-contain object-top-left cursor-pointer"
+              className="w-full h-full self-start  object-contain object-top-left cursor-pointer"
               onClick={() => handleOpenModal()}
             />
           ) : (
-            <div className="w-full laptop:w-2/3 max-w-[900px] laptop:max-h-[650px] object-contain object-left" />
+            <div className="w-full h-full laptop:w-2/3 max-w-[900px] laptop:max-h-[650px] object-contain object-left" />
           )}
+          </div>
           {singleProject?.description && isLaptop && (
             <div
               className="desctext text-sm text-justify max-w-none"
