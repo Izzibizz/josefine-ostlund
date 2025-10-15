@@ -261,24 +261,27 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     }
   }, []);
 
-  useEffect(() => {
-    const combined = imagesOrder
-      .map((id) => {
-        const existing = existingImages.find((img) => img.public_id === id);
-        if (existing) return existing;
-        const temp = newImages.find((img) => img.tempId === id);
-        if (temp) {
-          return {
-            url: temp.url,
-            public_id: temp.tempId,
-            photographer: temp.photographer,
-          };
-        }
-        return null;
-      })
-      .filter((img): img is Image => img !== null);
-    setGallery(combined);
-  }, [imagesOrder, existingImages, newImages]);
+ useEffect(() => {
+  const combined = imagesOrder
+    .map((id) => {
+      const existing = existingImages.find((img) => img.public_id === id);
+      if (existing) return existing;
+      const temp = newImages.find((img) => img.tempId === id);
+      if (temp) {
+        return {
+          url: temp.url,
+          public_id: temp.tempId,
+          photographer: temp.photographer,
+        };
+      }
+      return null;
+    })
+    .filter((img): img is Image => img !== null);
+
+  // Ta bort ev. dubletter baserat på public_id
+  const unique = Array.from(new Map(combined.map(i => [i.public_id, i])).values());
+  setGallery(unique);
+}, [imagesOrder, existingImages, newImages]);
 
   useEffect(() => {
   if (imageToDisplay) {
@@ -312,7 +315,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
               <img
                 src={imageToDisplay.url}
                 alt="Preview"
-                className="w-full h-full max-w-[900px] laptop:h-[650px] object-contain"
+                className="w-full h-full max-w-[900px] laptop:h-[650px] object-contain object-top-left"
                 onClick={() => setIsModalOpen(true)}
               />
             ) : (

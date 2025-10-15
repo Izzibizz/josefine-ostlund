@@ -122,19 +122,31 @@ const handleAddScholarship = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [isMobile]);
 
+  const isMeaningfulHTML = (html: string): boolean => {
+  if (!html) return false;
+  // ta bort whitespace, tomma p/br-taggar
+  const clean = html
+    .replace(/<p><br><\/p>/g, "")
+    .replace(/<p>\s*<\/p>/g, "")
+    .replace(/<br\s*\/?>/g, "")
+    .replace(/\s+/g, "")
+    .trim();
+  return clean.length > 0;
+};
+
   return (
-    <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 gap-10 bg-white flex flex-col min-h-screen">
+    <section className="w-11/12 laptop:w-10/12 mx-auto pt-40 gap-14 laptop:gap-20 bg-white flex flex-col min-h-screen">
       {!editMode ? (
         <>
           <h2 className="font-header uppercase text-lg">Biografi</h2>
           <div className="flex flex-col laptop:flex-row gap-6 laptop:gap-20 ">
-                {isMobile && about.image && (
-                <img
-                  src={about.image}
-                  className="w-full object-cover"
-                  alt="josefine Östlund"
-                />
-              )}
+            {isMobile && about.image && (
+              <img
+                src={about.image}
+                className="w-full object-cover"
+                alt="josefine Östlund"
+              />
+            )}
             {!isMobile && about.image && (
               <div className="flex flex-col gap-16 laptop:w-1/3 laptop:max-w-[600px]">
                 <img
@@ -154,15 +166,18 @@ const handleAddScholarship = () => {
                 className="desctext"
                 dangerouslySetInnerHTML={{ __html: about.bio_2 }}
               />
-          
-              <div
-                className="desctext"
-                dangerouslySetInnerHTML={{ __html: about.exhibitions }}
-              />
+             {isMeaningfulHTML(about.exhibitions) && (
+                <div
+                  className="desctext"
+                  dangerouslySetInnerHTML={{ __html: about.exhibitions }}
+                />
+              )}
+              {isMeaningfulHTML(about.scholarships) && (
               <div
                 className="desctext"
                 dangerouslySetInnerHTML={{ __html: about.scholarships }}
               />
+              )}
             </div>
           </div>
           {isMobile && <ExpandableTextDiv html={about.external_bio} />}

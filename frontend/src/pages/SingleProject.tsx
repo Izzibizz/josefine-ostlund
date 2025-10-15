@@ -110,7 +110,7 @@ export const SingleProject: React.FC = () => {
           </div>
           {singleProject?.description && isLaptop && (
             <div
-              className="desctext text-sm text-justify max-w-none"
+              className="desctext text-sm max-w-none"
               dangerouslySetInnerHTML={{ __html: singleProject.description }}
             />
           )}
