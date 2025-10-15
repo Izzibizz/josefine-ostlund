@@ -72,13 +72,21 @@ export const LandingPage: React.FC = () => {
       <Helmet>
         <title>JOSEFINE ÖSTLUND</title>
         <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
+        <meta
           name="description"
           content="Josefine Östlund (f.1990 Eskilstuna) är baserad i Umeå och arbetar med skulptur, video och performance."
         />
       </Helmet>
       <section
         className="bg-black animate-fadeIn"
-
+        style={{
+          height: "100dvh", 
+          maxHeight: "100vh",
+          paddingBottom: "env(safe-area-inset-bottom, 20px)",
+        }}
       >
         {videoError ? (
           <img
@@ -108,7 +116,7 @@ export const LandingPage: React.FC = () => {
           alt="josefine östlund"
           className="absolute z-20 right-1 max-w-[98%] laptop:max-w-[40%] laptop:bottom-5 laptop:right-5"
           style={{
-            bottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)",
+            bottom: "calc(env(safe-area-inset-bottom, 0px) + 100px)",
           }}
         />
       </section>
