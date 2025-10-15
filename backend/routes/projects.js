@@ -2,6 +2,7 @@ import express from "express";
 import cloudinary from "../config/cloudinaryConfig.js";
 import Projects from "../models/projectSchema.js";
 import multer from "multer";
+import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
 
@@ -95,10 +96,10 @@ router.post(
         imageFiles.map(
           (file, i) =>
             new Promise((resolve, reject) => {
-            
               const sanitizeFilename = (name) => {
                 return name
                   .replace(/\s+/g, "_") // ersätt mellanslag med _
+                  .replace(/\./g, "_") // ersätt punkter med _
                   .replace(/å/g, "a")
                   .replace(/Å/g, "A")
                   .replace(/ä/g, "a")
@@ -108,7 +109,6 @@ router.post(
                   .replace(/[^a-zA-Z0-9_\-]/g, ""); // ta bort övriga konstiga tecken
               };
 
-              // 🧩 Ta originalnamnet utan filändelse
               const baseName = file.originalname
                 .split(".")
                 .slice(0, -1)
@@ -117,14 +117,11 @@ router.post(
 
               const safeName = sanitizeFilename(baseName);
 
-              // 🕒 Timestamp
-              const timestamp = new Date()
-                .toISOString()
-                .replace(/[-:T.Z]/g, "")
-                .slice(0, 14);
+              // korta UUID till t.ex. 8 tecken
+              const shortId = uuidv4().split("-")[0];
 
-              // 🔠 Bygg public_id
-              const publicId = `${safeName}_${timestamp}`;
+              // unik, läsbar public_id
+              const publicId = `${safeName}_${shortId}`;
 
               cloudinary.uploader
                 .upload_stream(
@@ -267,6 +264,7 @@ router.patch("/reorder", async (req, res) => {
             const sanitizeFilename = (name) => {
               return name
                 .replace(/\s+/g, "_") // ersätt mellanslag med _
+                .replace(/\./g, "_") // ersätt punkter med _
                 .replace(/å/g, "a")
                 .replace(/Å/g, "A")
                 .replace(/ä/g, "a")
@@ -276,7 +274,6 @@ router.patch("/reorder", async (req, res) => {
                 .replace(/[^a-zA-Z0-9_\-]/g, ""); // ta bort övriga konstiga tecken
             };
 
-            // 🧩 Ta originalnamnet utan filändelse
             const baseName = file.originalname
               .split(".")
               .slice(0, -1)
@@ -285,14 +282,11 @@ router.patch("/reorder", async (req, res) => {
 
             const safeName = sanitizeFilename(baseName);
 
-            // 🕒 Timestamp
-            const timestamp = new Date()
-              .toISOString()
-              .replace(/[-:T.Z]/g, "")
-              .slice(0, 14);
+            // korta UUID till t.ex. 8 tecken
+            const shortId = uuidv4().split("-")[0];
 
-            // 🔠 Bygg public_id
-            const publicId = `${safeName}_${timestamp}`;
+            // unik, läsbar public_id
+            const publicId = `${safeName}_${shortId}`;
 
             const uploaded = await new Promise((resolve, reject) => {
               cloudinary.uploader

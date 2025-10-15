@@ -238,9 +238,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
 
   const handleDropImages = (accepted: File[]) => {
     const additions: TempImage[] = accepted.map((file) => {
-      const tempId = `temp-${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}`;
+      const tempId = crypto.randomUUID();
       return { file, url: URL.createObjectURL(file), tempId, photographer: "" };
     });
 

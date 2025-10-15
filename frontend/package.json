@@ -27,6 +27,7 @@
     "react-router-dom": "^7.6.3",
     "swiper": "^11.2.10",
     "tailwindcss": "^4.1.11",
+    "uuid": "^13.0.0",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
