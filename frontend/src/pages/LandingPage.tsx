@@ -78,10 +78,7 @@ export const LandingPage: React.FC = () => {
       </Helmet>
       <section
         className="bg-black animate-fadeIn"
-        style={{
-          height: "100dvh",
-          paddingBottom: "env(safe-area-inset-bottom, 0px)",
-        }}
+
       >
         {videoError ? (
           <img
