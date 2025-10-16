@@ -55,6 +55,20 @@ export const SingleProject: React.FC = () => {
     return url.replace("/upload/", `/upload/w_${width},c_fill/`);
   };
 
+  const preventOrphans = (selector: string): void => {
+  document.querySelectorAll(selector).forEach(el => {
+    const words = el.innerHTML.trim().split(' ');
+    if (words.length > 2) {
+      words[words.length - 2] = `${words[words.length - 2]}&nbsp;${words[words.length - 1]}`;
+      words.pop();
+      el.innerHTML = words.join(' ');
+    }
+  });
+}
+
+// Exempel: använd på alla <p>
+preventOrphans('p');
+
   useEffect(() => {
     if (singleProject?.images?.[0]) {
       setImageToDisplay({
