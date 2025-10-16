@@ -157,7 +157,7 @@ const handleAddScholarship = () => {
                 <ExpandableTextDiv html={about.external_bio} />
               </div>
             )}
-            <div className="font-body flex flex-col gap-6 laptop:text-justify laptop:w-2/3">
+            <div className="font-body flex flex-col gap-6 laptop:w-2/3">
               <div
                 className="desctext"
                 dangerouslySetInnerHTML={{ __html: about.bio_1 }}

@@ -95,8 +95,8 @@ export const SingleProject: React.FC = () => {
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-6 tablet:gap-20 laptop:gap-8">
       <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-14">
-        <div className="flex flex-col laptop:w-2/3 laptop:gap-10">
-        <div className="laptop:max-w-[900px] laptop:max-h-[650px] laptop:min-h-[650px]">
+        <div className="flex flex-col laptop:w-2/3 laptop:gap-8">
+        <div className="laptop:max-w-[900px] laptop:max-h-[600px] laptop:min-h-[600px]">
           {imageToDisplay && imageToDisplay !== undefined ? (
             <img
               src={imageToDisplay?.url}
@@ -105,7 +105,7 @@ export const SingleProject: React.FC = () => {
               onClick={() => handleOpenModal()}
             />
           ) : (
-            <div className="w-full h-full laptop:w-2/3 laptop:max-w-[900px] laptop:max-h-[650px] object-contain object-left" />
+            <div className="w-full h-full laptop:w-2/3 laptop:max-w-[900px] laptop:max-h-[600px] object-contain object-left" />
           )}
           </div>
           {singleProject?.description && isLaptop && (
