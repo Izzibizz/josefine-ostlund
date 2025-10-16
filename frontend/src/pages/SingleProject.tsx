@@ -91,23 +91,21 @@ export const SingleProject: React.FC = () => {
     return <CreateProject projectId={singleProject._id} />;
   }
 
-  console.log(singleProject.images)
+  console.log(singleProject.images);
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-6 tablet:gap-20 laptop:gap-8">
       <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-14">
-        <div className="flex flex-col laptop:w-2/3 laptop:gap-8">
-        <div className="laptop:max-w-[900px] laptop:max-h-[600px] laptop:min-h-[600px]">
+        <div className="flex flex-col laptop:w-2/3 laptop:gap-20">
           {imageToDisplay && imageToDisplay !== undefined ? (
             <img
               src={imageToDisplay?.url}
               alt={singleProject?.name}
-              className="w-full h-full self-start object-contain object-top-left cursor-pointer"
+              className="w-full h-full self-start object-contain object-top-left cursor-pointer laptop:max-w-[900px] laptop:max-h-[600px] "
               onClick={() => handleOpenModal()}
             />
           ) : (
             <div className="w-full h-full laptop:w-2/3 laptop:max-w-[900px] laptop:max-h-[600px] object-contain object-left" />
           )}
-          </div>
           {singleProject?.description && isLaptop && (
             <div
               className="desctext text-sm max-w-none"
@@ -115,49 +113,48 @@ export const SingleProject: React.FC = () => {
             />
           )}
         </div>
-        <div
-          className={`flex flex-col gap-10 font-body laptop:w-1/3 `}
-        >{reorderedImages.length > 1 && (
-          <div
-            className={` ${
-              reorderedImages.length > 3
-                ? "grid grid-cols-4 tablet:flex flex-wrap justify-end gap-2 laptop:grid laptop:grid-cols-4"
-                : "flex flex-wrap justify-end"
-            } gap-3`}
-          >
-            {reorderedImages.map((image, index) => (
-              <div
-                key={index}
-                className={`relative aspect-[4/3] cursor-pointer ${
-                  reorderedImages.length < 4
-                    ? "w-[80px] h-[100px]"
-                    : "w-full max-w-[100px]"
-                }`}
-                onClick={() => handlePreviewClick(image)}
-              >
-                <img
-                  src={getThumbnailUrl(image.url, 250)}
-                  alt={image.photographer || singleProject.name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              </div>
-            ))}
-        
-          </div>
-        )}
+        <div className={`flex flex-col gap-10 font-body laptop:w-1/3 `}>
+          {reorderedImages.length > 1 && (
+            <div
+              className={` ${
+                reorderedImages.length > 3
+                  ? "grid grid-cols-4 tablet:flex flex-wrap justify-end gap-2 laptop:grid laptop:grid-cols-4"
+                  : "flex flex-wrap justify-end"
+              } gap-3`}
+            >
+              {reorderedImages.map((image, index) => (
+                <div
+                  key={index}
+                  className={`relative aspect-[4/3] cursor-pointer ${
+                    reorderedImages.length < 4
+                      ? "w-[80px] h-[100px]"
+                      : "w-full max-w-[100px]"
+                  }`}
+                  onClick={() => handlePreviewClick(image)}
+                >
+                  <img
+                    src={getThumbnailUrl(image.url, 250)}
+                    alt={image.photographer || singleProject.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex flex-col gap-4 text-end">
             <h2 className="font-bold text-lg">{singleProject?.name}</h2>
-            {singleProject?.category === "utställningar" && (
-              <p>
-                <span className="font-semibold"></span>
-                {singleProject?.exhibited_at}
-              </p>
-            )}
+            {singleProject?.category === "utställningar" &&
+              singleProject?.exhibited_at && (
+                <p>{singleProject?.exhibited_at}</p>
+              )}
             <h3 className="font-medium">{singleProject?.year}</h3>
-            <div className="flex flex-col gap-2 text-sm">
-              <p>{singleProject?.material}</p>
-              {singleProject?.size && <p>{singleProject?.size}</p>}
-            </div>
+            {singleProject?.material ||
+              (singleProject?.size && (
+                <div className="flex flex-col gap-2 text-sm">
+                  {singleProject?.material && <p>{singleProject?.material}</p>}
+                  {singleProject?.size && <p>{singleProject?.size}</p>}
+                </div>
+              ))}
             {singleProject?.short_description &&
               singleProject?.short_description.length > 0 && (
                 <div
@@ -178,12 +175,13 @@ export const SingleProject: React.FC = () => {
       )}
       {singleProject?.video && (
         <div className="flex flex-col gap-1">
-        <VideoPlayer
-          src={singleProject?.video?.url}
-          posterImg={singleProject?.video?.public_id}
-        />
-        { singleProject?.video?.photographer &&
-        <p className="text-sm">{singleProject?.video?.photographer}</p>}
+          <VideoPlayer
+            src={singleProject?.video?.url}
+            posterImg={singleProject?.video?.public_id}
+          />
+          {singleProject?.video?.photographer && (
+            <p className="text-sm">{singleProject?.video?.photographer}</p>
+          )}
         </div>
       )}
       {isModalOpen && imageToDisplay && (
