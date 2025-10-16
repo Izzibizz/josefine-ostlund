@@ -109,7 +109,7 @@ preventOrphans('p');
   return (
     <section className="w-11/12 laptop:w-9/12 mx-auto pt-40 flex flex-col gap-6 tablet:gap-20 laptop:gap-8">
       <div className="flex flex-col gap-4 laptop:flex-row laptop:gap-14">
-        <div className="flex flex-col laptop:w-2/3 laptop:gap-20">
+        <div className="flex flex-col laptop:w-2/3 laptop:gap-14">
           {imageToDisplay && imageToDisplay !== undefined ? (
             <img
               src={imageToDisplay?.url}
