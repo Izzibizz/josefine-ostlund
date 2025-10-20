@@ -147,6 +147,8 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
       );
     }
 
+    setImagesOrder((prev) => prev.filter((id) => id !== img.public_id));
+
     if (imageToDisplay?.public_id === img.public_id) {
       const next =
         gallery.filter((g) => g.public_id !== img.public_id)[0] ?? null;
