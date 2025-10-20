@@ -56,18 +56,20 @@ export const SingleProject: React.FC = () => {
   };
 
   const preventOrphans = (selector: string): void => {
-  document.querySelectorAll(selector).forEach(el => {
-    const words = el.innerHTML.trim().split(' ');
-    if (words.length > 2) {
-      words[words.length - 2] = `${words[words.length - 2]}&nbsp;${words[words.length - 1]}`;
-      words.pop();
-      el.innerHTML = words.join(' ');
-    }
-  });
-}
+    document.querySelectorAll(selector).forEach((el) => {
+      const words = el.innerHTML.trim().split(" ");
+      if (words.length > 2) {
+        words[words.length - 2] = `${words[words.length - 2]}&nbsp;${
+          words[words.length - 1]
+        }`;
+        words.pop();
+        el.innerHTML = words.join(" ");
+      }
+    });
+  };
 
-// Exempel: använd på alla <p>
-preventOrphans('p');
+  // Exempel: använd på alla <p>
+  preventOrphans("p");
 
   useEffect(() => {
     if (singleProject?.images?.[0]) {
@@ -162,13 +164,12 @@ preventOrphans('p');
                 <p>{singleProject?.exhibited_at}</p>
               )}
             <h3 className="font-medium">{singleProject?.year}</h3>
-            {singleProject?.material ||
-              (singleProject?.size && (
-                <div className="flex flex-col gap-2 text-sm">
-                  {singleProject?.material && <p>{singleProject?.material}</p>}
-                  {singleProject?.size && <p>{singleProject?.size}</p>}
-                </div>
-              ))}
+            {(singleProject?.material || singleProject?.size) && (
+              <div className="flex flex-col gap-2 text-sm">
+                {singleProject?.material && <p>{singleProject?.material}</p>}
+                {singleProject?.size && <p>{singleProject?.size}</p>}
+              </div>
+            )}
             {singleProject?.short_description &&
               singleProject?.short_description.length > 0 && (
                 <div
