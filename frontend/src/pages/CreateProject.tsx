@@ -95,34 +95,12 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
       const newOrder = [...prev];
       const targetIndex = direction === "left" ? index - 1 : index + 1;
 
+      // skydd mot indexfel
       if (targetIndex < 0 || targetIndex >= newOrder.length) return prev;
 
-      // Flytta bilden i listan
+      // flytta bilden
       const [moved] = newOrder.splice(index, 1);
       newOrder.splice(targetIndex, 0, moved);
-
-      // Hitta första bilden i nya ordningen
-      const firstId = newOrder[0];
-
-      let firstImage: Image | null = null;
-
-      const existing = existingImages.find((img) => img.public_id === firstId);
-      if (existing) {
-        firstImage = existing;
-      } else {
-        const temp = newImages.find((img) => img.tempId === firstId);
-        if (temp) {
-          firstImage = {
-            url: temp.url,
-            public_id: temp.tempId,
-            photographer: temp.photographer || "",
-          };
-        }
-      }
-
-      if (firstImage) {
-        setImageToDisplay(firstImage);
-      }
 
       return newOrder;
     });
@@ -157,7 +135,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   };
 
   const handlePreviewClick = (image: Image | TempImage) => {
-     const id = "public_id" in image ? image.public_id : image.tempId;
+    const id = "public_id" in image ? image.public_id : image.tempId;
     setImageToDisplay({
       url: image.url,
       public_id: id,
@@ -249,10 +227,15 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   };
 
   useEffect(() => {
-    if (!imageToDisplay) {
-      setImageToDisplay(gallery[0] ?? null);
+    if (gallery.length === 0) {
+      setImageToDisplay(null);
+      return;
     }
-  }, [gallery.length, gallery, imageToDisplay]);
+
+    const firstId = imagesOrder[0];
+    const firstImage = gallery.find((g) => g.public_id === firstId);
+    if (firstImage) setImageToDisplay(firstImage);
+  }, [imagesOrder, gallery]);
 
   useEffect(() => {
     if (existingProject?.video?.url) {
@@ -261,38 +244,52 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     }
   }, []);
 
- useEffect(() => {
-  const combined = imagesOrder
-    .map((id) => {
-      const existing = existingImages.find((img) => img.public_id === id);
-      if (existing) return existing;
-      const temp = newImages.find((img) => img.tempId === id);
-      if (temp) {
-        return {
-          url: temp.url,
-          public_id: temp.tempId,
-          photographer: temp.photographer,
-        };
-      }
-      return null;
-    })
-    .filter((img): img is Image => img !== null);
+  useEffect(() => {
+    const combined = [
+      ...imagesOrder
+        .map((id) => {
+          const existing = existingImages.find((img) => img.public_id === id);
+          if (existing) return existing;
 
-  // Ta bort ev. dubletter baserat på public_id
-  const unique = Array.from(new Map(combined.map(i => [i.public_id, i])).values());
-  setGallery(unique);
-}, [imagesOrder, existingImages, newImages]);
+          const temp = newImages.find((img) => img.tempId === id);
+          if (temp) {
+            return {
+              url: temp.url,
+              public_id: temp.tempId,
+              photographer: temp.photographer,
+            };
+          }
+          return null;
+        })
+        .filter((img): img is Image => img !== null),
+
+      // lägg till ev. nya som inte finns i order-listan än
+      ...newImages
+        .filter((n) => !imagesOrder.includes(n.tempId))
+        .map((n) => ({
+          url: n.url,
+          public_id: n.tempId,
+          photographer: n.photographer,
+        })),
+    ];
+
+    // Ta bort eventuella dubletter
+    const unique = Array.from(
+      new Map(combined.map((i) => [i.public_id, i])).values()
+    );
+    setGallery(unique);
+  }, [imagesOrder, existingImages, newImages]);
 
   useEffect(() => {
-  if (imageToDisplay) {
-    const updated = gallery.find(
-      (img) => img.public_id === imageToDisplay.public_id
-    );
-    if (updated && updated.photographer !== imageToDisplay.photographer) {
-      setImageToDisplay(updated);
+    if (imageToDisplay) {
+      const updated = gallery.find(
+        (img) => img.public_id === imageToDisplay.public_id
+      );
+      if (updated && updated.photographer !== imageToDisplay.photographer) {
+        setImageToDisplay(updated);
+      }
     }
-  }
-}, [gallery]);
+  }, [gallery]);
 
   useEffect(() => {
     if (success) {
@@ -342,42 +339,46 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
           {gallery.length >= 1 && (
             <div className="flex flex-col laptop:flex-row gap-6">
               <div className="flex flex-wrap gap-2">
-                {gallery.map((img, index) => (
-                  <div
-                    key={img.public_id}
-                    className="w-28 h-20 relative cursor-pointer"
-                  >
-                    <img
-                      src={img.url}
-                      className="w-full h-full object-cover"
-                      onClick={() => handlePreviewClick(img)}
-                    />
-                    <button
-                      onClick={() => handleDeleteThumb(img)}
-                      className="absolute top-1 right-1 bg-black text-white rounded-full px-2 cursor-pointer"
-                      aria-label="Ta bort bild"
+                {gallery.map((img) => {
+                  const index = imagesOrder.indexOf(img.public_id);
+                  return (
+                    <div
+                      key={img.public_id}
+                      className="w-28 h-20 relative cursor-pointer"
                     >
-                      ×
-                    </button>
-                    {index > 0 && (
+                      <img
+                        src={img.url}
+                        className="w-full h-full object-cover"
+                        onClick={() => handlePreviewClick(img)}
+                      />
                       <button
-                        onClick={() => moveImage(index, "left")}
-                        className="absolute bottom-1 left-1 bg-white/80 rounded-full px-2 cursor-pointer"
-                        aria-label="Flytta vänster"
+                        onClick={() => handleDeleteThumb(img)}
+                        className="absolute top-1 right-1 bg-black text-white rounded-full px-2 cursor-pointer"
+                        aria-label="Ta bort bild"
                       >
-                        ←
+                        ×
                       </button>
-                    )}
-                    {index < gallery.length - 1 && (
-                      <button
-                        onClick={() => moveImage(index, "right")}
-                        className="absolute bottom-1 right-1 bg-white/80 rounded-full px-2 cursor-pointer"
-                      >
-                        →
-                      </button>
-                    )}
-                  </div>
-                ))}
+                      {index > 0 && (
+                        <button
+                          onClick={() => moveImage(index, "left")}
+                          className="absolute bottom-1 left-1 bg-white/80 rounded-full px-2 cursor-pointer"
+                          aria-label="Flytta vänster"
+                        >
+                          ←
+                        </button>
+                      )}
+                      {index < imagesOrder.length - 1 && (
+                        <button
+                          onClick={() => moveImage(index, "right")}
+                          className="absolute bottom-1 right-1 bg-white/80 rounded-full px-2 cursor-pointer"
+                          aria-label="Flytta höger"
+                        >
+                          →
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               <Dropzone onDrop={handleDropImages} accept={{ "image/*": [] }}>
                 {({ getRootProps, getInputProps }) => (
