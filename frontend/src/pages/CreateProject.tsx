@@ -90,6 +90,21 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     );
   };
 
+  const handleDropImages = (accepted: File[]) => {
+    const additions: TempImage[] = accepted.map((file) => {
+      const id = `temp-${crypto.randomUUID()}`;
+      return {
+        file,
+        url: URL.createObjectURL(file),
+        tempId: id,
+        photographer: "",
+      };
+    });
+
+    setNewImages((prev) => [...prev, ...additions]);
+    setImagesOrder((prev) => [...prev, ...additions.map((a) => a.tempId)]);
+  };
+
   const moveImage = (index: number, direction: "left" | "right") => {
     setImagesOrder((prev) => {
       const newOrder = [...prev];
@@ -114,8 +129,17 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   const handleDeleteThumb = (img: Image) => {
     const isTemp = img.public_id.startsWith("temp-");
 
+    // ta bort från imagesOrder först
+    setImagesOrder((prev) => prev.filter((id) => id !== img.public_id));
+
     if (isTemp) {
-      setNewImages((prev) => prev.filter((t) => t.tempId !== img.public_id));
+      setNewImages((prev) =>
+        prev.filter(
+          (t) =>
+            t.tempId !== img.public_id && // vanlig jämförelse
+            `temp-${t.tempId}` !== img.public_id // fallback om tempId fått extra prefix
+        )
+      );
     } else {
       setExistingImages((prev) =>
         prev.filter((e) => e.public_id !== img.public_id)
@@ -125,8 +149,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
       );
     }
 
-    setImagesOrder((prev) => prev.filter((id) => id !== img.public_id));
-
+    // uppdatera preview
     if (imageToDisplay?.public_id === img.public_id) {
       const next =
         gallery.filter((g) => g.public_id !== img.public_id)[0] ?? null;
@@ -214,16 +237,6 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     } catch (err) {
       console.error("Error saving project:", err);
     }
-  };
-
-  const handleDropImages = (accepted: File[]) => {
-    const additions: TempImage[] = accepted.map((file) => {
-      const tempId = crypto.randomUUID();
-      return { file, url: URL.createObjectURL(file), tempId, photographer: "" };
-    });
-
-    setNewImages((prev) => [...prev, ...additions]);
-    setImagesOrder((prev) => [...prev, ...additions.map((a) => a.tempId)]);
   };
 
   useEffect(() => {
@@ -353,7 +366,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
                       />
                       <button
                         onClick={() => handleDeleteThumb(img)}
-                        className="absolute top-1 right-1 bg-black text-white rounded-full px-2 cursor-pointer"
+                        className="absolute z-10 top-1 right-1 bg-black text-white rounded-full px-2 cursor-pointer"
                         aria-label="Ta bort bild"
                       >
                         ×
