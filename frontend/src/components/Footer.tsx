@@ -33,7 +33,7 @@ export const Footer: React.FC = () => {
         <p className=" font-body flex gap-1 items-center">
           {" "}
           <LiaCopyright className="w-3"/>
-          <span className="text-[8px]">Josefine Östlund 2025</span>
+          <span className="text-[8px] leading-none tracking-tight select-none">Josefine Östlund 2025</span>
         </p>
         <a
           href="http://izabellind.com"

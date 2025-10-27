@@ -25,6 +25,8 @@ const location = useLocation()
    useEffect(() => {
        if (location.pathname === "/") {
         setShowFooter(false)
+       } else if (location.pathname !== "/") {
+        setShowFooter(true)
        }
     }, [location.pathname])
 
