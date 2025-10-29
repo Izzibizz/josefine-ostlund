@@ -86,7 +86,9 @@ router.post(
         video,
       } = req.body;
 
-     const imageData = req.body.imageData ? JSON.parse(req.body.imageData) : [];
+      const imageData = req.body.imageData
+        ? JSON.parse(req.body.imageData)
+        : [];
 
       const imageFiles = req.files?.images || [];
 
@@ -133,13 +135,12 @@ router.post(
                   (err, result) => {
                     if (err) return reject(err);
 
-                    const photographer =
-                    imageData.find((img) => img.index === i)?.photographer || "";
+                    const photographer = imageData[i]?.photographer || "";
 
                     resolve({
                       url: result.secure_url,
                       public_id: result.public_id,
-                      photographer
+                      photographer,
                     });
                   }
                 )
@@ -147,6 +148,11 @@ router.post(
             })
         )
       );
+
+      if (imageData.length === imageUploads.length) {
+        const ordered = imageData.map((_, i) => imageUploads[i]);
+        imageUploads.splice(0, imageUploads.length, ...ordered);
+      }
 
       // --- Video (kommer från frontend som JSON-string) ---
       let videoUpload = null;
