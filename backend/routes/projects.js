@@ -86,9 +86,7 @@ router.post(
         video,
       } = req.body;
 
-      const photographers = req.body.photographers
-        ? JSON.parse(req.body.photographers)
-        : [];
+     const imageData = req.body.imageData ? JSON.parse(req.body.imageData) : [];
 
       const imageFiles = req.files?.images || [];
 
@@ -134,10 +132,14 @@ router.post(
                   },
                   (err, result) => {
                     if (err) return reject(err);
+
+                    const photographer =
+                    imageData.find((img) => img.index === i)?.photographer || "";
+
                     resolve({
                       url: result.secure_url,
                       public_id: result.public_id,
-                      photographer: photographers[i] || "",
+                      photographer
                     });
                   }
                 )

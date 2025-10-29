@@ -8,6 +8,12 @@ interface Image {
   photographer?: string;
 }
 
+interface ImageData {
+  index: number,
+  public_id: string;
+  photographer?: string;
+}
+
 type ProjectOrderUpdate = {
   id: string;
   order: number;
@@ -38,9 +44,9 @@ interface ProjectState {
   createProject: (
     data: Omit<Project, "_id" | "images" | "video">,
     images: File[],
-    photographers: string[],
-   video?: Image | null
-) => Promise<Project | undefined>;
+    imageData: ImageData[],
+    video?: Image | null
+  ) => Promise<Project | undefined>;
 
   updateProject: (
     id: string,
@@ -49,7 +55,7 @@ interface ProjectState {
     newVideo?: Image | null,
     removeImages?: string[],
     removeVideo?: boolean,
-    imageData?: { public_id?: string; index?: number; photographer: string }[]
+    imageData?: ImageData[]
   ) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   setDeleteFail: (input: boolean) => void;
@@ -82,7 +88,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     }
   },
 
-  createProject: async (data, images, photographers, videoFile) => {
+  createProject: async (data, images, imageData, videoFile) => {
     useUserStore.setState({
       success: false,
       fail: false,
@@ -101,9 +107,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
       // Bilder
       images.forEach((file) => formData.append("images", file));
 
-      // Fotografer
-      if (photographers?.length) {
-        formData.append("photographers", JSON.stringify(photographers));
+      if (imageData) {
+        formData.append("imageData", JSON.stringify(imageData));
       }
 
       // Video (laddas upp manuellt i bunny)

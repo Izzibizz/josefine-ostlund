@@ -121,10 +121,6 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     });
   };
 
-  const imageData = gallery.map((img) => ({
-    public_id: img.public_id,
-    photographer: img.photographer || "",
-  }));
 
   const handleDeleteThumb = (img: Image) => {
     const isTemp = img.public_id.startsWith("temp-");
@@ -214,6 +210,12 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
             }
           : null;
 
+      const imageData = gallery.map((img, index) => ({
+        index,
+        public_id: img.public_id,
+        photographer: img.photographer || "",
+      }));
+
       if (!isNewProject && projectId && existingProject) {
         console.log("Updating project...");
         await updateProject(
@@ -230,7 +232,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
         await createProject(
           textData,
           newImages.map((n) => n.file),
-          newImages.map((n) => n.photographer || ""),
+          imageData,
           videoData || undefined
         );
       }
