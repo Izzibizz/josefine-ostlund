@@ -163,6 +163,11 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
     setIsModalOpen(true);
   };
 
+  const orderedNewImages = imagesOrder
+  .map((id) => newImages.find((img) => img.tempId === id))
+  .filter((img): img is TempImage => !!img);
+
+
   const handleLoadVideo = () => {
     if (!videoUrl.includes("b-cdn.net") || !videoUrl.endsWith(".m3u8")) {
       setVideoError("Länken måste vara en giltig Bunny Stream-länk (.m3u8)");
@@ -231,7 +236,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
         console.log("Creating project...");
         await createProject(
           textData,
-          newImages.map((n) => n.file),
+          orderedNewImages.map((n) => n.file),
           imageData,
           videoData || undefined
         );
