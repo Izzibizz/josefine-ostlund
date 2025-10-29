@@ -96,7 +96,7 @@ router.post(
         imageFiles.map(
           (file) =>
             new Promise((resolve, reject) => {
-              const baseName = file.originalname.split(".")[0]; // här blir baseName = tempId
+              const baseName = file.originalname
               const meta = imageData.find((img) => img.public_id === baseName);
 
               const photographer = meta?.photographer || "";
@@ -145,6 +145,7 @@ router.post(
 
       imageUploads.sort((a, b) => a.index - b.index);
       const cleanedImages = imageUploads.map(({ index, ...rest }) => rest);
+      
       // --- Video (kommer från frontend som JSON-string) ---
       let videoUpload = null;
       if (video) {
