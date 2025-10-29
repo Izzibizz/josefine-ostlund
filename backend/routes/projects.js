@@ -141,6 +141,7 @@ router.post(
                       url: result.secure_url,
                       public_id: result.public_id,
                       photographer,
+                      index: imageData[i]?.index ?? i,
                     });
                   }
                 )
@@ -149,10 +150,11 @@ router.post(
         )
       );
 
-      if (imageData.length === imageUploads.length) {
-        const ordered = imageData.map((_, i) => imageUploads[i]);
-        imageUploads.splice(0, imageUploads.length, ...ordered);
-      }
+      // Sortera enligt index från imageData
+      imageUploads.sort((a, b) => a.index - b.index);
+
+      // Ta bort index innan sparning
+      const cleanedImages = imageUploads.map(({ index, ...rest }) => rest);
 
       // --- Video (kommer från frontend som JSON-string) ---
       let videoUpload = null;
@@ -171,7 +173,7 @@ router.post(
         description,
         short_description,
         size,
-        images: imageUploads,
+        images: cleanedImages,
         video: videoUpload,
         order: 0,
       });
