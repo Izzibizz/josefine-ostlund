@@ -94,33 +94,29 @@ router.post(
 
       const imageUploads = await Promise.all(
         imageFiles.map(
-          (file, i) =>
+          (file) =>
             new Promise((resolve, reject) => {
-              const sanitizeFilename = (name) => {
-                return name
-                  .replace(/\s+/g, "_") // ersätt mellanslag med _
-                  .replace(/\./g, "_") // ersätt punkter med _
+              const baseName = file.originalname.split(".")[0]; // här blir baseName = tempId
+              const meta = imageData.find((img) => img.public_id === baseName);
+
+              const photographer = meta?.photographer || "";
+              const index = meta?.index ?? 0;
+
+              // sanera filnamn
+              const sanitizeFilename = (name) =>
+                name
+                  .replace(/\s+/g, "_")
+                  .replace(/\./g, "_")
                   .replace(/å/g, "a")
                   .replace(/Å/g, "A")
                   .replace(/ä/g, "a")
                   .replace(/Ä/g, "A")
                   .replace(/ö/g, "o")
                   .replace(/Ö/g, "O")
-                  .replace(/[^a-zA-Z0-9_\-]/g, ""); // ta bort övriga konstiga tecken
-              };
-
-              const baseName = file.originalname
-                .split(".")
-                .slice(0, -1)
-                .join(".")
-                .trim();
+                  .replace(/[^a-zA-Z0-9_\-]/g, "");
 
               const safeName = sanitizeFilename(baseName);
-
-              // korta UUID till t.ex. 8 tecken
               const shortId = uuidv4().split("-")[0];
-
-              // unik, läsbar public_id
               const publicId = `${safeName}_${shortId}`;
 
               cloudinary.uploader
@@ -134,14 +130,11 @@ router.post(
                   },
                   (err, result) => {
                     if (err) return reject(err);
-
-                    const photographer = imageData[i]?.photographer || "";
-
                     resolve({
                       url: result.secure_url,
                       public_id: result.public_id,
                       photographer,
-                      index: imageData[i]?.index ?? i,
+                      index,
                     });
                   }
                 )
@@ -150,12 +143,8 @@ router.post(
         )
       );
 
-      // Sortera enligt index från imageData
       imageUploads.sort((a, b) => a.index - b.index);
-
-      // Ta bort index innan sparning
       const cleanedImages = imageUploads.map(({ index, ...rest }) => rest);
-
       // --- Video (kommer från frontend som JSON-string) ---
       let videoUpload = null;
       if (video) {

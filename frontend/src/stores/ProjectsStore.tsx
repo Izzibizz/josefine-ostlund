@@ -9,7 +9,7 @@ interface Image {
 }
 
 interface ImageData {
-  index: number,
+  index: number;
   public_id: string;
   photographer?: string;
 }
@@ -105,7 +105,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
       });
 
       // Bilder
-      images.forEach((file) => formData.append("images", file));
+      images.forEach((file, i) => {
+        const tempId = imageData[i]?.public_id;
+        formData.append("images", file, tempId); // <– använd tempId som filename
+      });
 
       if (imageData) {
         formData.append("imageData", JSON.stringify(imageData));
