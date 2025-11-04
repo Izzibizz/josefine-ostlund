@@ -167,7 +167,6 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
   .map((id) => newImages.find((img) => img.tempId === id))
   .filter((img): img is TempImage => !!img);
 
-
   const handleLoadVideo = () => {
     if (!videoUrl.includes("b-cdn.net") || !videoUrl.endsWith(".m3u8")) {
       setVideoError("Länken måste vara en giltig Bunny Stream-länk (.m3u8)");

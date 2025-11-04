@@ -77,7 +77,7 @@ export const LandingPage: React.FC = () => {
         />
         <meta
           name="description"
-          content="Josefine Östlund (f.1990 Eskilstuna) är baserad i Umeå och arbetar med skulptur, video och performance."
+          content="Josefine Östlund (f.1990 Eskilstuna) är baserad i Umeå och arbetar med skulptur, video och performance. Josefines konst utforskar på ett öppet och rörligt sätt en värld av parallell förstörelse och konstruktion."
         />
       </Helmet>
       <section
