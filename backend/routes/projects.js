@@ -96,8 +96,14 @@ router.post(
         imageFiles.map(
           (file) =>
             new Promise((resolve, reject) => {
-              const baseName = file.originalname
-              const meta = imageData.find((img) => img.public_id === baseName);
+              const baseName = (file.originalname || "").trim();
+              const stripExt = (s) =>
+                typeof s === "string"
+                  ? s.split(".").slice(0, -1).join(".") || s
+                  : s;
+              const meta = imageData.find(
+                (img) => stripExt(img.public_id) === stripExt(baseName),
+              );
 
               const photographer = meta?.photographer || "";
               const index = meta?.index ?? 0;
@@ -135,17 +141,18 @@ router.post(
                       public_id: result.public_id,
                       photographer,
                       index,
+                      original_temp_id: baseName,
                     });
-                  }
+                  },
                 )
                 .end(file.buffer);
-            })
-        )
+            }),
+        ),
       );
 
       imageUploads.sort((a, b) => a.index - b.index);
       const cleanedImages = imageUploads.map(({ index, ...rest }) => rest);
-      
+
       // --- Video (kommer från frontend som JSON-string) ---
       let videoUpload = null;
       if (video) {
@@ -176,10 +183,10 @@ router.post(
       console.error("Error creating project:", error);
       res.status(500).json({ message: "Error creating project" });
     }
-  }
+  },
 );
 
-router.patch("/reorder", async (req, res) => {
+(router.patch("/reorder", async (req, res) => {
   try {
     const updatedList = req.body; // array med { id, order }
 
@@ -246,7 +253,7 @@ router.patch("/reorder", async (req, res) => {
         for (const public_id of removeList) {
           await cloudinary.uploader.destroy(public_id);
           project.images = project.images.filter(
-            (img) => img.public_id !== public_id
+            (img) => img.public_id !== public_id,
           );
         }
 
@@ -254,7 +261,7 @@ router.patch("/reorder", async (req, res) => {
         if (req.files?.images?.length) {
           const newImageData = req.body.imageData
             ? JSON.parse(req.body.imageData).filter(
-                (d) => d.index !== undefined
+                (d) => d.index !== undefined,
               )
             : [];
 
@@ -274,13 +281,12 @@ router.patch("/reorder", async (req, res) => {
                 .replace(/[^a-zA-Z0-9_\-]/g, ""); // ta bort övriga konstiga tecken
             };
 
-            const baseName = file.originalname
-              .split(".")
-              .slice(0, -1)
-              .join(".")
-              .trim();
+            const origName = (file.originalname || "").trim();
+            const baseName = origName.includes(".")
+              ? origName.split(".").slice(0, -1).join(".").trim()
+              : origName;
 
-            const safeName = sanitizeFilename(baseName);
+            const safeName = sanitizeFilename(baseName || origName);
 
             // korta UUID till t.ex. 8 tecken
             const shortId = uuidv4().split("-")[0];
@@ -288,8 +294,14 @@ router.patch("/reorder", async (req, res) => {
             // unik, läsbar public_id
             const publicId = `${safeName}_${shortId}`;
 
-            // match metadata for this file by the original filename (temp id)
-            const metaForFile = newImageData.find((d) => d.public_id === baseName);
+            // tolerant matcher: compare without extensions so temp ids (no ext)
+            const stripExt = (s) =>
+              typeof s === "string"
+                ? s.split(".").slice(0, -1).join(".") || s
+                : s;
+            const metaForFile = newImageData.find(
+              (d) => stripExt(String(d.public_id)) === stripExt(baseName),
+            );
 
             const uploaded = await new Promise((resolve, reject) => {
               cloudinary.uploader
@@ -309,7 +321,7 @@ router.patch("/reorder", async (req, res) => {
                       photographer: metaForFile?.photographer || "",
                       original_temp_id: baseName,
                     });
-                  }
+                  },
                 )
                 .end(file.buffer);
             });
@@ -321,21 +333,37 @@ router.patch("/reorder", async (req, res) => {
         if (req.body.imageData) {
           const imageData = JSON.parse(req.body.imageData);
 
+          const stripExt = (s) =>
+            typeof s === "string"
+              ? s.split(".").slice(0, -1).join(".") || s
+              : s;
+
+          const matches = (dPublic, img) => {
+            if (!dPublic || !img) return false;
+            const dStr = String(dPublic);
+            const imgPub = String(img.public_id || "");
+            const imgTemp = String(img.original_temp_id || "");
+            if (dStr === imgPub || dStr === imgTemp) return true;
+            if (stripExt(dStr) === stripExt(imgPub)) return true;
+            if (stripExt(dStr) === stripExt(imgTemp)) return true;
+            return false;
+          };
+
           imageData.forEach((d) => {
-            const img = project.images.find((i) => i.public_id === d.public_id || i.original_temp_id === d.public_id);
+            const img = project.images.find((i) => matches(d.public_id, i));
             if (img) img.photographer = d.photographer;
           });
 
           // --- Uppdatera ordning ---
           const newOrder = [];
           imageData.forEach((d) => {
-            const img = project.images.find((i) => i.public_id === d.public_id || i.original_temp_id === d.public_id);
+            const img = project.images.find((i) => matches(d.public_id, i));
             if (img) newOrder.push(img);
           });
 
           // Behåll även nya bilder som ännu inte fanns i imageData
           const remaining = project.images.filter(
-            (img) => !newOrder.find((i) => i.public_id === img.public_id)
+            (img) => !newOrder.find((i) => i.public_id === img.public_id),
           );
           project.images = [...newOrder, ...remaining];
         }
@@ -368,7 +396,7 @@ router.patch("/reorder", async (req, res) => {
         console.error("Error updating project:", error);
         res.status(500).json({ message: "Error updating project" });
       }
-    }
+    },
   ),
   // DELETE a project by ID
   router.delete("/:id", async (req, res) => {
@@ -387,7 +415,7 @@ router.patch("/reorder", async (req, res) => {
 
       await Projects.updateMany(
         { order: { $gt: project.order } },
-        { $inc: { order: -1 } }
+        { $inc: { order: -1 } },
       );
       await project.deleteOne();
 
@@ -396,6 +424,6 @@ router.patch("/reorder", async (req, res) => {
       console.error("Error deleting project:", error);
       res.status(500).json({ message: "Error deleting project" });
     }
-  });
+  }));
 
 export default router;
