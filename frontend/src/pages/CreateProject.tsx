@@ -225,7 +225,7 @@ export const CreateProject: React.FC<{ projectId?: string }> = ({
         await updateProject(
           projectId,
           textData,
-          newImages.map((n) => n.file),
+          orderedNewImages.map((n) => n.file),
           videoData,
           removeImages,
           removeVideo,

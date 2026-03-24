@@ -304,6 +304,7 @@ router.patch("/reorder", async (req, res) => {
                       url: result.secure_url,
                       public_id: result.public_id,
                       photographer: newImageData[i]?.photographer || "",
+                      original_temp_id: baseName,
                     });
                   }
                 )
@@ -318,14 +319,14 @@ router.patch("/reorder", async (req, res) => {
           const imageData = JSON.parse(req.body.imageData);
 
           imageData.forEach((d) => {
-            const img = project.images.find((i) => i.public_id === d.public_id);
+            const img = project.images.find((i) => i.public_id === d.public_id || i.original_temp_id === d.public_id);
             if (img) img.photographer = d.photographer;
           });
 
           // --- Uppdatera ordning ---
           const newOrder = [];
           imageData.forEach((d) => {
-            const img = project.images.find((i) => i.public_id === d.public_id);
+            const img = project.images.find((i) => i.public_id === d.public_id || i.original_temp_id === d.public_id);
             if (img) newOrder.push(img);
           });
 

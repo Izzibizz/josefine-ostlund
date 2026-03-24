@@ -105,9 +105,15 @@ export const useProjectStore = create<ProjectState>((set) => ({
       });
 
       // Bilder
+      // När frontend skickar temporära id:n (t.ex. "temp-...") i imageData,
+      // använd bara de temporära id:n för nya filer i samma ordning.
+      const newImagePublicIds = imageData
+        ? imageData.filter((d) => String(d.public_id).startsWith("temp-")).map((d) => d.public_id)
+        : [];
+
       images.forEach((file, i) => {
-        const tempId = imageData[i]?.public_id;
-        formData.append("images", file, tempId); // <– använd tempId som filename
+        const tempId = newImagePublicIds[i] ?? file.name;
+        formData.append("images", file, tempId); // använd tempId som filename
       });
 
       if (imageData) {
@@ -183,7 +189,15 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
       // Nya bilder
       if (newImages?.length) {
-        newImages.forEach((file) => formData.append("images", file));
+        // Hämta temporära public_id för nya bilder (om de finns i imageData)
+        const newImagePublicIds = imageData
+          ? imageData.filter((d) => String(d.public_id).startsWith("temp-")).map((d) => d.public_id)
+          : [];
+
+        newImages.forEach((file, i) => {
+          const tempId = newImagePublicIds[i] ?? file.name;
+          formData.append("images", file, tempId);
+        });
       }
 
       // Fotografer (både gamla och nya)
