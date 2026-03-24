@@ -338,32 +338,39 @@ router.post(
               ? s.split(".").slice(0, -1).join(".") || s
               : s;
 
-          const matches = (dPublic, img) => {
-            if (!dPublic || !img) return false;
-            const dStr = String(dPublic);
-            const imgPub = String(img.public_id || "");
-            const imgTemp = String(img.original_temp_id || "");
-            if (dStr === imgPub || dStr === imgTemp) return true;
-            if (stripExt(dStr) === stripExt(imgPub)) return true;
-            if (stripExt(dStr) === stripExt(imgTemp)) return true;
-            return false;
-          };
+          // Build a lookup map keyed by several variants so matching is robust
+          const imgLookup = new Map();
+          project.images.forEach((img) => {
+            if (img.public_id) imgLookup.set(String(img.public_id), img);
+            if (img.original_temp_id)
+              imgLookup.set(String(img.original_temp_id), img);
+            if (img.public_id)
+              imgLookup.set(String(stripExt(String(img.public_id))), img);
+            if (img.original_temp_id)
+              imgLookup.set(
+                String(stripExt(String(img.original_temp_id))),
+                img,
+              );
+          });
 
+          // Apply photographer updates using lookup
           imageData.forEach((d) => {
-            const img = project.images.find((i) => matches(d.public_id, i));
+            const key = String(d.public_id);
+            const img = imgLookup.get(key) || imgLookup.get(stripExt(key));
             if (img) img.photographer = d.photographer;
           });
 
-          // --- Uppdatera ordning ---
+          // Build new ordered array according to imageData
           const newOrder = [];
           imageData.forEach((d) => {
-            const img = project.images.find((i) => matches(d.public_id, i));
+            const key = String(d.public_id);
+            const img = imgLookup.get(key) || imgLookup.get(stripExt(key));
             if (img) newOrder.push(img);
           });
 
-          // Behåll även nya bilder som ännu inte fanns i imageData
+          // Keep any images not present in imageData appended after
           const remaining = project.images.filter(
-            (img) => !newOrder.find((i) => i.public_id === img.public_id),
+            (img) => !newOrder.some((i) => i.public_id === img.public_id),
           );
           project.images = [...newOrder, ...remaining];
         }
