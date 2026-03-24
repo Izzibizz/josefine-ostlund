@@ -288,6 +288,9 @@ router.patch("/reorder", async (req, res) => {
             // unik, läsbar public_id
             const publicId = `${safeName}_${shortId}`;
 
+            // match metadata for this file by the original filename (temp id)
+            const metaForFile = newImageData.find((d) => d.public_id === baseName);
+
             const uploaded = await new Promise((resolve, reject) => {
               cloudinary.uploader
                 .upload_stream(
@@ -303,7 +306,7 @@ router.patch("/reorder", async (req, res) => {
                     resolve({
                       url: result.secure_url,
                       public_id: result.public_id,
-                      photographer: newImageData[i]?.photographer || "",
+                      photographer: metaForFile?.photographer || "",
                       original_temp_id: baseName,
                     });
                   }
