@@ -320,6 +320,7 @@ router.post(
                       public_id: result.public_id,
                       photographer: metaForFile?.photographer || "",
                       original_temp_id: baseName,
+                      index: metaForFile?.index,
                     });
                   },
                 )
@@ -351,12 +352,18 @@ router.post(
                 String(stripExt(String(img.original_temp_id))),
                 img,
               );
+            if (img.index !== undefined)
+              imgLookup.set(`__index__${String(img.index)}`, img);
           });
 
           // Apply photographer updates using lookup
           imageData.forEach((d) => {
             const key = String(d.public_id);
-            const img = imgLookup.get(key) || imgLookup.get(stripExt(key));
+            const idxKey = `__index__${String(d.index)}`;
+            const img =
+              imgLookup.get(key) ||
+              imgLookup.get(stripExt(key)) ||
+              imgLookup.get(idxKey);
             if (img) img.photographer = d.photographer;
           });
 
@@ -364,7 +371,11 @@ router.post(
           const newOrder = [];
           imageData.forEach((d) => {
             const key = String(d.public_id);
-            const img = imgLookup.get(key) || imgLookup.get(stripExt(key));
+            const idxKey = `__index__${String(d.index)}`;
+            const img =
+              imgLookup.get(key) ||
+              imgLookup.get(stripExt(key)) ||
+              imgLookup.get(idxKey);
             if (img) newOrder.push(img);
           });
 
