@@ -367,8 +367,10 @@ router.post(
             if (img) img.photographer = d.photographer;
           });
 
-          // Build new ordered array according to imageData
-          const newOrder = [];
+          // Build a new ordered array using the numeric index sent from the frontend
+          const maxLen = Math.max(imageData.length, project.images.length);
+          const orderedArr = new Array(maxLen).fill(null);
+
           imageData.forEach((d) => {
             const key = String(d.public_id);
             const idxKey = `__index__${String(d.index)}`;
@@ -376,14 +378,31 @@ router.post(
               imgLookup.get(key) ||
               imgLookup.get(stripExt(key)) ||
               imgLookup.get(idxKey);
-            if (img) newOrder.push(img);
+            const idx = Number(d.index);
+            if (!Number.isNaN(idx) && idx >= 0) {
+              if (img) orderedArr[idx] = img;
+            }
           });
 
-          // Keep any images not present in imageData appended after
-          const remaining = project.images.filter(
-            (img) => !newOrder.some((i) => i.public_id === img.public_id),
+          // Fill in any gaps with remaining images preserving their relative order
+          const placed = new Set(
+            orderedArr.filter(Boolean).map((i) => i.public_id),
           );
-          project.images = [...newOrder, ...remaining];
+          const remaining = project.images.filter(
+            (img) => !placed.has(img.public_id),
+          );
+          let ri = 0;
+          for (let i = 0; i < orderedArr.length; i++) {
+            if (!orderedArr[i]) {
+              if (ri < remaining.length) {
+                orderedArr[i] = remaining[ri++];
+              }
+            }
+          }
+          // append any leftover remaining images
+          while (ri < remaining.length) orderedArr.push(remaining[ri++]);
+
+          project.images = orderedArr.filter(Boolean);
         }
 
         // --- Video ---

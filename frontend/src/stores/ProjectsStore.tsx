@@ -45,7 +45,7 @@ interface ProjectState {
     data: Omit<Project, "_id" | "images" | "video">,
     images: File[],
     imageData: ImageData[],
-    video?: Image | null
+    video?: Image | null,
   ) => Promise<Project | undefined>;
 
   updateProject: (
@@ -55,7 +55,7 @@ interface ProjectState {
     newVideo?: Image | null,
     removeImages?: string[],
     removeVideo?: boolean,
-    imageData?: ImageData[]
+    imageData?: ImageData[],
   ) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   setDeleteFail: (input: boolean) => void;
@@ -79,7 +79,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     try {
       set({ loading: true });
       const res = await axios.get(
-        "https://josefine-ostlund.onrender.com/projects"
+        "https://josefine-ostlund.onrender.com/projects",
       );
       set({ projects: res.data.projects, loading: false });
     } catch (err) {
@@ -108,7 +108,9 @@ export const useProjectStore = create<ProjectState>((set) => ({
       // När frontend skickar temporära id:n (t.ex. "temp-...") i imageData,
       // använd bara de temporära id:n för nya filer i samma ordning.
       const newImagePublicIds = imageData
-        ? imageData.filter((d) => String(d.public_id).startsWith("temp-")).map((d) => d.public_id)
+        ? imageData
+            .filter((d) => String(d.public_id).startsWith("temp-"))
+            .map((d) => d.public_id)
         : [];
 
       images.forEach((file, i) => {
@@ -131,7 +133,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       if (!res.ok) throw new Error("Kunde inte skapa projekt");
@@ -168,7 +170,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     newVideoFile,
     removeImages,
     removeVideo,
-    imageData
+    imageData,
   ) => {
     useUserStore.setState({
       success: false,
@@ -191,7 +193,9 @@ export const useProjectStore = create<ProjectState>((set) => ({
       if (newImages?.length) {
         // Hämta temporära public_id för nya bilder (om de finns i imageData)
         const newImagePublicIds = imageData
-          ? imageData.filter((d) => String(d.public_id).startsWith("temp-")).map((d) => d.public_id)
+          ? imageData
+              .filter((d) => String(d.public_id).startsWith("temp-"))
+              .map((d) => d.public_id)
           : [];
 
         newImages.forEach((file, i) => {
@@ -224,18 +228,18 @@ export const useProjectStore = create<ProjectState>((set) => ({
         {
           method: "PATCH",
           body: formData,
-        }
+        },
       );
 
       if (!res.ok) throw new Error("Kunde inte uppdatera projekt");
       const dataRes = await res.json();
       const updatedProject: Project = JSON.parse(
-        JSON.stringify(dataRes.project)
+        JSON.stringify(dataRes.project),
       );
 
       set((state) => ({
         projects: state.projects.map((p) =>
-          p._id === id ? updatedProject : p
+          p._id === id ? updatedProject : p,
         ),
       }));
 
@@ -266,7 +270,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
       set({ deleteFail: false, deleteSuccess: false });
 
       await axios.delete(
-        `https://josefine-ostlund.onrender.com/projects/${id}`
+        `https://josefine-ostlund.onrender.com/projects/${id}`,
       );
 
       // 🗑 Uppdatera state: ta bort projektet lokalt
@@ -288,6 +292,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
         loadingEdit: false,
         showPopupMessage: true,
       });
+    } finally {
+      useUserStore.setState({
+        loadingEdit: false,
+      });
     }
   },
   updateProjectOrder: async (orders) => {
@@ -300,10 +308,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
       });
       await axios.patch(
         "https://josefine-ostlund.onrender.com/projects/reorder",
-        orders
+        orders,
       );
       const res = await axios.get(
-        "https://josefine-ostlund.onrender.com/projects"
+        "https://josefine-ostlund.onrender.com/projects",
       );
       set({ projects: res.data.projects, loading: false, orderSuccess: true });
       useUserStore.setState({
